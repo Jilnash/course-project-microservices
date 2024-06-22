@@ -3,7 +3,11 @@ package com.jilnash.userservice.service;
 import com.jilnash.userservice.model.User;
 import com.jilnash.userservice.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+@Service
 public class UserServiceImpl implements UserService {
 
     @Autowired
@@ -27,5 +31,15 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserByPhone(String phone) {
         return userRepo.findByPhone(phone).orElseThrow();
+    }
+
+    @Override
+    public List<User> getUsers() {
+        return userRepo.findAll();
+    }
+
+    @Override
+    public User saveUser(User user) {
+        return userRepo.save(user);
     }
 }
