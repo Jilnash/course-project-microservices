@@ -1,6 +1,6 @@
-package com.jilnash.userservice.service;
+package com.jilnash.user.service;
 
-import com.jilnash.userservice.model.User;
+import com.jilnash.user.model.User;
 
 import java.util.List;
 

@@ -1,7 +1,7 @@
-package com.jilnash.userservice.service;
+package com.jilnash.user.service;
 
-import com.jilnash.userservice.model.User;
-import com.jilnash.userservice.repo.UserRepo;
+import com.jilnash.user.model.User;
+import com.jilnash.user.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

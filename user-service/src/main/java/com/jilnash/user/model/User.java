@@ -1,4 +1,4 @@
-package com.jilnash.userservice.model;
+package com.jilnash.user.model;
 
 import jakarta.persistence.*;
 import lombok.*;

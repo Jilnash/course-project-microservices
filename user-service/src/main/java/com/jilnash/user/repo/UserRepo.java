@@ -1,6 +1,6 @@
-package com.jilnash.userservice.repo;
+package com.jilnash.user.repo;
 
-import com.jilnash.userservice.model.User;
+import com.jilnash.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

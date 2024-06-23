@@ -4,7 +4,7 @@
     <persistence-units>
       <persistence-unit moduleName="user-service" name="Default">
         <packages>
-          <package value="com.jilnash.userservice"/>
+          <package value="com.jilnash.user"/>
         </packages>
       </persistence-unit>
     </persistence-units>

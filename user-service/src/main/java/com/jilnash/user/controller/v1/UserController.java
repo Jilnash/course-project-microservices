@@ -1,7 +1,7 @@
-package com.jilnash.userservice.controller.v1;
+package com.jilnash.user.controller.v1;
 
-import com.jilnash.userservice.model.User;
-import com.jilnash.userservice.service.UserService;
+import com.jilnash.user.model.User;
+import com.jilnash.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
