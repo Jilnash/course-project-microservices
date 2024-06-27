@@ -1,5 +1,6 @@
 package com.jilnash.user.mapper;
 
+import com.jilnash.user.dto.RegistrationDTO;
 import com.jilnash.user.dto.UserDTO;
 import com.jilnash.user.model.User;
 import com.jilnash.user.service.UserService;
@@ -24,6 +25,18 @@ public class UserMapper {
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .build();
+    }
+
+    public User toEntity(RegistrationDTO registrationDTO) {
+
+        User user = new User();
+
+        user.setLogin(registrationDTO.getLogin());
+        user.setEmail(registrationDTO.getEmail());
+        user.setPhone(registrationDTO.getPhone());
+        user.setPassword(registrationDTO.getPassword());
+
+        return user;
     }
 
     public User toEntity(UserDTO userDTO) {
