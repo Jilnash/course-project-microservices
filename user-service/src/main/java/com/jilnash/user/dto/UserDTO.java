@@ -8,6 +8,8 @@ import lombok.Data;
 @Data
 public class UserDTO {
 
+    private Long id;
+
     @NotEmpty(message = "Login cannot be empty")
     @NotNull(message = "Login cannot be null")
     private String login;
@@ -17,11 +19,8 @@ public class UserDTO {
     @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6}$", message = "Invalid email")
     private String email;
 
-    @NotEmpty(message = "Password cannot be empty")
-    @NotNull(message = "Password cannot be null")
-    private String password;
-
-    @NotEmpty(message = "Confirm password cannot be empty")
-    @NotNull(message = "Confirm password cannot be null")
-    private String confirmPassword;
+    @NotEmpty(message = "Phone cannot be empty")
+    @NotNull(message = "Phone cannot be null")
+    @Pattern(regexp = "^\\d+$", message = "Invalid phone number")
+    private String phone;
 }
