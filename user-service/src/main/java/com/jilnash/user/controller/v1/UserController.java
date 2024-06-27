@@ -19,7 +19,21 @@ public class UserController {
     private UserMapper userMapper;
 
     @GetMapping
-    public ResponseEntity<?> getUsers() {
+    public ResponseEntity<?> getUsers(@RequestParam(required = false) String login,
+                                      @RequestParam(required = false) String email) {
+
+        if (login != null) {
+            return ResponseEntity.ok(
+                    userService.getUser(login)
+            );
+        }
+
+        if (email != null) {
+            return ResponseEntity.ok(
+                    userService.getUser(email)
+            );
+        }
+
         return ResponseEntity.ok(
                 userService.getUsers()
         );
