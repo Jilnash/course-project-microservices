@@ -31,9 +31,9 @@ public class UserMapper {
         if (userDTO.getId() == null) {
             User user = new User();
 
-            userDTO.getLogin();
-            userDTO.getEmail();
-            userDTO.getPhone();
+            user.setLogin(userDTO.getLogin());
+            user.setEmail(userDTO.getEmail());
+            user.setPhone(userDTO.getPhone());
 
             return user;
         }
