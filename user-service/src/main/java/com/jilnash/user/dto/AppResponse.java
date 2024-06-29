@@ -12,4 +12,6 @@ public class AppResponse {
     private int status;
 
     private String message;
+
+    private Object data;
 }
