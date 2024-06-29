@@ -21,32 +21,14 @@ public class UserController {
     private UserMapper userMapper;
 
     @GetMapping
-    public ResponseEntity<?> getUsers(@RequestParam(required = false) String login,
-                                      @RequestParam(required = false) String email) {
-
-        if (login != null)
-            return ResponseEntity.ok(
-                    new AppResponse(
-                            200,
-                            "Users found successfully",
-                            userService.getUser(login)
-                    )
-            );
-
-        if (email != null)
-            return ResponseEntity.ok(
-                    new AppResponse(
-                            200,
-                            "Users found successfully",
-                            userService.getUser(email)
-                    )
-            );
+    public ResponseEntity<?> getUsers(@RequestParam(required = false, defaultValue = "") String login,
+                                      @RequestParam(required = false, defaultValue = "") String email) {
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Users found successfully",
-                        userService.getUsers()
+                        userService.getUsers(login, email)
                 )
         );
     }
@@ -64,31 +46,22 @@ public class UserController {
             );
         }
 
-        if (userService.getUser(registrationDTO.getLogin()) != null) {
-            return ResponseEntity.badRequest().body(
-                    new AppResponse(
-                            400,
-                            "User with this login already exists",
-                            null
-                    )
-            );
-        }
+        StringBuilder fields = new StringBuilder();
 
-        if (userService.getUserByEmail(registrationDTO.getEmail()) != null) {
-            return ResponseEntity.badRequest().body(
-                    new AppResponse(
-                            400,
-                            "User with this email already exists",
-                            null
-                    )
-            );
-        }
+        if (userService.existsByLogin(registrationDTO.getLogin()))
+            fields.append("login ");
 
-        if (userService.getUserByPhone(registrationDTO.getPhone()) != null) {
+        if (userService.existsByEmail(registrationDTO.getEmail()) != null)
+            fields.append("email ");
+
+        if (userService.existsByPhone(registrationDTO.getPhone()) != null)
+            fields.append("phone ");
+
+        if (!fields.isEmpty()) {
             return ResponseEntity.badRequest().body(
                     new AppResponse(
                             400,
-                            "User with this phone already exists",
+                            "User with this " + fields + "already exists",
                             null
                     )
             );

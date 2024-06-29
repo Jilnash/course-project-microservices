@@ -4,14 +4,16 @@ import com.jilnash.user.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface UserRepo extends JpaRepository<User, Long> {
 
-    Optional<User> findByLogin(String login);
+    Boolean existsUserByLogin(String login);
 
-    Optional<User> findByEmail(String email);
+    Boolean existsUserByEmail(String Email);
 
-    Optional<User> findByPhone(String phone);
+    Boolean existsUserByPhone(String login);
+
+    List<User> findAllByEmailLikeAndLoginLike(String email, String login);
 }

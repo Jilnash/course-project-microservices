@@ -6,15 +6,15 @@ import java.util.List;
 
 public interface UserService {
 
-    List<User> getUsers();
+    List<User> getUsers(String login, String email);
 
     User getUser(Long id);
 
-    User getUser(String login);
+    Boolean existsByLogin(String login);
 
-    User getUserByEmail(String email);
+    Boolean existsByEmail(String email);
 
-    User getUserByPhone(String phone);
+    Boolean existsByPhone(String phone);
 
     User saveUser(User user);
 }

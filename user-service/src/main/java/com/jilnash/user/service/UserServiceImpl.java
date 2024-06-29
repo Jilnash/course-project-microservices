@@ -18,28 +18,29 @@ public class UserServiceImpl implements UserService {
         return userRepo.findById(id).orElseThrow();
     }
 
-    @Override
-    public User getUser(String login) {
-        return userRepo.findByLogin(login).orElseThrow();
-    }
 
     @Override
-    public User getUserByEmail(String email) {
-        return userRepo.findByEmail(email).orElseThrow();
-    }
-
-    @Override
-    public User getUserByPhone(String phone) {
-        return userRepo.findByPhone(phone).orElseThrow();
-    }
-
-    @Override
-    public List<User> getUsers() {
-        return userRepo.findAll();
+    public List<User> getUsers(String login, String email) {
+        return userRepo.findAllByEmailLikeAndLoginLike(email, login);
     }
 
     @Override
     public User saveUser(User user) {
         return userRepo.save(user);
+    }
+
+    @Override
+    public Boolean existsByLogin(String login) {
+        return userRepo.existsUserByLogin(login);
+    }
+
+    @Override
+    public Boolean existsByEmail(String email) {
+        return userRepo.existsUserByEmail(email);
+    }
+
+    @Override
+    public Boolean existsByPhone(String phone) {
+        return userRepo.existsUserByPhone(phone);
     }
 }
