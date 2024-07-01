@@ -12,6 +12,7 @@ import java.sql.Date;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "students", schema = "course_project_students")
 public class Student {

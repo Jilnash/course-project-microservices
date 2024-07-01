@@ -3,9 +3,13 @@ package com.jilnash.studentservice.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class StudentDTO {
 
     @Size(message = "Student id must be positive integer", min = 1)
