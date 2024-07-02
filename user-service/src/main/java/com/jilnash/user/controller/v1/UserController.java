@@ -5,9 +5,9 @@ import com.jilnash.user.dto.RegistrationDTO;
 import com.jilnash.user.dto.UserDTO;
 import com.jilnash.user.mapper.UserMapper;
 import com.jilnash.user.service.UserService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -34,7 +34,7 @@ public class UserController {
     }
 
     @PutMapping
-    public ResponseEntity<?> createUser(@Valid @RequestBody RegistrationDTO registrationDTO) {
+    public ResponseEntity<?> createUser(@Validated @RequestBody RegistrationDTO registrationDTO) {
 
         if (!registrationDTO.getPassword().equals(registrationDTO.getConfirmPassword())) {
             return ResponseEntity.badRequest().body(
@@ -51,10 +51,10 @@ public class UserController {
         if (userService.existsByLogin(registrationDTO.getLogin()))
             fields.append("login ");
 
-        if (userService.existsByEmail(registrationDTO.getEmail()) != null)
+        if (userService.existsByEmail(registrationDTO.getEmail()))
             fields.append("email ");
 
-        if (userService.existsByPhone(registrationDTO.getPhone()) != null)
+        if (userService.existsByPhone(registrationDTO.getPhone()))
             fields.append("phone ");
 
         if (!fields.isEmpty()) {
@@ -77,7 +77,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<?> updateUser(@Valid @RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> updateUser(@Validated @RequestBody UserDTO userDTO) {
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
