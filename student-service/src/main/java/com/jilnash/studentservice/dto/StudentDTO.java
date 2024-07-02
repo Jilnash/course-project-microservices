@@ -1,8 +1,8 @@
 package com.jilnash.studentservice.dto;
 
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,10 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class StudentDTO {
 
-    @Size(message = "Student id must be positive integer", min = 1)
+    @Min(value = 1, message = "Id should be positive long")
     private Long id;
 
-    @Size(message = "User id must be positive integer", min = 1)
+    @Min(value = 1, message = "User id should be positive long")
     private Long userId;
 
     @NotBlank(message = "Name is required")
