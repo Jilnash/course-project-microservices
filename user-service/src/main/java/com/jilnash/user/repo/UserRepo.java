@@ -15,5 +15,5 @@ public interface UserRepo extends JpaRepository<User, Long> {
 
     Boolean existsUserByPhone(String login);
 
-    List<User> findAllByEmailLikeAndLoginLike(String email, String login);
+    List<User> findAllByEmailStartingWithAndLoginStartingWith(String email, String login);
 }

@@ -21,7 +21,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getUsers(String login, String email) {
-        return userRepo.findAllByEmailLikeAndLoginLike(email, login);
+        return userRepo.findAllByEmailStartingWithAndLoginStartingWith(email, login);
     }
 
     @Override
