@@ -12,6 +12,11 @@
           <package value="com.jilnash.studentservice"/>
         </packages>
       </persistence-unit>
+      <persistence-unit moduleName="teacher-service" name="Default">
+        <packages>
+          <package value="com.jilnash.teacherservice"/>
+        </packages>
+      </persistence-unit>
     </persistence-units>
   </component>
 </project>
