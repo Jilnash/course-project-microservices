@@ -1,7 +1,8 @@
 package com.jilnash.studentservice.controller.v1;
 
 import com.jilnash.studentservice.dto.AppResponse;
-import com.jilnash.studentservice.dto.StudentDTO;
+import com.jilnash.studentservice.dto.StudentCreateDTO;
+import com.jilnash.studentservice.dto.StudentUpdateDTO;
 import com.jilnash.studentservice.mapper.StudentMapper;
 import com.jilnash.studentservice.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class StudentController {
     }
 
     @PutMapping
-    public ResponseEntity<?> createStudent(@Validated @RequestBody StudentDTO studentDTO) {
+    public ResponseEntity<?> createStudent(@Validated @RequestBody StudentCreateDTO studentDTO) {
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
@@ -53,7 +54,13 @@ public class StudentController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<?> updateStudent(@Validated @RequestBody StudentDTO studentDTO) {
+    public ResponseEntity<?> updateStudent(@PathVariable Long id,
+                                           @Validated @RequestBody StudentUpdateDTO studentDTO) {
+
+        studentDTO.setId(id);
+        //checking if student exists
+        studentDTO.setUserId(studentService.getStudent(id).getUserId());
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,

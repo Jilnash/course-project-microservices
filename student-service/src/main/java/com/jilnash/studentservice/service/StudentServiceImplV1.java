@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class StudentServiceImplV1 implements StudentService {
@@ -29,7 +30,9 @@ public class StudentServiceImplV1 implements StudentService {
 
     @Override
     public Student getStudent(Long id) {
-        return studentRepo.findById(id).orElseThrow();
+        return studentRepo
+                .findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Student not found with id: " + id));
     }
 
     @Override
