@@ -15,6 +15,8 @@ public class TeacherUpdateDTO {
 
     private Long id;
 
+    private Long userId;
+
     @NotNull(message = "Name is required")
     @NotEmpty(message = "Name should not be empty")
     @Pattern(regexp = "^[a-zA-Z]+$", message = "Name must contain only letters")
