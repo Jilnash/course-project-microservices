@@ -76,8 +76,14 @@ public class UserController {
         );
     }
 
-    @PostMapping
-    public ResponseEntity<?> updateUser(@Validated @RequestBody UserDTO userDTO) {
+    @PostMapping("/{id}")
+    public ResponseEntity<?> updateUser(@PathVariable Long id,
+                                        @Validated @RequestBody UserDTO userDTO) {
+
+        // check if user exists
+        userService.getUser(id);
+        userDTO.setId(id);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,

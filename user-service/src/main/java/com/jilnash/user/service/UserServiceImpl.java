@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -15,9 +16,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUser(Long id) {
-        return userRepo.findById(id).orElseThrow();
+        return userRepo
+                .findById(id)
+                .orElseThrow(() -> new NoSuchElementException("User not found with id: " + id));
     }
-
 
     @Override
     public List<User> getUsers(String login, String email) {
