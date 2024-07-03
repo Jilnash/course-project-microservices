@@ -6,6 +6,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.NoSuchElementException;
+
 @ControllerAdvice
 public class ErrHandler {
 
@@ -15,6 +17,16 @@ public class ErrHandler {
                 new AppError(
                         400,
                         ex.getBindingResult().getAllErrors().get(0).getDefaultMessage()
+                )
+        );
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity<?> handleNoSuchElementException(NoSuchElementException ex) {
+        return ResponseEntity.badRequest().body(
+                new AppError(
+                        400,
+                        ex.getMessage()
                 )
         );
     }
