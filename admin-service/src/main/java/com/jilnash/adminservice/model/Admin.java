@@ -21,6 +21,9 @@ public class Admin {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true, updatable = false)
+    private Long userId;
+
     private String name;
 
     private String surname;
