@@ -12,6 +12,7 @@ public class AdminMapper {
 
         return Admin.builder()
                 .id(adminUpdateDTO.getId())
+                .userId(adminUpdateDTO.getUserId())
                 .name(adminUpdateDTO.getName())
                 .surname(adminUpdateDTO.getSurname())
                 .build();

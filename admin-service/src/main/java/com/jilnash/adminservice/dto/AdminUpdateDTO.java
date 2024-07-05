@@ -14,6 +14,8 @@ public class AdminUpdateDTO {
     @NotNull(message = "Id is required")
     private Long id;
 
+    private Long userId;
+
     @NotNull(message = "Name is required")
     @Pattern(regexp = "^[A-Za-z]+$", message = "Name must contain only letters")
     private String name;
