@@ -2,6 +2,10 @@ package com.jilnash.courseservice.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.util.Date;
 
 @Builder
 @Getter
@@ -31,4 +35,11 @@ public class Course {
 
     @Column(nullable = false)
     private Integer hwPostingDayInterval;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private Date createdAt;
+
+    @UpdateTimestamp
+    private Date updatedAt;
 }
