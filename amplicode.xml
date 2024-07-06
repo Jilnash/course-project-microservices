@@ -22,6 +22,11 @@
           <package value="com.jilnash.adminservice"/>
         </packages>
       </persistence-unit>
+      <persistence-unit moduleName="course-service" name="Default">
+        <packages>
+          <package value="com.jilnash.courseservice"/>
+        </packages>
+      </persistence-unit>
     </persistence-units>
   </component>
 </project>
