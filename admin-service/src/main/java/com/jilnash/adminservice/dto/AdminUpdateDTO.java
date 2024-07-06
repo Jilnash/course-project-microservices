@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AdminUpdateDTO {
 
-    @NotNull(message = "Id is required")
     private Long id;
 
     private Long userId;

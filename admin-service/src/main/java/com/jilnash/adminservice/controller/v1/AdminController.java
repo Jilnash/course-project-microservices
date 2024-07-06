@@ -37,7 +37,7 @@ public class AdminController {
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
-                        "Admins fetched successfully",
+                        "Admin created successfully",
                         adminService.saveAdmin(adminMapper.toEntity(adminDTO))
                 )
         );
@@ -48,7 +48,7 @@ public class AdminController {
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
-                        "Admins fetched successfully",
+                        "Admin fetched successfully",
                         adminService.getAdmin(id)
                 )
         );
@@ -58,14 +58,14 @@ public class AdminController {
     public ResponseEntity<?> updateAdmin(@PathVariable Long id,
                                          @Validated @RequestBody AdminUpdateDTO adminDTO) {
 
-        //checking if admin with id exists and setting userId
+        //checking if admin with id exists and setting id, userId
         adminDTO.setUserId(adminService.getAdmin(id).getUserId());
         adminDTO.setId(id);
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
-                        "Admins fetched successfully",
+                        "Admin updated successfully",
                         adminService.saveAdmin(adminMapper.toEntity(adminDTO))
                 )
         );
