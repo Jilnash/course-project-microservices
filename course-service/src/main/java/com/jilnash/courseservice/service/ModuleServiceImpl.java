@@ -3,10 +3,12 @@ package com.jilnash.courseservice.service;
 import com.jilnash.courseservice.model.Module;
 import com.jilnash.courseservice.repo.ModuleRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@Service
 public class ModuleServiceImpl implements ModuleService {
 
     @Autowired
