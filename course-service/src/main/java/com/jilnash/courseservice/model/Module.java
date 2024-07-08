@@ -24,7 +24,7 @@ public class Module {
     @Column(nullable = false)
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id", nullable = false)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "course_id", nullable = false, updatable = false)
     private Course course;
 }
