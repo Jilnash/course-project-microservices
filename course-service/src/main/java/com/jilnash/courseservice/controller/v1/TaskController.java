@@ -12,7 +12,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/course/{courseId}/module/{moduleId}/tasks")
+@RequestMapping("/api/v1/courses/{courseId}/modules/{moduleId}/tasks")
 public class TaskController {
 
     @Autowired
@@ -27,7 +27,7 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<?> getTasks(@PathVariable Long courseId,
                                       @PathVariable Long moduleId,
-                                      @RequestParam String title) {
+                                      @RequestParam(required = false) String title) {
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
