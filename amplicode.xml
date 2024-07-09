@@ -27,6 +27,11 @@
           <package value="com.jilnash.courseservice"/>
         </packages>
       </persistence-unit>
+      <persistence-unit moduleName="file-service" name="Default">
+        <packages>
+          <package value="com.jilnash.fileservice"/>
+        </packages>
+      </persistence-unit>
     </persistence-units>
   </component>
 </project>
