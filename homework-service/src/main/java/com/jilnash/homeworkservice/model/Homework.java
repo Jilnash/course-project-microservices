@@ -1,4 +1,4 @@
-package com.jilnash.homeworkservice;
+package com.jilnash.homeworkservice.model;
 
 import jakarta.persistence.*;
 import lombok.*;
