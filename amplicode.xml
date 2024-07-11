@@ -37,6 +37,11 @@
           <package value="com.jilnash.homeworkservice"/>
         </packages>
       </persistence-unit>
+      <persistence-unit moduleName="hw-response-service" name="Default">
+        <packages>
+          <package value="com.jilnash.hwresponseservice"/>
+        </packages>
+      </persistence-unit>
     </persistence-units>
   </component>
 </project>
