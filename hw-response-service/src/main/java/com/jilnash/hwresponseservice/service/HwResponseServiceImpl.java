@@ -1,6 +1,7 @@
 package com.jilnash.hwresponseservice.service;
 
 import com.jilnash.hwresponseservice.model.HwResponse;
+import com.jilnash.hwresponseservice.repo.CommentRepo;
 import com.jilnash.hwresponseservice.repo.HwResponseRepo;
 import jakarta.persistence.criteria.Predicate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class HwResponseServiceImpl implements HwResponseService {
 
     @Autowired
     private HwResponseRepo hwResponseRepo;
+
+    @Autowired
+    private CommentRepo commentRepo;
 
     @Override
     public List<HwResponse> getResponses(Long teacherId, Long homeworkId, Date createdAfter, Date createdBefore) {
@@ -50,6 +54,18 @@ public class HwResponseServiceImpl implements HwResponseService {
 
     @Override
     public HwResponse saveResponse(HwResponse response) {
-        return hwResponseRepo.save(response);
+
+        //if response id is not null, remove all the comments
+        if (response.getId() != null)
+            commentRepo.deleteAll(getResponse(response.getId()).getComments());
+
+        //setting comments' response id, then saving them
+        HwResponse savedResponse = hwResponseRepo.save(response);
+
+        response.getComments().forEach(comment -> comment.setHwResponse(savedResponse));
+
+        commentRepo.saveAll(response.getComments());
+
+        return savedResponse;
     }
 }
