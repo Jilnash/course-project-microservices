@@ -33,5 +33,6 @@ public class HwResponse {
     private List<Comment> comments;
 
     @CreationTimestamp
+    @Column(updatable = false)
     private Date createdAt;
 }

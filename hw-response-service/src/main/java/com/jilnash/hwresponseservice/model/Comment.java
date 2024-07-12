@@ -25,7 +25,7 @@ public class Comment {
     @JdbcTypeCode(SqlTypes.VARCHAR)
     private String text;
 
-    @OneToOne(optional = false)
+    @OneToOne(cascade = CascadeType.ALL, optional = false)
     @JoinColumn(nullable = false)
     private TimeRange timeRange;
 
