@@ -1,5 +1,6 @@
 package com.jilnash.hwresponseservice.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -23,5 +24,5 @@ public class HwResponseDTO implements Serializable {
 
     @NotNull(message = "Comments should not be null")
     @NotEmpty(message = "Comments should not be empty")
-    List<CommentDTO> comments;
+    List<@Valid CommentDTO> comments;
 }

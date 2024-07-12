@@ -1,5 +1,6 @@
 package com.jilnash.hwresponseservice.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Value;
@@ -15,6 +16,7 @@ public class CommentDTO implements Serializable {
     @NotBlank(message = "Text should not be blank")
     String text;
 
+    @Valid
     @NotNull(message = "Time range should not be null")
     TimeRangeCreateDTO timeRange;
 }
