@@ -13,4 +13,6 @@ public interface TaskRepo extends JpaRepository<Task, Long> {
     Optional<Task> findByIdAndModuleIdAndModuleCourseId(Long id, Long moduleId, Long courseId);
 
     List<Task> findAllByTitleAndModuleIdAndModuleCourseId(String title, Long moduleId, Long courseId);
+
+    List<Task> findAllByModule_IdAndModule_Course_id(Long moduleId, Long courseId);
 }

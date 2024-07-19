@@ -16,6 +16,10 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<Task> getTasks(String title, Long courseId, Long moduleId) {
+
+        if (title == null)
+            return taskRepo.findAllByModule_IdAndModule_Course_id(moduleId, courseId);
+
         return taskRepo.findAllByTitleAndModuleIdAndModuleCourseId(title, moduleId, courseId);
     }
 
