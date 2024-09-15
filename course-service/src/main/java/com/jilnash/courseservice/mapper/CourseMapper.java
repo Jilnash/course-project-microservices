@@ -5,27 +5,29 @@ import com.jilnash.courseservice.dto.course.CourseUpdateDTO;
 import com.jilnash.courseservice.model.Course;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Component
 public class CourseMapper {
 
-    public Course toEntity(CourseCreateDTO courseCreateDTO) {
+    public Course toNode(CourseCreateDTO courseCreateDTO) {
         return Course.builder()
-                .author(courseCreateDTO.getAuthorId())
                 .name(courseCreateDTO.getName())
                 .description(courseCreateDTO.getDescription())
                 .duration(courseCreateDTO.getDuration())
                 .hwPostingDayInterval(courseCreateDTO.getHwPostingDayInterval())
+                .createdAt(new Date())
                 .build();
     }
 
-    public Course toEntity(CourseUpdateDTO courseUpdateDTO) {
+    public Course toNode(CourseUpdateDTO courseUpdateDTO) {
         return Course.builder()
                 .id(courseUpdateDTO.getId())
-                .author(courseUpdateDTO.getAuthorId())
                 .name(courseUpdateDTO.getName())
                 .description(courseUpdateDTO.getDescription())
                 .duration(courseUpdateDTO.getDuration())
                 .hwPostingDayInterval(courseUpdateDTO.getHwPostingDayInterval())
+                .updatedAt(new Date())
                 .build();
     }
 }

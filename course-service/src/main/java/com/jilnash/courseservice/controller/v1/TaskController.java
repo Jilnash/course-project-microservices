@@ -3,84 +3,109 @@ package com.jilnash.courseservice.controller.v1;
 import com.jilnash.courseservice.dto.AppResponse;
 import com.jilnash.courseservice.dto.task.TaskCreateDTO;
 import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
-import com.jilnash.courseservice.mapper.TaskMapper;
-import com.jilnash.courseservice.service.ModuleService;
-import com.jilnash.courseservice.service.TaskService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.jilnash.courseservice.service.task.TaskServiceImpl;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/modules/{moduleId}/tasks")
 public class TaskController {
 
-    @Autowired
-    private TaskService taskService;
+    private final TaskServiceImpl taskService;
 
-    @Autowired
-    private TaskMapper taskMapper;
-
-    @Autowired
-    private ModuleService moduleService;
+    public TaskController(TaskServiceImpl taskService) {
+        this.taskService = taskService;
+    }
 
     @GetMapping
-    public ResponseEntity<?> getTasks(@PathVariable Long courseId,
-                                      @PathVariable Long moduleId,
-                                      @RequestParam(required = false) String title) {
+    public ResponseEntity<?> getTasks(@PathVariable String courseId,
+                                      @PathVariable String moduleId,
+                                      @RequestParam(required = false, defaultValue = "") String name) {
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Tasks fetched successfully",
-                        taskService.getTasks(title, courseId, moduleId)
+                        taskService.getTasks(courseId, moduleId, name)
                 )
         );
     }
 
     @PutMapping
-    public ResponseEntity<?> createTask(@PathVariable Long courseId,
-                                        @PathVariable Long moduleId,
-                                        @Validated @RequestBody TaskCreateDTO taskDTO) {
+    public ResponseEntity<?> createTask(@PathVariable String courseId,
+                                        @PathVariable String moduleId,
+                                        @RequestBody TaskCreateDTO taskDto) {
 
-        //checking if module exists, then setting module id
-        taskDTO.setModuleId(moduleService.getModule(moduleId, courseId).getId());
+        taskDto.setCourseId(courseId);
+        taskDto.setModuleId(moduleId);
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Task created successfully",
-                        taskService.save(taskMapper.toEntity(taskDTO))
+                        taskService.create(taskDto)
                 )
         );
     }
 
-    @GetMapping("/{taskId}")
-    public ResponseEntity<?> getTask(@PathVariable Long courseId,
-                                     @PathVariable Long moduleId,
-                                     @PathVariable Long taskId) {
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTask(@PathVariable String courseId,
+                                     @PathVariable String moduleId,
+                                     @PathVariable String id) {
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Task fetched successfully",
-                        taskService.getTask(taskId, moduleId, courseId)
+                        taskService.getTask(courseId, moduleId, id)
                 )
         );
     }
 
-    @PostMapping("/{taskId}")
-    public ResponseEntity<?> updateTask(@PathVariable Long courseId,
-                                        @PathVariable Long moduleId,
-                                        @PathVariable Long taskId,
-                                        @Validated @RequestBody TaskUpdateDTO taskDTO) {
+    @PostMapping("/{id}")
+    public ResponseEntity<?> updateTask(@PathVariable String courseId,
+                                        @PathVariable String moduleId,
+                                        @PathVariable String id,
+                                        @RequestBody TaskUpdateDTO taskDto) {
 
-        //checking if task exists, then setting id
-        taskDTO.setId(taskService.getTask(taskId, moduleId, courseId).getId());
+        taskDto.setId(id);
+        taskDto.setCourseId(courseId);
+        taskDto.setModuleId(moduleId);
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Task updated successfully",
-                        taskService.save(taskMapper.toEntity(taskDTO))
+                        taskService.update(taskDto)
+                )
+        );
+    }
+
+    @GetMapping("/{id}/prerequisites")
+    public ResponseEntity<?> getTaskPrerequisites(@PathVariable String courseId,
+                                                  @PathVariable String moduleId,
+                                                  @PathVariable String id) {
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Task prereqs fetched successfully",
+                        taskService.getTaskPrerequisites(courseId, moduleId, id)
+                )
+        );
+    }
+
+    @PostMapping("/{id}/prerequisites")
+    public ResponseEntity<?> addTaskPrerequisite(@PathVariable String courseId,
+                                                 @PathVariable String moduleId,
+                                                 @PathVariable String id,
+                                                 @RequestBody List<String> prerequisiteIds) {
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Task prereqs updated successfully",
+                        taskService.addTaskPrerequisite(courseId, moduleId, id, prerequisiteIds)
                 )
         );
     }

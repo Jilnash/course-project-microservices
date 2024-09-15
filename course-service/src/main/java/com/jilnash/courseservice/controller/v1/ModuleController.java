@@ -3,9 +3,7 @@ package com.jilnash.courseservice.controller.v1;
 import com.jilnash.courseservice.dto.AppResponse;
 import com.jilnash.courseservice.dto.module.ModuleCreateDTO;
 import com.jilnash.courseservice.dto.module.ModuleUpdateDTO;
-import com.jilnash.courseservice.mapper.ModuleMapper;
-import com.jilnash.courseservice.service.CourseService;
-import com.jilnash.courseservice.service.ModuleService;
+import com.jilnash.courseservice.service.module.ModuleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -16,73 +14,67 @@ import org.springframework.web.bind.annotation.*;
 public class ModuleController {
 
     @Autowired
-    private CourseService courseService;
+    private ModuleServiceImpl moduleService;
 
-    @Autowired
-    private ModuleService moduleService;
-
-    @Autowired
-    private ModuleMapper moduleMapper;
 
     @GetMapping
-    public ResponseEntity<?> getModules(@PathVariable Long courseId,
+    public ResponseEntity<?> getModules(@PathVariable String courseId,
                                         @RequestParam(required = false, defaultValue = "") String name) {
-
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Modules fetched successfully",
-                        moduleService.getModules(name, courseId)
+                        moduleService.getModules(courseId, name)
+
                 )
         );
     }
 
     @PutMapping
-    public ResponseEntity<?> createModule(@PathVariable Long courseId,
-                                          @Validated @RequestBody ModuleCreateDTO moduleDTO) {
+    public ResponseEntity<?> createModule(@PathVariable String courseId,
+                                          @Validated @RequestBody ModuleCreateDTO moduleCreateDTO) {
 
-        //check if course exists, then set it
-        moduleDTO.setCourseId(courseService.getCourse(courseId).getId());
+        moduleCreateDTO.setCourseId(courseId);
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
-                        "Module created successfully",
-                        moduleService.saveModule(moduleMapper.toEntity(moduleDTO))
+                        "Modules created successfully",
+                        moduleService.create(moduleCreateDTO)
+
                 )
         );
     }
 
-    @GetMapping("/{moduleId}")
-    public ResponseEntity<?> getModule(@PathVariable Long courseId,
-                                       @PathVariable Long moduleId) {
 
+    @GetMapping("/{moduleId}")
+    public ResponseEntity<?> getModule(@PathVariable String courseId,
+                                       @PathVariable String moduleId) {
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Module fetched successfully",
-                        moduleService.getModule(moduleId, courseId)
+                        moduleService.getModuleByCourse(courseId, moduleId)
+
                 )
         );
     }
 
-    @PostMapping("/{moduleId}")
-    public ResponseEntity<?> updateModule(@PathVariable Long courseId,
-                                          @PathVariable Long moduleId,
-                                          @Validated @RequestBody ModuleUpdateDTO moduleDTO) {
+    @PostMapping("{moduleId}")
+    public ResponseEntity<?> updateModule(@PathVariable String courseId,
+                                          @PathVariable String moduleId,
+                                          @Validated @RequestBody ModuleUpdateDTO moduleUpdateDTO) {
 
-        //check if module exists
-        moduleService.getModule(moduleId, courseId);
-
-        //then set it
-        moduleDTO.setId(moduleId);
+        moduleUpdateDTO.setCourseId(courseId);
+        moduleUpdateDTO.setId(moduleId);
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Module updated successfully",
-                        moduleService.saveModule(moduleMapper.toEntity(moduleDTO))
+                        moduleService.update(moduleUpdateDTO)
                 )
         );
     }
+
 }

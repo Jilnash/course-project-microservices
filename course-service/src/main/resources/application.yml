@@ -4,15 +4,14 @@ server:
 spring:
     application:
         name: course-service
-    datasource:
-        url: jdbc:mysql://localhost:3306/course_project_courses
-        username: root
-        password: root
-        driver-class-name: com.mysql.cj.jdbc.Driver
-    jpa:
-        hibernate:
-            ddl-auto: update
-        show-sql: true
+    data:
+        neo4j:
+            database: neo4j
+    neo4j:
+        uri: bolt://localhost:7687
+        authentication:
+            username: neo4j
+            password: radya2004
 
 eureka:
     client:

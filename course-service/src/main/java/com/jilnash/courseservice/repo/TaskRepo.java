@@ -1,18 +1,24 @@
 package com.jilnash.courseservice.repo;
 
 import com.jilnash.courseservice.model.Task;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.neo4j.repository.Neo4jRepository;
+import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface TaskRepo extends JpaRepository<Task, Long> {
+public interface TaskRepo extends Neo4jRepository<Task, String> {
 
-    Optional<Task> findByIdAndModuleIdAndModuleCourseId(Long id, Long moduleId, Long courseId);
+    List<Task> findAllByIdIn(List<String> ids);
 
-    List<Task> findAllByTitleAndModuleIdAndModuleCourseId(String title, Long moduleId, Long courseId);
+    List<Task> findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(String title, String moduleId, String courseId);
 
-    List<Task> findAllByModule_IdAndModule_Course_id(Long moduleId, Long courseId);
+    Optional<Task> findByIdAndModule_IdAndModule_Course_Id(String id, String moduleId, String courseId);
+
+    Boolean existsByIdAndModuleIdAndModule_CourseId(String id, String moduleId, String courseId);
+
+    @Query("MATCH (t:Task {id: $id}) SET t.title = $title, t.description = $description, t.videoLink = $videoLink, t.audioRequired = $audioRequired, t.videoRequired = $videoRequired RETURN t")
+    Task updateTaskData(String id, String title, String description, String videoLink, Boolean audioRequired, Boolean videoRequired);
 }

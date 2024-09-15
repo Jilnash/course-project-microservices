@@ -1,52 +1,62 @@
 package com.jilnash.courseservice.model;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.neo4j.core.schema.*;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.util.Date;
+import java.util.List;
 
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
 @ToString
-@Entity
-@Table(name = "task")
+@AllArgsConstructor
+@NoArgsConstructor
+@Node("Task")
 public class Task {
 
+    //fields
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @GeneratedValue(UUIDStringGenerator.class)
+    private String id;
 
-    @ManyToOne
-    @JoinColumn(name = "module_id", nullable = false, updatable = false)
-    private Module module;
-
-    @Column(nullable = false, updatable = false)
-    private Long author;
-
-    @Column(nullable = false)
+    @Property("title")
     private String title;
 
-    @Column(nullable = false)
+    @Property("description")
     private String description;
 
-    @Column(nullable = false)
+    @Property("videoLink")
     private String videoLink;
 
-    @Column(nullable = false)
+    @Property("audioRequired")
     private Boolean audioRequired;
 
-    @Column(nullable = false)
+    @Property("videoRequired")
     private Boolean videoRequired;
 
-    @CreationTimestamp
+
+    //audit fields
+
+    @Property("createdBy")
+    private Long createdBy;
+
+    @CreatedDate
     private Date createdAt;
 
-    @UpdateTimestamp
+    @LastModifiedDate
     private Date updatedAt;
+
+
+    //relationships
+
+    @Relationship(type = "CONTAINS", direction = Relationship.Direction.INCOMING)
+    private Module module;
+
+    @Relationship(type = "IS_PREREQUISITE", direction = Relationship.Direction.OUTGOING)
+    private List<Task> tasks;
 }

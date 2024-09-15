@@ -1,6 +1,6 @@
 package com.jilnash.courseservice.dto.task;
 
-import jakarta.validation.constraints.Min;
+import com.jilnash.courseservice.model.Module;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class TaskCreateDTO {
 
-    @NotNull(message = "Module id is required")
-    @Min(value = 1, message = "Module id must be greater than 0")
-    private Long moduleId;
+    private String courseId;
 
-    @NotNull(message = "Author id is required")
-    @Min(value = 1, message = "Author id must be greater than 0")
-    private Long author;
+    private String moduleId;
+
+//    @NotNull(message = "Author id is required")
+//    @Min(value = 1, message = "Author id must be greater than 0")
+//    private Long author;
 
     @NotNull(message = "Title is required")
     @NotBlank(message = "Title is required")
@@ -28,6 +28,7 @@ public class TaskCreateDTO {
     @NotBlank(message = "Description is required")
     private String description;
 
+    @NotNull(message = "Audio link is required")
     private String videoLink;
 
     @NotNull(message = "Audio required is required")
@@ -35,4 +36,6 @@ public class TaskCreateDTO {
 
     @NotNull(message = "Video required is required")
     private Boolean videoRequired;
+
+    private Module module;
 }

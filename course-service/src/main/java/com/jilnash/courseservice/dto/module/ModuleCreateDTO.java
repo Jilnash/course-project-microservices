@@ -1,6 +1,6 @@
 package com.jilnash.courseservice.dto.module;
 
-import jakarta.validation.constraints.Min;
+import com.jilnash.courseservice.model.Course;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -20,7 +20,7 @@ public class ModuleCreateDTO {
     @NotBlank(message = "Module description is mandatory")
     private String description;
 
-    @NotNull(message = "Course id is mandatory")
-    @Min(value = 1, message = "Course id must be greater than 0")
-    private Long courseId;
+    private String courseId;
+
+    private Course course;
 }

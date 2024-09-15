@@ -12,9 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CourseUpdateDTO {
 
-    private Long id;
-
-    private Long authorId;
+    private String id;
 
     @NotNull(message = "Name is required")
     @NotBlank(message = "Name should not be empty")

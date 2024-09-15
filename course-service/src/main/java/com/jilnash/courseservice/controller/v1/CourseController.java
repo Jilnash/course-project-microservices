@@ -3,9 +3,7 @@ package com.jilnash.courseservice.controller.v1;
 import com.jilnash.courseservice.dto.AppResponse;
 import com.jilnash.courseservice.dto.course.CourseCreateDTO;
 import com.jilnash.courseservice.dto.course.CourseUpdateDTO;
-import com.jilnash.courseservice.mapper.CourseMapper;
-import com.jilnash.courseservice.service.CourseService;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.jilnash.courseservice.service.course.CourseService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -14,11 +12,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/courses")
 public class CourseController {
 
-    @Autowired
-    private CourseService courseService;
+    private final CourseService courseService;
 
-    @Autowired
-    private CourseMapper courseMapper;
+    public CourseController(CourseService courseService) {
+        this.courseService = courseService;
+    }
+
 
     @GetMapping
     public ResponseEntity<?> getCourses(@RequestParam(required = false, defaultValue = "") String name) {
@@ -36,14 +35,14 @@ public class CourseController {
         return ResponseEntity.ok(
                 new AppResponse(
                         400,
-                        "Courses fetched successfully",
-                        courseService.saveCourse(courseMapper.toEntity(courseDTO))
+                        "Course created successfully",
+                        courseService.create(courseDTO)
                 )
         );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCourse(@PathVariable Long id) {
+    public ResponseEntity<?> getCourse(@PathVariable String id) {
         return ResponseEntity.ok(
                 new AppResponse(
                         400,
@@ -55,19 +54,16 @@ public class CourseController {
 
     @PostMapping("/{id}")
     public ResponseEntity<?> updateCourse(
-            @PathVariable Long id,
+            @PathVariable String id,
             @Validated @RequestBody CourseUpdateDTO courseDTO) {
 
-        //checking if course exists
-        //if so setting id, authorId
-        courseDTO.setAuthorId(courseService.getCourse(id).getAuthor());
         courseDTO.setId(id);
 
         return ResponseEntity.ok(
                 new AppResponse(
                         400,
                         "Course updated successfully",
-                        courseService.saveCourse(courseMapper.toEntity(courseDTO))
+                        courseService.update(courseDTO)
                 )
         );
     }

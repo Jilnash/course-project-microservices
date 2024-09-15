@@ -1,30 +1,51 @@
 package com.jilnash.courseservice.model;
 
-
-import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.neo4j.core.schema.*;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
+
+import java.util.Date;
 
 @Builder
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "modules", schema = "course_project_courses")
+@NoArgsConstructor
+@Node("Module")
 public class Module {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    //fields
 
-    @Column(nullable = false)
+    @Id
+    @GeneratedValue(UUIDStringGenerator.class)
+    private String id;
+
+    @Property("name")
     private String name;
 
-    @Column(nullable = false)
+    @Property("description")
     private String description;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "course_id", nullable = false, updatable = false)
+
+    //audit fields
+
+    @CreatedBy
+    @Property("createdBy")
+    private Long createdBy;
+
+    @CreatedDate
+    @Property("createdAt")
+    private Date createdAt;
+
+    @LastModifiedDate
+    @Property("updatedAt")
+    private Date updatedAt;
+
+    //relationships
+    @Relationship(type = "CONTAINS", direction = Relationship.Direction.INCOMING)
     private Course course;
 }

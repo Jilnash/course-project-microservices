@@ -12,7 +12,11 @@ import org.hibernate.validator.constraints.URL;
 @AllArgsConstructor
 public class TaskUpdateDTO {
 
-    private Long id;
+    private String id;
+
+    private String courseId;
+
+    private String moduleId;
 
     @NotNull(message = "Task title is required")
     @NotBlank(message = "Task title is required")

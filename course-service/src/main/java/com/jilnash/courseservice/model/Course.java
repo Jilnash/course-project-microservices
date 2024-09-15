@@ -1,9 +1,14 @@
 package com.jilnash.courseservice.model;
 
-import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.neo4j.core.schema.GeneratedValue;
+import org.springframework.data.neo4j.core.schema.Id;
+import org.springframework.data.neo4j.core.schema.Node;
+import org.springframework.data.neo4j.core.schema.Property;
+import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.util.Date;
 
@@ -11,35 +16,41 @@ import java.util.Date;
 @Getter
 @Setter
 @ToString
-@NoArgsConstructor
 @AllArgsConstructor
-@Entity
-@Table(name = "courses", schema = "course_project_courses")
+@NoArgsConstructor
+@Node("Course")
 public class Course {
 
+    //fields
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @GeneratedValue(UUIDStringGenerator.class)
+    private String id;
 
-    @Column(nullable = false, unique = true, updatable = false)
-    private Long author;
-
-    @Column(nullable = false, unique = true)
+    @Property("name")
     private String name;
 
-    @Column(nullable = false)
+    @Property("description")
     private String description;
 
-    @Column(nullable = false)
+    @Property("duration")
     private String duration;
 
-    @Column(nullable = false)
+    @Property("hwPostingDayInterval")
     private Integer hwPostingDayInterval;
 
-    @CreationTimestamp
-    @Column(updatable = false)
+
+    //audit fields
+
+    @CreatedBy
+    @Property("createdBy")
+    private Long createdBy;
+
+    @CreatedDate
+    @Property("createdAt")
     private Date createdAt;
 
-    @UpdateTimestamp
+    @LastModifiedDate
+    @Property("updatedAt")
     private Date updatedAt;
 }
