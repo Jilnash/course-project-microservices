@@ -1,6 +1,7 @@
 package com.jilnash.courseservice.service.task;
 
 import com.jilnash.courseservice.dto.task.TaskCreateDTO;
+import com.jilnash.courseservice.dto.task.TaskResponseDTO;
 import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
 import com.jilnash.courseservice.mapper.TaskMapper;
 import com.jilnash.courseservice.model.Task;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 public class TaskServiceImpl implements TaskService {
@@ -27,14 +29,20 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<Task> getTasks(String courseId, String moduleId, String title) {
-        return taskRepo.findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(title, moduleId, courseId);
+    public List<TaskResponseDTO> getTasks(String courseId, String moduleId, String title) {
+        return taskRepo
+                .findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(title, moduleId, courseId)
+                .stream()
+                .map(taskMapper::toTaskResponse)
+                .toList();
     }
 
     @Override
-    public Task getTask(String courseId, String moduleId, String id) {
-        return taskRepo.findByIdAndModule_IdAndModule_Course_Id(id, moduleId, courseId)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+    public TaskResponseDTO getTask(String courseId, String moduleId, String id) {
+        return taskMapper.toTaskResponse(
+                taskRepo.getTaskData(id, moduleId, courseId)
+                        .orElseThrow(() -> new RuntimeException("Task not found"))
+        );
     }
 
     @Override
@@ -62,18 +70,23 @@ public class TaskServiceImpl implements TaskService {
     }
 
     public List<Task> getTaskPrerequisites(String courseId, String moduleId, String taskId) {
-        return getTask(courseId, moduleId, taskId).getTasks();
+
+        return taskRepo
+                .findByIdAndModule_IdAndModule_Course_Id(taskId, moduleId, courseId)
+                .orElseThrow(() -> new NoSuchElementException("Task not found"))
+                .getTasks();
     }
 
-    public List<Task> addTaskPrerequisite(String courseId, String moduleId, String taskId,
-                                          List<String> prerequisiteId) {
-        Task task = getTask(courseId, moduleId, taskId);
+    public List<TaskResponseDTO> updateTaskPrerequisite(String courseId, String moduleId, String taskId,
+                                                        List<String> prerequisiteId) {
 
-        List<Task> prerequisites = taskRepo.findAllByIdIn(prerequisiteId);
+        Task task = taskRepo
+                .findByIdAndModule_IdAndModule_Course_Id(taskId, moduleId, courseId)
+                .orElseThrow(() -> new NoSuchElementException("Task not found"));
 
         task.getTasks().clear();
-        task.getTasks().addAll(prerequisites);
+        task.getTasks().addAll(taskRepo.findAllByIdIn(prerequisiteId));
 
-        return taskRepo.save(task).getTasks();
+        return taskRepo.save(task).getTasks().stream().map(taskMapper::toTaskResponse).toList();
     }
 }

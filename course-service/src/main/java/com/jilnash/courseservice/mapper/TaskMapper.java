@@ -1,6 +1,7 @@
 package com.jilnash.courseservice.mapper;
 
 import com.jilnash.courseservice.dto.task.TaskCreateDTO;
+import com.jilnash.courseservice.dto.task.TaskResponseDTO;
 import com.jilnash.courseservice.model.Task;
 import org.springframework.stereotype.Component;
 
@@ -16,5 +17,16 @@ public class TaskMapper {
                 .videoRequired(taskCreateDTO.getVideoRequired())
                 .module(taskCreateDTO.getModule())
                 .build();
+    }
+
+    public TaskResponseDTO toTaskResponse(Task task) {
+        return new TaskResponseDTO(
+                task.getId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getVideoLink(),
+                task.getAudioRequired(),
+                task.getVideoRequired()
+        );
     }
 }

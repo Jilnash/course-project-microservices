@@ -96,16 +96,16 @@ public class TaskController {
     }
 
     @PostMapping("/{id}/prerequisites")
-    public ResponseEntity<?> addTaskPrerequisite(@PathVariable String courseId,
-                                                 @PathVariable String moduleId,
-                                                 @PathVariable String id,
-                                                 @RequestBody List<String> prerequisiteIds) {
+    public ResponseEntity<?> updateTaskPrerequisite(@PathVariable String courseId,
+                                                    @PathVariable String moduleId,
+                                                    @PathVariable String id,
+                                                    @RequestBody List<String> prerequisiteIds) {
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Task prereqs updated successfully",
-                        taskService.addTaskPrerequisite(courseId, moduleId, id, prerequisiteIds)
+                        taskService.updateTaskPrerequisite(courseId, moduleId, id, prerequisiteIds)
                 )
         );
     }
