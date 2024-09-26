@@ -22,7 +22,19 @@ public class StudentCourseAccessService {
                 );
     }
 
-    public StudentCourseAccess create(StudentCourseAccess studentCourseAccess) {
+    public StudentCourseAccess purchase(StudentCourseAccess studentCourseAccess) {
+
+        // check if student already has access to this course
+        if (studentCourseAccessRepo
+                .existsByStudentIdAndCourseIdAndStartDateBeforeAndEndDateAfter(
+                        studentCourseAccess.getStudentId(),
+                        studentCourseAccess.getCourseId(),
+                        new Date(System.currentTimeMillis())
+                )
+        ) {
+            throw new RuntimeException("Student already has access to this course");
+        }
+
         return studentCourseAccessRepo.save(studentCourseAccess);
     }
 }
