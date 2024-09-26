@@ -1,14 +1,18 @@
 server:
-    port: 8086
+    port: 8090
 
 spring:
     application:
         name: course-access-service
     datasource:
-        url: jdbc:mysql://localhost:3306/course_access_service
+        url: jdbc:mysql://localhost:3306/course_access
         username: root
         password: root
         driver-class-name: com.mysql.cj.jdbc.Driver
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
 
 eureka:
     client:
