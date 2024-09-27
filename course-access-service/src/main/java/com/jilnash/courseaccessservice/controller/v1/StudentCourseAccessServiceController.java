@@ -18,7 +18,7 @@ public class StudentCourseAccessServiceController {
     }
 
     @GetMapping
-    public Boolean getStudentHasAccess(Long studentId, String courseId) {
+    public Boolean getStudentHasAccess(@RequestParam Long studentId, @RequestParam String courseId) {
         return studentCourseAccessService.getStudentHasAccess(studentId, courseId);
     }
 
