@@ -74,6 +74,12 @@ spring:
                             - Path=/response-service/**
                         filters:
                             - RewritePath=/response-service/(?<remaining>.*), /${remaining}
+                    -   id: course-access-service
+                        uri: http://localhost:8090
+                        predicates:
+                            - Path=/course-access-service/**
+                        filters:
+                            - RewritePath=/course-access-service/(?<remaining>.*), /${remaining}
 
 eureka:
     client:
