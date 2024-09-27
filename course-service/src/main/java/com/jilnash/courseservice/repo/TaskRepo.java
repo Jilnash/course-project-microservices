@@ -18,6 +18,8 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
             "RETURN t { .id, .title, .description, .videoLink, .audioRequired, .videoRequired }")
     List<Task> findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(String title, String moduleId, String courseId);
 
+    List<Task> findAllByModule_IdAndModule_Course_Id(String moduleId, String courseId);
+
     @Query("MATCH (c:Course) -[:CONTAINS]->(m:Module)-[:CONTAINS]->(t:Task)"
             + "WHERE t.id = $id AND m.id = $moduleId AND c.id = $courseId "
             + "RETURN t { .id, .title, .description, .videoLink, .audioRequired, .videoRequired }")
