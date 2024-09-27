@@ -22,12 +22,32 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<?> getTasks(@PathVariable String courseId,
                                       @PathVariable String moduleId,
+                                      @RequestParam String mode,
                                       @RequestParam(required = false, defaultValue = "") String name) {
-        return ResponseEntity.ok(
+
+        if (mode.equals("list"))
+            return ResponseEntity.ok(
+                    new AppResponse(
+                            200,
+                            "Tasks fetched successfully",
+                            taskService.getTasks(courseId, moduleId, name)
+                    )
+            );
+
+        if (mode.equals("graph"))
+            return ResponseEntity.ok(
+                    new AppResponse(
+                            200,
+                            "Tasks fetched successfully",
+                            taskService.getTaskGraph(courseId, moduleId)
+                    )
+            );
+
+        return ResponseEntity.badRequest().body(
                 new AppResponse(
-                        200,
-                        "Tasks fetched successfully",
-                        taskService.getTasks(courseId, moduleId, name)
+                        400,
+                        "Invalid mode",
+                        null
                 )
         );
     }
