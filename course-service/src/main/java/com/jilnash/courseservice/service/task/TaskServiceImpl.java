@@ -1,8 +1,6 @@
 package com.jilnash.courseservice.service.task;
 
-import com.jilnash.courseservice.dto.task.TaskCreateDTO;
-import com.jilnash.courseservice.dto.task.TaskResponseDTO;
-import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
+import com.jilnash.courseservice.dto.task.*;
 import com.jilnash.courseservice.mapper.TaskMapper;
 import com.jilnash.courseservice.model.Task;
 import com.jilnash.courseservice.repo.TaskRepo;
@@ -43,6 +41,19 @@ public class TaskServiceImpl implements TaskService {
                 taskRepo.getTaskData(id, moduleId, courseId)
                         .orElseThrow(() -> new RuntimeException("Task not found"))
         );
+    }
+
+    public TaskGraphDTO getTaskGraph(String courseId, String moduleId) {
+
+        var tasks = taskRepo.findAllByModule_IdAndModule_Course_Id(moduleId, courseId);
+
+        return TaskGraphDTO.builder()
+                .nodes(tasks.stream().map(Task::getId).toList())
+                .edges(tasks.stream()
+                        .flatMap(task -> task.getTasks().stream()
+                                .map(prerequisite -> new TaskGraphEdgeDTO(task.getId(), prerequisite.getId())))
+                        .toList())
+                .build();
     }
 
     @Override
