@@ -1,5 +1,6 @@
 package com.jilnash.courseservice.service.task;
 
+import com.jilnash.courseservice.clients.CourseAccessClient;
 import com.jilnash.courseservice.dto.task.*;
 import com.jilnash.courseservice.mapper.TaskMapper;
 import com.jilnash.courseservice.model.Task;
@@ -20,10 +21,13 @@ public class TaskServiceImpl implements TaskService {
 
     private final ModuleServiceImpl moduleService;
 
-    public TaskServiceImpl(TaskRepo taskRepo, TaskMapper taskMapper, ModuleServiceImpl moduleService) {
+    private final CourseAccessClient courseAccessClient;
+
+    public TaskServiceImpl(TaskRepo taskRepo, TaskMapper taskMapper, ModuleServiceImpl moduleService, CourseAccessClient courseAccessClient) {
         this.taskRepo = taskRepo;
         this.taskMapper = taskMapper;
         this.moduleService = moduleService;
+        this.courseAccessClient = courseAccessClient;
     }
 
     @Override
@@ -37,6 +41,10 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskResponseDTO getTask(String courseId, String moduleId, String id) {
+
+        if (!courseAccessClient.checkAccess(courseId, "1"))
+            throw new NoSuchElementException("Access denied");
+
         return taskMapper.toTaskResponse(
                 taskRepo.getTaskData(id, moduleId, courseId)
                         .orElseThrow(() -> new RuntimeException("Task not found"))
