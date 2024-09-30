@@ -32,6 +32,10 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public List<TaskResponseDTO> getTasks(String courseId, String moduleId, String title) {
+
+        if (!courseAccessClient.checkAccess(courseId, "1"))
+            throw new NoSuchElementException("Access denied");
+
         return taskRepo
                 .findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(title, moduleId, courseId)
                 .stream()
