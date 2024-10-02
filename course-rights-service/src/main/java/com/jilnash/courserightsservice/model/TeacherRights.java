@@ -26,13 +26,13 @@ public class TeacherRights {
     private String teacherId;
 
     @Column(nullable = false)
-    private Boolean edit = false;
+    private Boolean editCourse = false;
 
     @Column(nullable = false)
-    private Boolean delete = false;
+    private Boolean deleteCourse = false;
 
     @Column(nullable = false)
-    private Boolean add = false;
+    private Boolean addTask = false;
 
     @Column(nullable = false)
     private Boolean manageTeachers = false;
@@ -45,13 +45,13 @@ public class TeacherRights {
         rights.forEach(right -> {
             switch (right) {
                 case "edit":
-                    this.edit = true;
+                    this.editCourse = true;
                     break;
                 case "delete":
-                    this.delete = true;
+                    this.deleteCourse = true;
                     break;
                 case "add":
-                    this.add = true;
+                    this.addTask = true;
                     break;
                 case "manageTeachers":
                     this.manageTeachers = true;
