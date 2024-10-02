@@ -21,9 +21,11 @@ public class TeacherRightsService {
                 .map(teacherRights -> {
                     List<String> rights = new LinkedList<>();
 
-                    if (teacherRights.getEdit()) rights.add("edit");
-                    if (teacherRights.getAdd()) rights.add("add");
-                    if (teacherRights.getDelete()) rights.add("delete");
+                    if (teacherRights.getEditCourse()) rights.add("edit");
+                    if (teacherRights.getAddTask()) rights.add("add");
+                    if (teacherRights.getDeleteCourse()) rights.add("delete");
+                    if (teacherRights.getManageTeachers()) rights.add("manageTeachers");
+
 
                     return rights;
                 })
@@ -39,13 +41,13 @@ public class TeacherRightsService {
         for (String right : rights) {
             switch (right) {
                 case "edit":
-                    if (!teacherRights.getEdit()) return false;
+                    if (!teacherRights.getEditCourse()) return false;
                     break;
                 case "delete":
-                    if (!teacherRights.getDelete()) return false;
+                    if (!teacherRights.getDeleteCourse()) return false;
                     break;
                 case "add":
-                    if (!teacherRights.getAdd()) return false;
+                    if (!teacherRights.getAddTask()) return false;
                     break;
                 case "manageTeachers":
                     if (!teacherRights.getManageTeachers()) return false;
@@ -56,7 +58,7 @@ public class TeacherRightsService {
     }
 
     public TeacherRights create(String courseId, String teacherId, List<String> rights) {
-        return teacherRightsRepo.save(new TeacherRights(teacherId, courseId, rights));
+        return teacherRightsRepo.save(new TeacherRights(courseId, teacherId, rights));
     }
 
     public TeacherRights update(String courseId, String teacherId, List<String> rights) {
@@ -66,13 +68,13 @@ public class TeacherRightsService {
         rights.forEach(right -> {
             switch (right) {
                 case "edit":
-                    teacherRights.setEdit(true);
+                    teacherRights.setEditCourse(true);
                     break;
                 case "delete":
-                    teacherRights.setDelete(true);
+                    teacherRights.setDeleteCourse(true);
                     break;
                 case "add":
-                    teacherRights.setAdd(true);
+                    teacherRights.setAddTask(true);
                     break;
                 case "manageTeachers":
                     teacherRights.setManageTeachers(true);
