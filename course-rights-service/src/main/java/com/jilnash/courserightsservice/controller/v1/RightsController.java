@@ -12,7 +12,6 @@ import java.util.List;
 @RequestMapping("api/v1/courses/{courseId}/teachers/{teacherId}/rights")
 public class RightsController {
 
-    private final String rights = "edit|delete|add|manageTeachers";
     private final String message = "Rights must be one of: edit, delete, add, manageTeachers";
 
     private final TeacherRightsService teacherRightsService;
@@ -29,7 +28,10 @@ public class RightsController {
     @PostMapping
     public ResponseEntity<?> create(@PathVariable String teacherId,
                                     @PathVariable String courseId,
-                                    @RequestParam @Validated List<@Pattern(regexp = rights, message = message) String> rights) {
+                                    @RequestParam @Validated List<@Pattern(
+                                            regexp = "edit|delete|add|manageTeachers",
+                                            message = message
+                                    ) String> rights) {
         return ResponseEntity.ok(
                 teacherRightsService.create(courseId, teacherId, rights)
         );
@@ -38,7 +40,10 @@ public class RightsController {
     @PutMapping
     public ResponseEntity<?> update(@PathVariable String teacherId,
                                     @PathVariable String courseId,
-                                    @RequestParam @Validated List<@Pattern(regexp = rights, message = message) String> rights) {
+                                    @RequestParam @Validated List<@Pattern(
+                                            regexp = "edit|delete|add|manageTeachers",
+                                            message = message
+                                    ) String> rights) {
         return ResponseEntity.ok(
                 teacherRightsService.update(courseId, teacherId, rights)
         );
@@ -47,7 +52,10 @@ public class RightsController {
     @GetMapping("/has")
     public Boolean hasRights(@PathVariable String teacherId,
                              @PathVariable String courseId,
-                             @RequestParam @Validated List<@Pattern(regexp = rights, message = message) String> rights) {
+                             @RequestParam @Validated List<@Pattern(
+                                     regexp = "edit|delete|add|manageTeachers",
+                                     message = message
+                             ) String> rights) {
         return teacherRightsService.hasRights(courseId, teacherId, rights);
     }
 }
