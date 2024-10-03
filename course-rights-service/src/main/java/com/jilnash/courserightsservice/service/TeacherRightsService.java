@@ -65,6 +65,11 @@ public class TeacherRightsService {
         TeacherRights teacherRights = teacherRightsRepo.getTeacherRightsByTeacherIdAndCourseId(teacherId, courseId)
                 .orElseThrow(() -> new RuntimeException("Teacher rights not found"));
 
+        teacherRights.setEditCourse(false);
+        teacherRights.setDeleteCourse(false);
+        teacherRights.setAddTask(false);
+        teacherRights.setManageTeachers(false);
+
         rights.forEach(right -> {
             switch (right) {
                 case "edit":
