@@ -1,6 +1,7 @@
 package com.jilnash.courseservice.service.task;
 
 import com.jilnash.courseservice.clients.CourseAccessClient;
+import com.jilnash.courseservice.clients.CourseRightsClient;
 import com.jilnash.courseservice.dto.task.*;
 import com.jilnash.courseservice.mapper.TaskMapper;
 import com.jilnash.courseservice.model.Task;
@@ -23,11 +24,14 @@ public class TaskServiceImpl implements TaskService {
 
     private final CourseAccessClient courseAccessClient;
 
-    public TaskServiceImpl(TaskRepo taskRepo, TaskMapper taskMapper, ModuleServiceImpl moduleService, CourseAccessClient courseAccessClient) {
+    private final CourseRightsClient courseRightsClient;
+
+    public TaskServiceImpl(TaskRepo taskRepo, TaskMapper taskMapper, ModuleServiceImpl moduleService, CourseAccessClient courseAccessClient, CourseRightsClient courseRightsClient) {
         this.taskRepo = taskRepo;
         this.taskMapper = taskMapper;
         this.moduleService = moduleService;
         this.courseAccessClient = courseAccessClient;
+        this.courseRightsClient = courseRightsClient;
     }
 
     @Override
@@ -71,6 +75,9 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Task create(TaskCreateDTO task) {
 
+        if (!courseRightsClient.hasRights(task.getCourseId(), "1", List.of("add")))
+            throw new UsernameNotFoundException("Access denied");
+
         task.setModule(moduleService.getModuleByCourse(task.getCourseId(), task.getModuleId()));
 
         return taskRepo.save(taskMapper.toNode(task));
@@ -78,6 +85,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task update(TaskUpdateDTO task) {
+
+        if (!courseRightsClient.hasRights(task.getCourseId(), "1", List.of("edit")))
+            throw new NoSuchElementException("Access denied");
 
         if (!taskRepo.existsByIdAndModuleIdAndModule_CourseId(task.getId(), task.getModuleId(), task.getCourseId()))
             throw new UsernameNotFoundException("Task not found");
@@ -102,6 +112,9 @@ public class TaskServiceImpl implements TaskService {
 
     public List<TaskResponseDTO> updateTaskPrerequisite(String courseId, String moduleId, String taskId,
                                                         List<String> prerequisiteId) {
+
+        if (!courseRightsClient.hasRights(courseId, "1", List.of("edit")))
+            throw new NoSuchElementException("Access denied");
 
         Task task = taskRepo
                 .findByIdAndModule_IdAndModule_Course_Id(taskId, moduleId, courseId)
