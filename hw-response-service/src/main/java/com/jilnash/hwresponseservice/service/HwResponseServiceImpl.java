@@ -53,17 +53,37 @@ public class HwResponseServiceImpl implements HwResponseService {
     }
 
     @Override
-    public HwResponse saveResponse(HwResponse response) {
+    public HwResponse createResponse(HwResponse response) {
 
-        //if response id is not null, remove all the comments
-        if (response.getId() != null)
-            commentRepo.deleteAll(getResponse(response.getId()).getComments());
-
-        //setting comments' response id, then saving them
+        //creating response, then saving it for comments' response id
         HwResponse savedResponse = hwResponseRepo.save(response);
 
+        //setting comments' response id
         response.getComments().forEach(comment -> comment.setHwResponse(savedResponse));
 
+        //saving all comments
+        commentRepo.saveAll(response.getComments());
+
+        return savedResponse;
+    }
+
+    @Override
+    public HwResponse updateResponse(HwResponse response) {
+
+        //checking if response id is provided
+        if (response.getId() == null)
+            throw new NoSuchElementException("Response with id not provided");
+
+        //deleting all previous comments of the response
+        commentRepo.deleteAll(getResponse(response.getId()).getComments());
+
+        //creating response, then saving it for comments' response id
+        HwResponse savedResponse = hwResponseRepo.save(response);
+
+        //setting comments' response id
+        response.getComments().forEach(comment -> comment.setHwResponse(savedResponse));
+
+        //saving all comments
         commentRepo.saveAll(response.getComments());
 
         return savedResponse;

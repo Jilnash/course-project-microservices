@@ -44,7 +44,7 @@ public class HwResponseController {
                 new AppResponse(
                         200,
                         "Response created successfully",
-                        responseService.saveResponse(responseMapper.toEntity(responseDto))
+                        responseService.createResponse(responseMapper.toEntity(responseDto))
                 )
         );
     }
@@ -64,11 +64,13 @@ public class HwResponseController {
     @PostMapping("/{id}")
     public ResponseEntity<?> updateResponse(@PathVariable Long id, @Validated @RequestBody HwResponseDTO responseDto) {
 
+        responseDto.setId(id);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Response updated successfully",
-                        responseService.saveResponse(responseMapper.toEntity(responseDto))
+                        responseService.updateResponse(responseMapper.toEntity(responseDto))
                 )
         );
     }

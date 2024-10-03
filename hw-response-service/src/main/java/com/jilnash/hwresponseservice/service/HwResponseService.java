@@ -11,5 +11,7 @@ public interface HwResponseService {
 
     HwResponse getResponse(Long id);
 
-    HwResponse saveResponse(HwResponse response);
+    HwResponse createResponse(HwResponse response);
+
+    HwResponse updateResponse(HwResponse response);
 }
