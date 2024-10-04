@@ -31,4 +31,9 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
 
     @Query("MATCH (t:Task {id: $id}) SET t.title = $title, t.description = $description, t.videoLink = $videoLink, t.audioRequired = $audioRequired, t.videoRequired = $videoRequired RETURN t")
     Task updateTaskData(String id, String title, String description, String videoLink, Boolean audioRequired, Boolean videoRequired);
+
+    @Query("MATCH (c:Course) -[:CONTAINS]->(m:Module)-[:CONTAINS]->(t:Task)" +
+            "WHERE t.id = $taskId " +
+            "RETURN c.id as courseId")
+    Optional<String> getTaskCourseId(String taskId);
 }

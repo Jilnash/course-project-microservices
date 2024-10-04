@@ -125,4 +125,10 @@ public class TaskServiceImpl implements TaskService {
 
         return taskRepo.save(task).getTasks().stream().map(taskMapper::toTaskResponse).toList();
     }
+
+    public String getTaskCourseId(String taskId) {
+        return taskRepo
+                .getTaskCourseId(taskId)
+                .orElseThrow(() -> new NoSuchElementException("Task not found"));
+    }
 }
