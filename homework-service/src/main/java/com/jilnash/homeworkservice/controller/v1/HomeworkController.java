@@ -3,7 +3,7 @@ package com.jilnash.homeworkservice.controller.v1;
 import com.jilnash.homeworkservice.dto.AppResponse;
 import com.jilnash.homeworkservice.dto.HomeworkCreateDTO;
 import com.jilnash.homeworkservice.mapper.HomeworkMapper;
-import com.jilnash.homeworkservice.service.HomeworkService;
+import com.jilnash.homeworkservice.service.HomeworkServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ import java.sql.Date;
 public class HomeworkController {
 
     @Autowired
-    private final HomeworkService homeworkService;
+    private final HomeworkServiceImpl homeworkService;
 
     @Autowired
     private final HomeworkMapper homeworkMapper;
@@ -59,6 +59,11 @@ public class HomeworkController {
                         homeworkService.getHomework(id)
                 )
         );
+    }
+
+    @GetMapping("{id}/task/id")
+    public String getTaskId(@PathVariable Long id) {
+        return homeworkService.getHwTaskId(id);
     }
 }
 

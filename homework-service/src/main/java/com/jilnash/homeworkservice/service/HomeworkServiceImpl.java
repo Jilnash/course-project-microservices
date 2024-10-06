@@ -52,4 +52,10 @@ public class HomeworkServiceImpl implements HomeworkService {
     public Homework saveHomework(Homework homework) {
         return homeworkRepo.save(homework);
     }
+
+    public String getHwTaskId(Long id) {
+        return homeworkRepo
+                .getHwTaskId(id)
+                .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + id));
+    }
 }
