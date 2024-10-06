@@ -24,7 +24,7 @@ public class HwResponse {
     private Long id;
 
     @Column(nullable = false, updatable = false)
-    private Long teacherId;
+    private String teacherId;
 
     @Column(nullable = false, updatable = false)
     private Long homeworkId;

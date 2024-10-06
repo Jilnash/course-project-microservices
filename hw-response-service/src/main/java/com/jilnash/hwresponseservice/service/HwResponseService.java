@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface HwResponseService {
 
-    List<HwResponse> getResponses(Long teacherId, Long homeworkId, Date createdAfter, Date createdBefore);
+    List<HwResponse> getResponses(String teacherId, Long homeworkId, Date createdAfter, Date createdBefore);
 
     HwResponse getResponse(Long id);
 

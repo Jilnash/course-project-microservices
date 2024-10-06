@@ -24,7 +24,7 @@ public class HwResponseController {
     @GetMapping
     public ResponseEntity<?> getResponses(
             @RequestParam(required = false) Long hwId,
-            @RequestParam(required = false) Long tId,
+            @RequestParam(required = false) String tId,
             @RequestParam(required = false) Date createdAfter,
             @RequestParam(required = false) Date createdBefore) {
 

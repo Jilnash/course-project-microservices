@@ -4,7 +4,6 @@ import com.jilnash.hwresponseservice.model.HwResponse;
 import com.jilnash.hwresponseservice.repo.CommentRepo;
 import com.jilnash.hwresponseservice.repo.HwResponseRepo;
 import jakarta.persistence.criteria.Predicate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +14,17 @@ import java.util.NoSuchElementException;
 @Service
 public class HwResponseServiceImpl implements HwResponseService {
 
-    @Autowired
-    private HwResponseRepo hwResponseRepo;
+    private final HwResponseRepo hwResponseRepo;
 
-    @Autowired
-    private CommentRepo commentRepo;
+    private final CommentRepo commentRepo;
+
+    public HwResponseServiceImpl(HwResponseRepo hwResponseRepo, CommentRepo commentRepo) {
+        this.hwResponseRepo = hwResponseRepo;
+        this.commentRepo = commentRepo;
+    }
 
     @Override
-    public List<HwResponse> getResponses(Long teacherId, Long homeworkId, Date createdAfter, Date createdBefore) {
+    public List<HwResponse> getResponses(String teacherId, Long homeworkId, Date createdAfter, Date createdBefore) {
 
         Specification<HwResponse> spec = (root, query, cb) -> {
             Predicate p = cb.conjunction();
