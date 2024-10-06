@@ -18,7 +18,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     private HomeworkRepo homeworkRepo;
 
     @Override
-    public List<Homework> getHomeworks(Long taskId, Long studentId, Boolean checked, Date createdAfter) {
+    public List<Homework> getHomeworks(String taskId, String studentId, Boolean checked, Date createdAfter) {
 
         Specification<Homework> spec = (root, query, cb) -> {
             Predicate p = cb.conjunction();

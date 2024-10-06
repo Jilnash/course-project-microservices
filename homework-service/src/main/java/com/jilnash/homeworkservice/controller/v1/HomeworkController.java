@@ -25,8 +25,8 @@ public class HomeworkController {
 
     @GetMapping
     public ResponseEntity<?> getHomeworks(
-            @RequestParam(required = false) Long taskId,
-            @RequestParam(required = false) Long studentId,
+            @RequestParam(required = false) String taskId,
+            @RequestParam(required = false) String studentId,
             @RequestParam(required = false) Boolean checked,
             @RequestParam(required = false) Date createdAfter
     ) {
