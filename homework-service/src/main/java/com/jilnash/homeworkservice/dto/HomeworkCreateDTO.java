@@ -11,11 +11,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class HomeworkCreateDTO {
 
-    private Long studentId;
+    private String studentId;
 
     @NotNull(message = "Task id is required")
     @Min(value = 1, message = "Task id must be greater than 0")
-    private Long taskId;
+    private String taskId;
 
     private String audioLink;
 

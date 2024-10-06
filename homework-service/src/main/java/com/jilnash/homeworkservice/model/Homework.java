@@ -23,10 +23,10 @@ public class Homework {
     private Long id;
 
     @Column(nullable = false, updatable = false)
-    private Long studentId;
+    private String studentId;
 
     @Column(nullable = false, updatable = false)
-    private Long taskId;
+    private String taskId;
 
     private String audioLink;
 
