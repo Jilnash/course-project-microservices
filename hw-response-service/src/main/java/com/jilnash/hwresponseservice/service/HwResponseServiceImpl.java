@@ -1,5 +1,8 @@
 package com.jilnash.hwresponseservice.service;
 
+import com.jilnash.hwresponseservice.clients.CourseClient;
+import com.jilnash.hwresponseservice.clients.CourseRightsClient;
+import com.jilnash.hwresponseservice.clients.HwClient;
 import com.jilnash.hwresponseservice.model.HwResponse;
 import com.jilnash.hwresponseservice.repo.CommentRepo;
 import com.jilnash.hwresponseservice.repo.HwResponseRepo;
@@ -17,10 +20,16 @@ public class HwResponseServiceImpl implements HwResponseService {
     private final HwResponseRepo hwResponseRepo;
 
     private final CommentRepo commentRepo;
+    private final CourseRightsClient courseRightsClient;
+    private final CourseClient courseClient;
+    private final HwClient hwClient;
 
-    public HwResponseServiceImpl(HwResponseRepo hwResponseRepo, CommentRepo commentRepo) {
+    public HwResponseServiceImpl(HwResponseRepo hwResponseRepo, CommentRepo commentRepo, CourseRightsClient courseRightsClient, CourseClient courseClient, HwClient hwClient) {
         this.hwResponseRepo = hwResponseRepo;
         this.commentRepo = commentRepo;
+        this.courseRightsClient = courseRightsClient;
+        this.courseClient = courseClient;
+        this.hwClient = hwClient;
     }
 
     @Override
@@ -57,6 +66,18 @@ public class HwResponseServiceImpl implements HwResponseService {
     @Override
     public HwResponse createResponse(HwResponse response) {
 
+        //checking if teacher is allowed to check homework
+        if (
+                courseRightsClient.hasRights(
+                        //getting taskId by hwId, then getting courseId by taskId
+                        courseClient.getTaskCourseId(hwClient.getTaskId(response.getHomeworkId())),
+                        response.getTeacherId(),
+                        List.of("check")
+                )
+        ) {
+            throw new IllegalArgumentException("Teacher is not allowed to check homework");
+        }
+
         //creating response, then saving it for comments' response id
         HwResponse savedResponse = hwResponseRepo.save(response);
 
@@ -71,6 +92,18 @@ public class HwResponseServiceImpl implements HwResponseService {
 
     @Override
     public HwResponse updateResponse(HwResponse response) {
+
+        //checking if teacher is allowed to check homework
+        if (
+                courseRightsClient.hasRights(
+                        //getting taskId by hwId, then getting courseId by taskId
+                        courseClient.getTaskCourseId(hwClient.getTaskId(response.getHomeworkId())),
+                        response.getTeacherId(),
+                        List.of("check")
+                )
+        ) {
+            throw new IllegalArgumentException("Teacher is not allowed to check homework");
+        }
 
         //checking if response id is provided
         if (response.getId() == null)
