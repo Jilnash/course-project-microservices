@@ -7,6 +7,7 @@ import com.jilnash.courseservice.mapper.TaskMapper;
 import com.jilnash.courseservice.model.Task;
 import com.jilnash.courseservice.repo.TaskRepo;
 import com.jilnash.courseservice.service.module.ModuleServiceImpl;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -35,6 +36,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Cacheable(value = "taskLists", key = "#moduleId")
     public List<TaskResponseDTO> getTasks(String courseId, String moduleId, String title) {
 
         if (!courseAccessClient.checkAccess(courseId, "1"))
@@ -48,6 +50,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @Cacheable(value = "tasks", key = "#id")
     public TaskResponseDTO getTask(String courseId, String moduleId, String id) {
 
         if (!courseAccessClient.checkAccess(courseId, "1"))
@@ -59,6 +62,7 @@ public class TaskServiceImpl implements TaskService {
         );
     }
 
+    @Cacheable(value = "taskGraphs", key = "#moduleId")
     public TaskGraphDTO getTaskGraph(String courseId, String moduleId) {
 
         var tasks = taskRepo.findAllByModule_IdAndModule_Course_Id(moduleId, courseId);
