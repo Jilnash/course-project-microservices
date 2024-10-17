@@ -6,6 +6,7 @@ import com.jilnash.courseservice.mapper.ModuleMapper;
 import com.jilnash.courseservice.model.Module;
 import com.jilnash.courseservice.repo.ModuleRepo;
 import com.jilnash.courseservice.service.course.CourseService;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,7 @@ public class ModuleServiceImpl implements ModuleService {
                 .orElseThrow(() -> new UsernameNotFoundException("Module not found with id: " + id));
     }
 
+    @Cacheable(value = "modules", key = "#id")
     public Module getModuleByCourse(String courseId, String id) {
         return moduleRepo
                 .findByIdAndCourseId(id, courseId)
