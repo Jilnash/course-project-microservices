@@ -1,5 +1,6 @@
 package com.jilnash.courseservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -7,6 +8,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.neo4j.core.schema.*;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Builder
@@ -16,7 +18,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Node("Module")
-public class Module {
+public class Module implements Serializable {
 
     //fields
 
@@ -46,6 +48,8 @@ public class Module {
     private Date updatedAt;
 
     //relationships
+
+    @JsonIgnore
     @Relationship(type = "CONTAINS", direction = Relationship.Direction.INCOMING)
     private Course course;
 }

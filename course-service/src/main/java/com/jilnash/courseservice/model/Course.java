@@ -10,6 +10,7 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Property;
 import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
+import java.io.Serializable;
 import java.util.Date;
 
 @Builder
@@ -19,7 +20,7 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Node("Course")
-public class Course {
+public class Course implements Serializable {
 
     //fields
 
