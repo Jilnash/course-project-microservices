@@ -19,7 +19,7 @@ public interface StudentTaskCompleteRepository extends JpaRepository<StudentTask
     List<String> findStudentIdsByTaskId(String taskId);
 
     @Query("SELECT stc.studentId FROM student_task_complete stc WHERE stc.taskId IN :taskIds")
-    List<String> findStudentIdsByTaskIds(List<String> studentId);
+    List<String> findStudentIdsByTaskIds(List<String> taskIds);
 
     void deleteAllByTaskId(String taskId);
 

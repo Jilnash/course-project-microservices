@@ -52,6 +52,11 @@
           <package value="com.jilnash.courserightsservice"/>
         </packages>
       </persistence-unit>
+      <persistence-unit moduleName="progress-service" name="Default">
+        <packages>
+          <package value="com.jilnash.progressservice"/>
+        </packages>
+      </persistence-unit>
     </persistence-units>
   </component>
 </project>
