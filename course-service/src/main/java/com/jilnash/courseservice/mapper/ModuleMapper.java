@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ModuleMapper {
 
-    public Module toNode(ModuleCreateDTO moduleCreateDTO) {
+    public static Module toNode(ModuleCreateDTO moduleCreateDTO) {
         return Module.builder()
                 .name(moduleCreateDTO.getName())
                 .description(moduleCreateDTO.getDescription())

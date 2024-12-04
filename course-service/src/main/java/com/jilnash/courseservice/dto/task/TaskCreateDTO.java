@@ -6,11 +6,16 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.util.Pair;
+
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskCreateDTO {
+
+    private String taskId;
 
     private String courseId;
 
@@ -38,4 +43,10 @@ public class TaskCreateDTO {
     private Boolean videoRequired;
 
     private Module module;
+
+    private Set<String> prerequisiteTasksIds;
+
+    private Set<String> successorTasksIds;
+
+    private Set<Pair<String, String>> removeRelationshipIds;
 }

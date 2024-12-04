@@ -13,7 +13,7 @@ public interface TaskService {
 
     TaskResponseDTO getTask(String courseId, String moduleId, String id);
 
-    Task create(TaskCreateDTO task);
+    Boolean create(TaskCreateDTO task);
 
     Task update(TaskUpdateDTO task);
 }

@@ -1,5 +1,6 @@
 package com.jilnash.courseservice.repo;
 
+import com.jilnash.courseservice.dto.task.TaskCreateDTO;
 import com.jilnash.courseservice.model.Task;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -36,4 +37,24 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
             "WHERE t.id = $taskId " +
             "RETURN c.id as courseId")
     Optional<String> getTaskCourseId(String taskId);
+
+    @Query("MATCH (c:Course {id: $taskDTO.courseId}) - [r:CONTAINS] -> (m:Module {id: $taskDTO.moduleId}) " +
+            "CREATE (t:Task {id: $taskDTO.taskId, title: $taskDTO.title, description: $taskDTO.description, videoLink: $taskDTO.videoLink, audioRequired: $taskDTO.audioRequired, videoRequired: $taskDTO.videoRequired}) " +
+            "CREATE (m)-[:CONTAINS]->(t) " +
+            "WITH t " +
+            "UNWIND $taskDTO.prerequisiteTasksIds AS preReqId " +
+            "MATCH (preReq:Task {id: preReqId}) " +
+            "CREATE (preReq)-[:IS_PREREQUISITE]->(t) " +
+            "WITH t " +
+            "UNWIND $taskDTO.successorTasksIds AS postReqId " +
+            "MATCH (postReq:Task {id: postReqId}) " +
+            "CREATE (t)-[:IS_PREREQUISITE]->(postReq) " +
+            "RETURN t")
+    void createTaskWithRelationships(TaskCreateDTO taskDTO);
+
+//    @Query("UNWIND $taskIdPairs AS pair " +
+//            "MATCH (n1)-[r:IS_PREREQUISITE]-(n2) " +
+//            "WHERE id(n1) = pair.first AND id(n2) = pair.second" +
+//            "DELETE r")
+//    void deleteTaskRelationshipsByTaskIdPairs(Set<Pair<String, String>> taskIdPairs);
 }

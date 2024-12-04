@@ -1,51 +1,39 @@
 package com.jilnash.courseservice.service.task;
 
-import com.jilnash.courseservice.clients.CourseAccessClient;
-import com.jilnash.courseservice.clients.CourseRightsClient;
 import com.jilnash.courseservice.dto.task.*;
 import com.jilnash.courseservice.mapper.TaskMapper;
 import com.jilnash.courseservice.model.Task;
 import com.jilnash.courseservice.repo.TaskRepo;
+import com.jilnash.courseservice.service.course.CourseServiceImpl;
 import com.jilnash.courseservice.service.module.ModuleServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
+@RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepo taskRepo;
 
-    private final TaskMapper taskMapper;
-
     private final ModuleServiceImpl moduleService;
 
-    private final CourseAccessClient courseAccessClient;
-
-    private final CourseRightsClient courseRightsClient;
-
-    public TaskServiceImpl(TaskRepo taskRepo, TaskMapper taskMapper, ModuleServiceImpl moduleService, CourseAccessClient courseAccessClient, CourseRightsClient courseRightsClient) {
-        this.taskRepo = taskRepo;
-        this.taskMapper = taskMapper;
-        this.moduleService = moduleService;
-        this.courseAccessClient = courseAccessClient;
-        this.courseRightsClient = courseRightsClient;
-    }
+    private final CourseServiceImpl courseService;
 
     @Override
     @Cacheable(value = "taskLists", key = "#moduleId")
     public List<TaskResponseDTO> getTasks(String courseId, String moduleId, String title) {
 
-        if (!courseAccessClient.checkAccess(courseId, "1"))
-            throw new NoSuchElementException("Access denied");
+        courseService.validateStudentCourseAccess(courseId, "1");
 
         return taskRepo
                 .findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(title, moduleId, courseId)
                 .stream()
-                .map(taskMapper::toTaskResponse)
+                .map(TaskMapper::toTaskResponse)
                 .toList();
     }
 
@@ -53,10 +41,9 @@ public class TaskServiceImpl implements TaskService {
     @Cacheable(value = "tasks", key = "#id")
     public TaskResponseDTO getTask(String courseId, String moduleId, String id) {
 
-        if (!courseAccessClient.checkAccess(courseId, "1"))
-            throw new NoSuchElementException("Access denied");
+        courseService.validateStudentCourseAccess(courseId, "1");
 
-        return taskMapper.toTaskResponse(
+        return TaskMapper.toTaskResponse(
                 taskRepo.getTaskData(id, moduleId, courseId)
                         .orElseThrow(() -> new RuntimeException("Task not found"))
         );
@@ -77,24 +64,47 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Task create(TaskCreateDTO task) {
+    public Boolean create(TaskCreateDTO task) {
 
-        if (!courseRightsClient.hasRights(task.getCourseId(), "1", List.of("add")))
-            throw new UsernameNotFoundException("Access denied");
+        courseService.validateTeacherCourseRights(task.getCourseId(), "1", List.of("add"));
+        moduleService.validateModuleExists(task.getModuleId(), task.getCourseId());
 
-        task.setModule(moduleService.getModuleByCourse(task.getCourseId(), task.getModuleId()));
+        Set<String> prereqsAndSuccessorIds =
+                mergePrerequisitesAndSuccessors(task.getPrerequisiteTasksIds(), task.getSuccessorTasksIds());
 
-        return taskRepo.save(taskMapper.toNode(task));
+        if (prereqsAndSuccessorIds.isEmpty())
+            return createFirstTaskInModule(task);
+
+        validatePrerequisitesAndSuccessorsDisjoint(task.getPrerequisiteTasksIds(), task.getSuccessorTasksIds());
+
+        moduleService.validateModuleContainsTasks(task.getModuleId(), prereqsAndSuccessorIds);
+
+//        taskRepo.deleteTaskRelationshipsByTaskIdPairs(task.getRemoveRelationshipIds());
+
+        task.setTaskId(UUID.randomUUID().toString());
+        taskRepo.createTaskWithRelationships(task);
+
+        return true;
+    }
+
+    public Boolean createFirstTaskInModule(TaskCreateDTO taskCreateDTO) {
+
+        // throw exception if module already contains tasks
+        if (moduleService.hasAtLeastOneTask(taskCreateDTO.getModuleId()))
+            throw new RuntimeException("Task should be linked with other tasks");
+
+        taskRepo.save(TaskMapper.toNode(taskCreateDTO));
+
+        return true;
     }
 
     @Override
     public Task update(TaskUpdateDTO task) {
 
-        if (!courseRightsClient.hasRights(task.getCourseId(), "1", List.of("edit")))
-            throw new NoSuchElementException("Access denied");
+        courseService.validateTeacherCourseRights(task.getCourseId(), "1", List.of("edit"));
 
         if (!taskRepo.existsByIdAndModuleIdAndModule_CourseId(task.getId(), task.getModuleId(), task.getCourseId()))
-            throw new UsernameNotFoundException("Task not found");
+            throw new RuntimeException("Task not found");
 
         return taskRepo.updateTaskData(
                 task.getId(),
@@ -117,8 +127,7 @@ public class TaskServiceImpl implements TaskService {
     public List<TaskResponseDTO> updateTaskPrerequisite(String courseId, String moduleId, String taskId,
                                                         List<String> prerequisiteId) {
 
-        if (!courseRightsClient.hasRights(courseId, "1", List.of("edit")))
-            throw new NoSuchElementException("Access denied");
+        courseService.validateTeacherCourseRights(courseId, "1", List.of("edit"));
 
         Task task = taskRepo
                 .findByIdAndModule_IdAndModule_Course_Id(taskId, moduleId, courseId)
@@ -127,12 +136,21 @@ public class TaskServiceImpl implements TaskService {
         task.getTasks().clear();
         task.getTasks().addAll(taskRepo.findAllByIdIn(prerequisiteId));
 
-        return taskRepo.save(task).getTasks().stream().map(taskMapper::toTaskResponse).toList();
+        return taskRepo.save(task).getTasks().stream().map(TaskMapper::toTaskResponse).toList();
     }
 
     public String getTaskCourseId(String taskId) {
         return taskRepo
                 .getTaskCourseId(taskId)
                 .orElseThrow(() -> new NoSuchElementException("Task not found"));
+    }
+
+    public void validatePrerequisitesAndSuccessorsDisjoint(Set<String> prereqs, Set<String> successors) {
+        if (!Collections.disjoint(prereqs, successors))
+            throw new NoSuchElementException("Pre-requisites and successor tasks should be distinct");
+    }
+
+    public Set<String> mergePrerequisitesAndSuccessors(Set<String> prereqs, Set<String> successors) {
+        return Stream.concat(prereqs.stream(), successors.stream()).collect(Collectors.toSet());
     }
 }

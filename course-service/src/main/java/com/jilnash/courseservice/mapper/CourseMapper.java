@@ -10,7 +10,7 @@ import java.util.Date;
 @Component
 public class CourseMapper {
 
-    public Course toNode(CourseCreateDTO courseCreateDTO) {
+    public static Course toNode(CourseCreateDTO courseCreateDTO) {
         return Course.builder()
                 .name(courseCreateDTO.getName())
                 .description(courseCreateDTO.getDescription())
@@ -20,7 +20,7 @@ public class CourseMapper {
                 .build();
     }
 
-    public Course toNode(CourseUpdateDTO courseUpdateDTO) {
+    public static Course toNode(CourseUpdateDTO courseUpdateDTO) {
         return Course.builder()
                 .id(courseUpdateDTO.getId())
                 .name(courseUpdateDTO.getName())
