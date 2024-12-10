@@ -1,6 +1,7 @@
 package com.jilnash.courseservice.repo;
 
 import com.jilnash.courseservice.dto.task.TaskCreateDTO;
+import com.jilnash.courseservice.dto.task.TaskLinkDTO;
 import com.jilnash.courseservice.model.Task;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface TaskRepo extends Neo4jRepository<Task, String> {
@@ -38,23 +40,21 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
             "RETURN c.id as courseId")
     Optional<String> getTaskCourseId(String taskId);
 
-    @Query("MATCH (c:Course {id: $taskDTO.courseId}) - [r:CONTAINS] -> (m:Module {id: $taskDTO.moduleId}) " +
+    @Query("MATCH (m:Module {id: $taskDTO.moduleId}) " +
             "CREATE (t:Task {id: $taskDTO.taskId, title: $taskDTO.title, description: $taskDTO.description, videoLink: $taskDTO.videoLink, audioRequired: $taskDTO.audioRequired, videoRequired: $taskDTO.videoRequired}) " +
             "CREATE (m)-[:CONTAINS]->(t) " +
             "WITH t " +
-            "UNWIND $taskDTO.prerequisiteTasksIds AS preReqId " +
-            "MATCH (preReq:Task {id: preReqId}) " +
-            "CREATE (preReq)-[:IS_PREREQUISITE]->(t) " +
+            "UNWIND $taskDTO.successorTasksIds AS suc " +
+            "MATCH (to:Task {id: suc}) " +
+            "CREATE (t)-[:IS_PREREQUISITE]->(to) " +
             "WITH t " +
-            "UNWIND $taskDTO.successorTasksIds AS postReqId " +
-            "MATCH (postReq:Task {id: postReqId}) " +
-            "CREATE (t)-[:IS_PREREQUISITE]->(postReq) " +
-            "RETURN t")
+            "UNWIND $taskDTO.prerequisiteTasksIds AS prereq " +
+            "MATCH (from:Task {id: prereq}) " +
+            "CREATE (from)-[:IS_PREREQUISITE]->(t)")
     void createTaskWithRelationships(TaskCreateDTO taskDTO);
 
-//    @Query("UNWIND $taskIdPairs AS pair " +
-//            "MATCH (n1)-[r:IS_PREREQUISITE]-(n2) " +
-//            "WHERE id(n1) = pair.first AND id(n2) = pair.second" +
-//            "DELETE r")
-//    void deleteTaskRelationshipsByTaskIdPairs(Set<Pair<String, String>> taskIdPairs);
+    @Query("UNWIND $taskIdLinks AS link " +
+            "MATCH (from:Task {id: link.fromTaskId})-[r:IS_PREREQUISITE]->(to:Task {id: link.toTaskId}) " +
+            "DELETE r")
+    void deleteTaskRelationshipsByTaskIdLinks(Set<TaskLinkDTO> taskIdLinks);
 }

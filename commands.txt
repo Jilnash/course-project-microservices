@@ -1,0 +1,7 @@
+cd /users/aydar/downloads/keycloak-25.0.2
+.\bin\kc.bat start-dev
+
+cd /users/aydar/downloads/neo4j-community-5.12.0
+.\bin\neo4j-admin server console
+
+docker container start kafka

@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.util.Pair;
 
 import java.util.Set;
 
@@ -48,5 +47,5 @@ public class TaskCreateDTO {
 
     private Set<String> successorTasksIds;
 
-    private Set<Pair<String, String>> removeRelationshipIds;
+    private Set<TaskLinkDTO> removeRelationshipIds;
 }

@@ -1,12 +1,13 @@
 package com.jilnash.courseservice.config;
 
 import com.jilnash.courseservice.converter.neo4j.TaskCreateDTOConverter;
+import com.jilnash.courseservice.converter.neo4j.TaskLinkDTOConverter;
 import org.neo4j.cypherdsl.core.renderer.Dialect;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.neo4j.core.convert.Neo4jConversions;
 
-import java.util.Collections;
+import java.util.List;
 
 @Configuration
 public class Neo4jConfig {
@@ -20,6 +21,6 @@ public class Neo4jConfig {
 
     @Bean
     public Neo4jConversions neo4jConversions() {
-        return new Neo4jConversions(Collections.singletonList(new TaskCreateDTOConverter()));
+        return new Neo4jConversions(List.of(new TaskCreateDTOConverter(), new TaskLinkDTOConverter()));
     }
 }

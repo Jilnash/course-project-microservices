@@ -79,7 +79,7 @@ public class TaskServiceImpl implements TaskService {
 
         moduleService.validateModuleContainsTasks(task.getModuleId(), prereqsAndSuccessorIds);
 
-//        taskRepo.deleteTaskRelationshipsByTaskIdPairs(task.getRemoveRelationshipIds());
+        taskRepo.deleteTaskRelationshipsByTaskIdLinks(task.getRemoveRelationshipIds());
 
         task.setTaskId(UUID.randomUUID().toString());
         taskRepo.createTaskWithRelationships(task);
@@ -96,6 +96,15 @@ public class TaskServiceImpl implements TaskService {
         taskRepo.save(TaskMapper.toNode(taskCreateDTO));
 
         return true;
+    }
+
+    public void validatePrerequisitesAndSuccessorsDisjoint(Set<String> prereqs, Set<String> successors) {
+        if (!Collections.disjoint(prereqs, successors))
+            throw new NoSuchElementException("Pre-requisites and successor tasks should be distinct");
+    }
+
+    public Set<String> mergePrerequisitesAndSuccessors(Set<String> prereqs, Set<String> successors) {
+        return Stream.concat(prereqs.stream(), successors.stream()).collect(Collectors.toSet());
     }
 
     @Override
@@ -143,14 +152,5 @@ public class TaskServiceImpl implements TaskService {
         return taskRepo
                 .getTaskCourseId(taskId)
                 .orElseThrow(() -> new NoSuchElementException("Task not found"));
-    }
-
-    public void validatePrerequisitesAndSuccessorsDisjoint(Set<String> prereqs, Set<String> successors) {
-        if (!Collections.disjoint(prereqs, successors))
-            throw new NoSuchElementException("Pre-requisites and successor tasks should be distinct");
-    }
-
-    public Set<String> mergePrerequisitesAndSuccessors(Set<String> prereqs, Set<String> successors) {
-        return Stream.concat(prereqs.stream(), successors.stream()).collect(Collectors.toSet());
     }
 }
