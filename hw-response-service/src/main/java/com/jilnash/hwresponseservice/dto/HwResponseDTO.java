@@ -24,4 +24,7 @@ public class HwResponseDTO implements Serializable {
     @NotNull(message = "Comments should not be null")
     @NotEmpty(message = "Comments should not be empty")
     List<@Valid CommentDTO> comments;
+
+    @NotNull(message = "Is correct should not be null")
+    Boolean isCorrect;
 }

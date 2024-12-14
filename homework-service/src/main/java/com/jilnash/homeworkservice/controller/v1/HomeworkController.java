@@ -65,5 +65,10 @@ public class HomeworkController {
     public String getTaskId(@PathVariable Long id) {
         return homeworkService.getHwTaskId(id);
     }
+
+    @GetMapping("{hwId}/student/id")
+    public String getStudentId(@PathVariable Long hwId) {
+        return homeworkService.getHwStudentId(hwId);
+    }
 }
 

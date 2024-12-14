@@ -14,4 +14,7 @@ public interface HomeworkRepo extends JpaRepository<Homework, Long>, JpaSpecific
 
     @Query("SELECT h.taskId FROM Homework h WHERE h.id = :id")
     Optional<String> getHwTaskId(@Param("id") Long id);
+
+    @Query("SELECT h.studentId FROM Homework h WHERE h.id = :id")
+    Optional<String> getHwStudentId(@Param("id") Long id);
 }

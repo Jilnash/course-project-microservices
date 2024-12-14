@@ -8,10 +8,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Component
 @FeignClient(
         name = "homework-service",
-        url = "http://localhost:8089"
+        url = "http://localhost:8088"
 )
 public interface HwClient {
 
     @GetMapping("/api/v1/homeworks/{id}/task/id")
     String getTaskId(@PathVariable Long id);
+
+    @GetMapping("/api/v1/homeworks/{hwId}/student/id")
+    String getStudentId(@PathVariable Long hwId);
 }

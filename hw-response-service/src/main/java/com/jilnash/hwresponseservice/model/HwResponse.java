@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @Getter
 @Setter
-@ToString
+@ToString(exclude = "comments")
 @Entity
 @Table(name = "hw_response")
 public class HwResponse {
@@ -31,6 +31,9 @@ public class HwResponse {
 
     @OneToMany(mappedBy = "hwResponse")
     private List<Comment> comments;
+
+    @Column(nullable = false, updatable = false)
+    private Boolean isCorrect;
 
     @CreationTimestamp
     @Column(updatable = false)

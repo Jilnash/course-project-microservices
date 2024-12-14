@@ -58,4 +58,10 @@ public class HomeworkServiceImpl implements HomeworkService {
                 .getHwTaskId(id)
                 .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + id));
     }
+
+    public String getHwStudentId(Long id) {
+        return homeworkRepo
+                .getHwStudentId(id)
+                .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + id));
+    }
 }

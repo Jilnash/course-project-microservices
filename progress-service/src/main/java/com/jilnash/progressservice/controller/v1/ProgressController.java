@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/{student}/completed")
+@RequestMapping("/api/v1/{studentId}/completed")
 public class ProgressController {
 
     private final StudentTaskCompleteService studentTaskCompleteService;

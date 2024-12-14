@@ -4,7 +4,7 @@ import com.jilnash.hwresponseservice.dto.AppResponse;
 import com.jilnash.hwresponseservice.dto.HwResponseDTO;
 import com.jilnash.hwresponseservice.mapper.HwResponseMapper;
 import com.jilnash.hwresponseservice.service.HwResponseService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -13,13 +13,12 @@ import java.util.Date;
 
 @RestController
 @RequestMapping("/api/v1/hw-responses")
+@RequiredArgsConstructor
 public class HwResponseController {
 
-    @Autowired
-    private HwResponseService responseService;
+    private final HwResponseService responseService;
 
-    @Autowired
-    private HwResponseMapper responseMapper;
+    private final HwResponseMapper responseMapper;
 
     @GetMapping
     public ResponseEntity<?> getResponses(

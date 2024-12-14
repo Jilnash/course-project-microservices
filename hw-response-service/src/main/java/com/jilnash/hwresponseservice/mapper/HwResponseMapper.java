@@ -17,6 +17,7 @@ public class HwResponseMapper {
                 .id(dto.getId())
                 .teacherId(dto.getTeacherId())
                 .homeworkId(dto.getHomeworkId())
+                .isCorrect(dto.getIsCorrect())
                 .comments(dto.getComments().stream().map(commentDTO -> Comment.builder()
                                 .id(commentDTO.getId())
                                 .text(commentDTO.getText())
