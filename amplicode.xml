@@ -7,11 +7,6 @@
           <package value="com.jilnash.user"/>
         </packages>
       </persistence-unit>
-      <persistence-unit moduleName="student-service" name="Default">
-        <packages>
-          <package value="com.jilnash.studentservice"/>
-        </packages>
-      </persistence-unit>
       <persistence-unit moduleName="teacher-service" name="Default">
         <packages>
           <package value="com.jilnash.teacherservice"/>

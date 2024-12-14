@@ -4,18 +4,17 @@ import com.jilnash.courseservice.dto.AppResponse;
 import com.jilnash.courseservice.dto.module.ModuleCreateDTO;
 import com.jilnash.courseservice.dto.module.ModuleUpdateDTO;
 import com.jilnash.courseservice.service.module.ModuleServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/modules")
+@RequiredArgsConstructor
 public class ModuleController {
 
-    @Autowired
-    private ModuleServiceImpl moduleService;
-
+    private final ModuleServiceImpl moduleService;
 
     @GetMapping
     public ResponseEntity<?> getModules(@PathVariable String courseId,

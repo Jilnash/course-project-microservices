@@ -1,5 +1,6 @@
 package com.jilnash.courseservice.service.task;
 
+import com.jilnash.courseservice.clients.ProgressClient;
 import com.jilnash.courseservice.dto.task.*;
 import com.jilnash.courseservice.mapper.TaskMapper;
 import com.jilnash.courseservice.model.Task;
@@ -19,6 +20,8 @@ import java.util.stream.Stream;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepo taskRepo;
+
+    private final ProgressClient progressClient;
 
     private final ModuleServiceImpl moduleService;
 
@@ -81,8 +84,13 @@ public class TaskServiceImpl implements TaskService {
 
         taskRepo.deleteTaskRelationshipsByTaskIdLinks(task.getRemoveRelationshipIds());
 
-        task.setTaskId(UUID.randomUUID().toString());
+        String generatedTaskId = UUID.randomUUID().toString();
+        task.setTaskId(generatedTaskId);
         taskRepo.createTaskWithRelationships(task);
+
+        // the new task should be included in progress
+        // of all students who have completed successors the new task
+        progressClient.insertTaskToProgression(generatedTaskId, task.getSuccessorTasksIds().stream().toList());
 
         return true;
     }
