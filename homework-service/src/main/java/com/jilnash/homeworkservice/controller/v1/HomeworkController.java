@@ -5,7 +5,6 @@ import com.jilnash.homeworkservice.dto.HomeworkCreateDTO;
 import com.jilnash.homeworkservice.mapper.HomeworkMapper;
 import com.jilnash.homeworkservice.service.HomeworkServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +16,8 @@ import java.sql.Date;
 @RequiredArgsConstructor
 public class HomeworkController {
 
-    @Autowired
     private final HomeworkServiceImpl homeworkService;
 
-    @Autowired
     private final HomeworkMapper homeworkMapper;
 
     @GetMapping
@@ -40,11 +37,16 @@ public class HomeworkController {
     }
 
     @PutMapping
-    public ResponseEntity<?> createHomework(@Validated @RequestBody HomeworkCreateDTO homeworkDTO) {
+    public ResponseEntity<?> createHomework(
+            @Validated @RequestBody HomeworkCreateDTO homeworkDTO,
+            @RequestHeader("X-User-Sub") String studentId) {
+
+        homeworkDTO.setStudentId(studentId);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
-                        "Homework updated successfully",
+                        "Homework created successfully",
                         homeworkService.saveHomework(homeworkMapper.toEntity(homeworkDTO))
                 )
         );
