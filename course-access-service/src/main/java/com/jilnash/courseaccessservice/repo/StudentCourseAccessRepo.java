@@ -13,5 +13,5 @@ public interface StudentCourseAccessRepo extends JpaRepository<StudentCourseAcce
     @Query("""
             select (count(s) > 0) from student_course_access s
             where s.studentId = ?1 and s.courseId = ?2 and s.startDate < ?3 and s.endDate > ?3""")
-    Boolean existsByStudentIdAndCourseIdAndStartDateBeforeAndEndDateAfter(Long studentId, String courseId, Date currentDate);
+    Boolean existsByStudentIdAndCourseIdAndStartDateBeforeAndEndDateAfter(String studentId, String courseId, Date currentDate);
 }

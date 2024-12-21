@@ -15,7 +15,7 @@ public class StudentCourseAccessService {
         this.studentCourseAccessRepo = studentCourseAccessRepo;
     }
 
-    public Boolean getStudentHasAccess(Long studentId, String courseId) {
+    public Boolean getStudentHasAccess(String studentId, String courseId) {
         return studentCourseAccessRepo
                 .existsByStudentIdAndCourseIdAndStartDateBeforeAndEndDateAfter(
                         studentId, courseId, new Date(System.currentTimeMillis())

@@ -21,7 +21,7 @@ public class StudentCourseAccess {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long studentId;
+    private String studentId;
 
     private String courseId;
 

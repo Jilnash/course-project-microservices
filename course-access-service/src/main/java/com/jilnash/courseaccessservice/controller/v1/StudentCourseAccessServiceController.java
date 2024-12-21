@@ -18,12 +18,12 @@ public class StudentCourseAccessServiceController {
     }
 
     @GetMapping
-    public Boolean getStudentHasAccess(@RequestParam Long studentId, @RequestParam String courseId) {
+    public Boolean getStudentHasAccess(@RequestParam String studentId, @RequestParam String courseId) {
         return studentCourseAccessService.getStudentHasAccess(studentId, courseId);
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestParam Long studentId, @RequestParam String courseId) {
+    public ResponseEntity<?> create(@RequestParam String studentId, @RequestParam String courseId) {
         return ResponseEntity.ok(
                 studentCourseAccessService.purchase(
                         StudentCourseAccess.builder()
