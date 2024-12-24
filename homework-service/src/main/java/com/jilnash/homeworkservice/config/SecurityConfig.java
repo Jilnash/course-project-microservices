@@ -11,7 +11,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final String gatewayIp = "127.0.0.1"; //localhost
+//    private final String gatewayIp = "127.0.0.1"; //localhost
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -19,8 +19,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers((request) -> request.getRemoteAddr().equals(gatewayIp)).permitAll()
-                        .anyRequest().denyAll()
+//                        .requestMatchers((request) -> request.getRemoteAddr().equals(gatewayIp)).permitAll()
+                                .anyRequest().permitAll()
                 )
                 .build();
     }
