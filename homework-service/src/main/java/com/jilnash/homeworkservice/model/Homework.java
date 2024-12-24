@@ -1,8 +1,10 @@
 package com.jilnash.homeworkservice.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
 
@@ -32,9 +34,23 @@ public class Homework {
 
     private String videoLink;
 
+    private String imageLink;
+
     private Boolean checked = false;
 
     @Column(updatable = false)
     @CreationTimestamp
     private Date createdAt;
+
+    @Transient
+    @JsonIgnore
+    private MultipartFile imageFile;
+
+    @Transient
+    @JsonIgnore
+    private MultipartFile audioFile;
+
+    @Transient
+    @JsonIgnore
+    private MultipartFile videoFile;
 }

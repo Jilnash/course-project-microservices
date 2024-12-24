@@ -12,9 +12,10 @@ public class HomeworkMapper {
         return Homework.builder()
                 .studentId(homeworkDTO.getStudentId())
                 .taskId(homeworkDTO.getTaskId())
-                .audioLink(homeworkDTO.getAudioLink())
-                .videoLink(homeworkDTO.getVideoLink())
                 .checked(homeworkDTO.getChecked())
+                .imageFile(homeworkDTO.getImage())
+                .audioFile(homeworkDTO.getAudio())
+                .videoFile(homeworkDTO.getVideo())
                 .build();
     }
 }

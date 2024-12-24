@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
 @NoArgsConstructor
@@ -15,9 +16,11 @@ public class HomeworkCreateDTO {
     @NotNull(message = "Task id is required")
     private String taskId;
 
-    private String audioLink;
-
-    private String videoLink;
-
     private Boolean checked = false;
+
+    private MultipartFile image;
+
+    private MultipartFile audio;
+
+    private MultipartFile video;
 }
