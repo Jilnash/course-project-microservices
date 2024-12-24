@@ -20,11 +20,14 @@ public class S3Service implements StorageService {
     @Override
     public String putFile(String bucketName, String fileName, MultipartFile file) throws IOException {
 
-        s3.createBucket(
-                CreateBucketRequest.builder()
-                        .bucket(bucketName)
-                        .build()
-        );
+        if (s3.listBuckets().buckets().stream()
+                .noneMatch(b -> b.name().equals(bucketName))) {
+            s3.createBucket(
+                    CreateBucketRequest.builder()
+                            .bucket(bucketName)
+                            .build()
+            );
+        }
 
         s3.putObject(
                 PutObjectRequest.builder()
