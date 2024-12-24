@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v2/tasks")
 public class TaskControllerV2 {
@@ -20,5 +22,11 @@ public class TaskControllerV2 {
     public String getTaskCourseId(@PathVariable String taskId) {
 
         return taskService.getTaskCourseId(taskId);
+    }
+
+    @GetMapping("/{taskId}/file-requirements")
+    public List<String> getTaskRequirements(@PathVariable String taskId) {
+
+        return taskService.getTaskRequirements(taskId);
     }
 }

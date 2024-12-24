@@ -161,4 +161,20 @@ public class TaskServiceImpl implements TaskService {
                 .getTaskCourseId(taskId)
                 .orElseThrow(() -> new NoSuchElementException("Task not found"));
     }
+
+    public List<String> getTaskRequirements(String taskId) {
+
+        List<Object> requirements = taskRepo
+                .getTaskRequirements(taskId)
+                .orElseThrow(() -> new NoSuchElementException("Task not found"));
+
+        List<String> result = new ArrayList<>();
+
+//        if (requirements.get(0)) result.add("audio");
+//        if (requirements.get(1)) result.add("video");
+//        if (requirements.get(2)) result.add("image");
+
+        result.add("audio");
+        return result;
+    }
 }
