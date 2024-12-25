@@ -59,5 +59,5 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
     void deleteTaskRelationshipsByTaskIdLinks(Set<TaskLinkDTO> taskIdLinks);
 
     @Query("MATCH (t:Task {id: $taskId}) RETURN [t.audioRequired, t.videoRequired, t.imageRequired]")
-    Optional<List<Object>> getTaskRequirements(String taskId);
+    Optional<Object> getTaskRequirements(String taskId);
 }

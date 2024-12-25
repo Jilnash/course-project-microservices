@@ -8,6 +8,7 @@ import com.jilnash.courseservice.repo.TaskRepo;
 import com.jilnash.courseservice.service.course.CourseServiceImpl;
 import com.jilnash.courseservice.service.module.ModuleServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.neo4j.driver.internal.value.ListValue;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -164,17 +165,16 @@ public class TaskServiceImpl implements TaskService {
 
     public List<String> getTaskRequirements(String taskId) {
 
-        List<Object> requirements = taskRepo
+        ListValue requirements = (ListValue) taskRepo
                 .getTaskRequirements(taskId)
                 .orElseThrow(() -> new NoSuchElementException("Task not found"));
 
         List<String> result = new ArrayList<>();
 
-//        if (requirements.get(0)) result.add("audio");
-//        if (requirements.get(1)) result.add("video");
-//        if (requirements.get(2)) result.add("image");
+        if (requirements.get(0).asBoolean()) result.add("audio");
+        if (requirements.get(1).asBoolean()) result.add("video");
+        if (requirements.get(2).asBoolean()) result.add("image");
 
-        result.add("audio");
         return result;
     }
 }
