@@ -14,8 +14,6 @@ public class TaskCreateDTOConverter implements Converter<TaskCreateDTO, Value> {
                 "title", source.getTitle(),
                 "description", source.getDescription(),
                 "videoLink", source.getVideoLink(),
-                "audioRequired", source.getAudioRequired(),
-                "videoRequired", source.getVideoRequired(),
                 "courseId", source.getCourseId(),
                 "moduleId", source.getModuleId(),
                 "prerequisiteTasksIds", source.getPrerequisiteTasksIds(),

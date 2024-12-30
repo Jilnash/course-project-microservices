@@ -18,8 +18,4 @@ public class TaskResponseDTO implements Serializable {
     private String description;
 
     private String videoLink;
-
-    private Boolean audioRequired;
-
-    private Boolean videoRequired;
 }

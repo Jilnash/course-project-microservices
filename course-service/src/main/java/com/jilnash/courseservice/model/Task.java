@@ -33,13 +33,6 @@ public class Task {
     @Property("videoLink")
     private String videoLink;
 
-    @Property("audioRequired")
-    private Boolean audioRequired;
-
-    @Property("videoRequired")
-    private Boolean videoRequired;
-
-
     //audit fields
 
     @Property("createdBy")
@@ -51,6 +44,8 @@ public class Task {
     @LastModifiedDate
     private Date updatedAt;
 
+    @Property("deletedAt")
+    private Date deletedAt;
 
     //relationships
 

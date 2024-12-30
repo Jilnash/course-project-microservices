@@ -28,10 +28,4 @@ public class TaskUpdateDTO {
 
     @URL(message = "Invalid video link")
     private String videoLink;
-
-    @NotNull(message = "Audio required is required")
-    private Boolean audioRequired;
-
-    @NotNull(message = "Video required is required")
-    private Boolean videoRequired;
 }

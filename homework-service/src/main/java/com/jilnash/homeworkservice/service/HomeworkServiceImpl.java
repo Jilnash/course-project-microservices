@@ -69,7 +69,7 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         validatePreviousHomeworksChecked(homework.getStudentId(), homework.getTaskId());
 
-        validateAllTaskFilesProvided(homework);
+        //validateAllTaskFilesProvided(homework);//todo: implement later
 
         uploadFiles(homework);
 
@@ -90,20 +90,6 @@ public class HomeworkServiceImpl implements HomeworkService {
     private void validatePreviousHomeworksChecked(String studentId, String taskId) {
         if (homeworkRepo.getHwUnchecked(studentId, taskId))
             throw new IllegalArgumentException("Previous homework is not checked yet");
-    }
-
-    private void validateAllTaskFilesProvided(Homework homework) {
-
-        List<String> requiredFiles = courseClient.getTaskRequirements(homework.getTaskId());
-
-        if (homework.getImageFile() == null && requiredFiles.contains("image"))
-            throw new IllegalArgumentException("Image file is required");
-
-        if (homework.getAudioFile() == null && requiredFiles.contains("audio"))
-            throw new IllegalArgumentException("Audio file is required");
-
-        if (homework.getVideoFile() == null && requiredFiles.contains("video"))
-            throw new IllegalArgumentException("Video file is required");
     }
 
     private void uploadFiles(Homework homework) {

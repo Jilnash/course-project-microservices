@@ -4,6 +4,7 @@ import com.jilnash.courseservice.dto.AppResponse;
 import com.jilnash.courseservice.dto.task.TaskCreateDTO;
 import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
 import com.jilnash.courseservice.service.task.TaskServiceImpl;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,13 +12,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/modules/{moduleId}/tasks")
+@RequiredArgsConstructor
 public class TaskController {
 
     private final TaskServiceImpl taskService;
-
-    public TaskController(TaskServiceImpl taskService) {
-        this.taskService = taskService;
-    }
 
     @GetMapping
     public ResponseEntity<?> getTasks(@PathVariable String courseId,

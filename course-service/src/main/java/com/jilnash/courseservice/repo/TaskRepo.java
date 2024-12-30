@@ -32,8 +32,8 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
 
     Boolean existsByIdAndModuleIdAndModule_CourseId(String id, String moduleId, String courseId);
 
-    @Query("MATCH (t:Task {id: $id}) SET t.title = $title, t.description = $description, t.videoLink = $videoLink, t.audioRequired = $audioRequired, t.videoRequired = $videoRequired RETURN t")
-    Task updateTaskData(String id, String title, String description, String videoLink, Boolean audioRequired, Boolean videoRequired);
+    @Query("MATCH (t:Task {id: $id}) SET t.title = $title, t.description = $description, t.videoLink = $videoLink RETURN t")
+    Task updateTaskData(String id, String title, String description, String videoLink);
 
     @Query("MATCH (c:Course) -[:CONTAINS]->(m:Module)-[:CONTAINS]->(t:Task)" +
             "WHERE t.id = $taskId " +
@@ -41,7 +41,7 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
     Optional<String> getTaskCourseId(String taskId);
 
     @Query("MATCH (m:Module {id: $taskDTO.moduleId}) " +
-            "CREATE (t:Task {id: $taskDTO.taskId, title: $taskDTO.title, description: $taskDTO.description, videoLink: $taskDTO.videoLink, audioRequired: $taskDTO.audioRequired, videoRequired: $taskDTO.videoRequired}) " +
+            "CREATE (t:Task {id: $taskDTO.taskId, title: $taskDTO.title, description: $taskDTO.description, videoLink: $taskDTO.videoLink}) " +
             "CREATE (m)-[:CONTAINS]->(t) " +
             "WITH t " +
             "UNWIND $taskDTO.successorTasksIds AS suc " +
@@ -57,7 +57,4 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
             "MATCH (from:Task {id: link.fromTaskId})-[r:IS_PREREQUISITE]->(to:Task {id: link.toTaskId}) " +
             "DELETE r")
     void deleteTaskRelationshipsByTaskIdLinks(Set<TaskLinkDTO> taskIdLinks);
-
-    @Query("MATCH (t:Task {id: $taskId}) RETURN [t.audioRequired, t.videoRequired, t.imageRequired]")
-    Optional<Object> getTaskRequirements(String taskId);
 }

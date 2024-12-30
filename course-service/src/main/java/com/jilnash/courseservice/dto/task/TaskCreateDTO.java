@@ -35,12 +35,6 @@ public class TaskCreateDTO {
     @NotNull(message = "Audio link is required")
     private String videoLink;
 
-    @NotNull(message = "Audio required is required")
-    private Boolean audioRequired;
-
-    @NotNull(message = "Video required is required")
-    private Boolean videoRequired;
-
     private Module module;
 
     private Set<String> prerequisiteTasksIds;

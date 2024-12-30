@@ -13,8 +13,6 @@ public class TaskMapper {
                 .title(taskCreateDTO.getTitle())
                 .description(taskCreateDTO.getDescription())
                 .videoLink(taskCreateDTO.getVideoLink())
-                .audioRequired(taskCreateDTO.getAudioRequired())
-                .videoRequired(taskCreateDTO.getVideoRequired())
                 .module(taskCreateDTO.getModule())
                 .build();
     }
@@ -24,9 +22,7 @@ public class TaskMapper {
                 task.getId(),
                 task.getTitle(),
                 task.getDescription(),
-                task.getVideoLink(),
-                task.getAudioRequired(),
-                task.getVideoRequired()
+                task.getVideoLink()
         );
     }
 }
