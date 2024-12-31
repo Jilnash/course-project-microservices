@@ -22,6 +22,7 @@
         <option value="$PROJECT_DIR$/course-access-service/pom.xml" />
         <option value="$PROJECT_DIR$/course-rights-service/pom.xml" />
         <option value="$PROJECT_DIR$/progress-service/pom.xml" />
+        <option value="$PROJECT_DIR$/task-file-requirements-service/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
