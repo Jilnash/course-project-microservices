@@ -14,12 +14,14 @@ import java.util.UUID;
 @Entity
 @Table(name = "file_requirements")
 public class FileRequirement {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    private String name;
+    @Column(name = "content_type", nullable = false)
+    private String contentType;
 
     @CreationTimestamp
     private Date createdAt;
