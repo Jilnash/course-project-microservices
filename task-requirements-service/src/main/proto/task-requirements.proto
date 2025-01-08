@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_package = "com.jilnash.taskrequirementsservice";
+option java_multiple_files = true;
+
+message ValidateRequirementsRequest {
+  repeated string requirements = 1;
+  string taskId = 2;
+}
+
+message ValidateRequirementsResponse {
+  bool valid = 1;
+}
+
+service TaskRequirementsService {
+  rpc ValidateHomeworkFiles(ValidateRequirementsRequest) returns (ValidateRequirementsResponse);
+}

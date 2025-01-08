@@ -44,19 +44,4 @@ public class TaskFileRequirementsService {
 
         return true;
     }
-
-    public Boolean validateTaskRequirements(String taskId, List<String> providedContentTypes) {
-
-        if (!providedContentTypes.stream().sorted().toList().equals(
-                getTaskRequirements(
-                        taskId).stream()
-                        //mapping to a list of `content type` strings repeated `count` times
-                        .flatMap(req -> java.util.Collections.nCopies(req.count(), req.contentType()).stream())
-                        .sorted()
-                        .toList()
-        ))
-            throw new RuntimeException("Provided content types do not match the task requirements");
-
-        return true;
-    }
 }
