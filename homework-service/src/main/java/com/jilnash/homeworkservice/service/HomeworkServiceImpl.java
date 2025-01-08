@@ -6,8 +6,11 @@ import com.jilnash.homeworkservice.client.FileClient;
 import com.jilnash.homeworkservice.client.ProgressClient;
 import com.jilnash.homeworkservice.model.Homework;
 import com.jilnash.homeworkservice.repo.HomeworkRepo;
+import com.jilnash.taskrequirementsservice.TaskRequirementsServiceGrpc;
+import com.jilnash.taskrequirementsservice.ValidateRequirementsRequest;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.sql.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,9 @@ public class HomeworkServiceImpl implements HomeworkService {
     private final CourseClient courseClient;
     private final ProgressClient progressClient;
     private final CourseAccessClient courseAccessClient;
+
+    @GrpcClient("task-requirements-client")
+    private TaskRequirementsServiceGrpc.TaskRequirementsServiceBlockingStub taskRequirementsServiceBlockingStub;
 
     @Override
     public List<Homework> getHomeworks(String taskId, String studentId, Boolean checked, Date createdAfter) {
@@ -69,9 +76,12 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         validatePreviousHomeworksChecked(homework.getStudentId(), homework.getTaskId());
 
-        //validateAllTaskFilesProvided(homework);//todo: implement later
+        validateAllTaskFilesProvided(homework);//todo: implement later
 
-        uploadFiles(homework);
+        homework.setId(UUID.randomUUID());
+        homework.setAttempt(1 + homeworkRepo.countByStudentIdAndTaskId(homework.getStudentId(), homework.getTaskId()));
+
+        uploadHWFiles(homework);
 
         return homeworkRepo.save(homework);
     }
@@ -92,25 +102,24 @@ public class HomeworkServiceImpl implements HomeworkService {
             throw new IllegalArgumentException("Previous homework is not checked yet");
     }
 
-    private void uploadFiles(Homework homework) {
+    private void validateAllTaskFilesProvided(Homework homework) {
 
-        String fileNamePrefix = String.format("student-%s/task-%s/attempt-%s/",
-                homework.getStudentId(), homework.getTaskId(), 1); //todo: get attempt number
-
-        String bucket = "course-project-homeworks";
-
-        uploadFileIfPresent(homework.getImageFile(), bucket, fileNamePrefix + "images/");
-        uploadFileIfPresent(homework.getAudioFile(), bucket, fileNamePrefix + "audios/");
-        uploadFileIfPresent(homework.getVideoFile(), bucket, fileNamePrefix + "videos/");
+        if (!taskRequirementsServiceBlockingStub.validateHomeworkFiles(
+                        ValidateRequirementsRequest.newBuilder()
+                                .setTaskId(homework.getTaskId())
+                                .addAllRequirements(homework.getFiles().stream().map(MultipartFile::getContentType).toList())
+                                .build())
+                .getValid()
+        )
+            throw new IllegalArgumentException("Not all task files provided");
     }
 
-    private void uploadFileIfPresent(MultipartFile file, String bucket, String filePathPrefix) {
-        if (file != null)
-            fileClient.uploadFile(
-                    bucket,
-                    filePathPrefix + file.getOriginalFilename(),
-                    file
-            );
+    private void uploadHWFiles(Homework homework) {
+        fileClient.uploadFile(
+                "course-project-homeworks",
+                "homework-" + homework.getId(),
+                homework.getFiles()
+        );
     }
 
     public String getHwTaskId(Long hwId) {

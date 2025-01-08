@@ -13,9 +13,7 @@ public class HomeworkMapper {
                 .studentId(homeworkDTO.getStudentId())
                 .taskId(homeworkDTO.getTaskId())
                 .checked(homeworkDTO.getChecked())
-                .imageFile(homeworkDTO.getImage())
-                .audioFile(homeworkDTO.getAudio())
-                .videoFile(homeworkDTO.getVideo())
+                .files(homeworkDTO.getFiles())
                 .build();
     }
 }

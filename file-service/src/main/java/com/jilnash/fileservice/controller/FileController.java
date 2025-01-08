@@ -1,11 +1,12 @@
 package com.jilnash.fileservice.controller;
 
 import com.jilnash.fileservice.dto.AppResponse;
+import com.jilnash.fileservice.dto.FileUploadDTO;
 import com.jilnash.fileservice.service.S3Service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
@@ -26,15 +27,13 @@ public class FileController {
     }
 
     @PostMapping
-    public ResponseEntity<?> uploadFile(@RequestParam MultipartFile file,
-                                        @RequestParam String fileName,
-                                        @RequestParam String bucket) throws Exception {
+    public ResponseEntity<?> uploadFiles(@ModelAttribute @Validated FileUploadDTO fileUploadDTO) throws Exception {
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "File uploaded successfully",
-                        s3Service.putFile(bucket, fileName, file)
+                        s3Service.putFiles(fileUploadDTO.bucket(), fileUploadDTO.fileName(), fileUploadDTO.files())
                 )
         );
     }

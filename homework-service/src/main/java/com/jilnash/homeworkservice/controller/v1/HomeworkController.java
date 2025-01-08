@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
 
@@ -39,16 +38,10 @@ public class HomeworkController {
 
     @PutMapping
     public ResponseEntity<?> createHomework(
-            @RequestPart @Validated HomeworkCreateDTO homeworkDTO,
-            @RequestPart(required = false) MultipartFile image,
-            @RequestPart(required = false) MultipartFile audio,
-            @RequestPart(required = false) MultipartFile video,
+            @ModelAttribute @Validated HomeworkCreateDTO homeworkDTO,
             @RequestHeader("X-User-Sub") String studentId) {
 
         homeworkDTO.setStudentId(studentId);
-        homeworkDTO.setImage(image);
-        homeworkDTO.setAudio(audio);
-        homeworkDTO.setVideo(video);
 
         return ResponseEntity.ok(
                 new AppResponse(

@@ -1,6 +1,12 @@
 server:
     port: 8088
 
+grpc:
+    client:
+        task-requirements-client:
+            address: static://localhost:6565
+            negotiation-type: plaintext
+
 spring:
     application:
         name: homework-service
@@ -13,6 +19,10 @@ spring:
         hibernate:
             ddl-auto: update
         show-sql: true
+    servlet:
+        multipart:
+            max-file-size: 1GB
+            max-request-size: 1GB
 
 eureka:
     client:

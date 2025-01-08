@@ -7,6 +7,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
+import java.util.List;
+import java.util.UUID;
 
 
 @Builder
@@ -20,9 +22,9 @@ import java.sql.Date;
 public class Homework {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private UUID id;
 
     @Column(nullable = false, updatable = false)
     private String studentId;
@@ -30,11 +32,8 @@ public class Homework {
     @Column(nullable = false, updatable = false)
     private String taskId;
 
-    private String audioLink;
-
-    private String videoLink;
-
-    private String imageLink;
+    @Column(nullable = false)
+    private int attempt;
 
     private Boolean checked = false;
 
@@ -44,13 +43,5 @@ public class Homework {
 
     @Transient
     @JsonIgnore
-    private MultipartFile imageFile;
-
-    @Transient
-    @JsonIgnore
-    private MultipartFile audioFile;
-
-    @Transient
-    @JsonIgnore
-    private MultipartFile videoFile;
+    private List<MultipartFile> files;
 }

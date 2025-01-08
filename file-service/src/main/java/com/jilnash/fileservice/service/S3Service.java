@@ -8,6 +8,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
+import java.util.List;
 
 import static software.amazon.awssdk.core.sync.RequestBody.fromBytes;
 
@@ -18,7 +19,7 @@ public class S3Service implements StorageService {
     private final S3Client s3;
 
     @Override
-    public String putFile(String bucketName, String fileName, MultipartFile file) throws IOException {
+    public String putFiles(String bucketName, String fileName, List<MultipartFile> file) throws IOException {
 
         if (s3.listBuckets().buckets().stream()
                 .noneMatch(b -> b.name().equals(bucketName))) {
@@ -29,16 +30,16 @@ public class S3Service implements StorageService {
             );
         }
 
-        s3.putObject(
-                PutObjectRequest.builder()
-                        .bucket(bucketName)
-                        .key(fileName)
-                        .build()
-                ,
-                fromBytes(file.getBytes())
-        );
-
-        return file.getOriginalFilename();
+        for (MultipartFile multipartFile : file) {
+            s3.putObject(
+                    PutObjectRequest.builder()
+                            .bucket(bucketName)
+                            .key(fileName + "/" + multipartFile.getOriginalFilename())
+                            .build(),
+                    fromBytes(multipartFile.getBytes())
+            );
+        }
+        return "";
     }
 
     @Override

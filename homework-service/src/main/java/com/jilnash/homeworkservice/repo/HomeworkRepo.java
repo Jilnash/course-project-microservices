@@ -21,4 +21,6 @@ public interface HomeworkRepo extends JpaRepository<Homework, Long>, JpaSpecific
     @Query("SELECT COUNT(h) > 0 FROM Homework h " +
             "WHERE h.studentId = :studentId AND h.taskId = :taskId AND h.checked = false")
     Boolean getHwUnchecked(@Param("studentId") String studentId, @Param("taskId") String taskId);
+
+    Integer countByStudentIdAndTaskId(String studentId, String taskId);
 }
