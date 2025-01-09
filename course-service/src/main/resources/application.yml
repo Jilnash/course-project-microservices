@@ -1,6 +1,14 @@
 server:
     port: 8086
 
+grpc:
+    server:
+        port: 6568
+    client:
+        course-rights-client:
+            address: static://localhost:6566
+            negotiation-type: plaintext
+
 spring:
     application:
         name: course-service

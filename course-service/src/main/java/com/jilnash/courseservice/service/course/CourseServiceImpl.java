@@ -1,13 +1,15 @@
 package com.jilnash.courseservice.service.course;
 
+import com.jilnash.courserightservice.HasRightsRequest;
+import com.jilnash.courserightservice.TeacherRightsServiceGrpc;
 import com.jilnash.courseservice.clients.CourseAccessClient;
-import com.jilnash.courseservice.clients.CourseRightsClient;
 import com.jilnash.courseservice.dto.course.CourseCreateDTO;
 import com.jilnash.courseservice.dto.course.CourseUpdateDTO;
 import com.jilnash.courseservice.mapper.CourseMapper;
 import com.jilnash.courseservice.model.Course;
 import com.jilnash.courseservice.repo.CourseRepo;
 import lombok.RequiredArgsConstructor;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -20,9 +22,10 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepo courseRepo;
 
-    private final CourseRightsClient courseRightsClient;
-
     private final CourseAccessClient courseAccessClient;
+
+    @GrpcClient("course-rights-client")
+    private TeacherRightsServiceGrpc.TeacherRightsServiceBlockingStub teacherRightsServiceBlockingStub;
 
     @Override
     public List<Course> getCourses(String name) {
@@ -63,7 +66,12 @@ public class CourseServiceImpl implements CourseService {
 
     public void validateTeacherCourseRights(String courseId, String teacherId, List<String> rights) {
 
-        if (!courseRightsClient.hasRights(courseId, teacherId, rights))
+        if (!teacherRightsServiceBlockingStub.hasRights(HasRightsRequest.newBuilder()
+                .setCourseId(courseId)
+                .setTeacherId(teacherId)
+                .addAllRights(rights)
+                .build()).getHasRights()
+        )
             throw new UsernameNotFoundException("Teacher does not have rights: " + rights);
     }
 
