@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_package = "com.jilnash.courserightsservice";
+option java_multiple_files = true;
+
+message HasRightsRequest {
+  string teacherId = 1;
+  string courseId = 2;
+  repeated string rights = 3;
+}
+
+message HasRightsResponse {
+  bool hasRights = 1;
+}
+
+service TeacherRightsService {
+  rpc HasRights(HasRightsRequest) returns (HasRightsResponse);
+}
