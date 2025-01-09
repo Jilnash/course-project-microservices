@@ -2,6 +2,8 @@ server:
     port: 8088
 
 grpc:
+    server:
+        port: 6567
     client:
         task-requirements-client:
             address: static://localhost:6565
