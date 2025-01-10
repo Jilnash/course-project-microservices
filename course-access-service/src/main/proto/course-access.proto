@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_package = "com.jilnash.courseaccessservice";
+option java_multiple_files = true;
+
+message HasAccessRequest {
+  string userId = 1;
+  string courseId = 2;
+}
+
+message HasAccessResponse {
+  bool hasAccess = 1;
+}
+
+service CourseAccessService {
+  rpc HasAccess(HasAccessRequest) returns (HasAccessResponse);
+}

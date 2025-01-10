@@ -1,6 +1,10 @@
 server:
     port: 8090
 
+grpc:
+    server:
+        port: 6569
+
 spring:
     application:
         name: course-access-service
