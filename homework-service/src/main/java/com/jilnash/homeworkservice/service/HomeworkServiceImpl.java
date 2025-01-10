@@ -1,6 +1,7 @@
 package com.jilnash.homeworkservice.service;
 
-import com.jilnash.homeworkservice.client.CourseAccessClient;
+import com.jilnash.courseaccessservice.CourseAccessServiceGrpc;
+import com.jilnash.courseaccessservice.HasAccessRequest;
 import com.jilnash.homeworkservice.client.CourseClient;
 import com.jilnash.homeworkservice.client.FileClient;
 import com.jilnash.homeworkservice.client.ProgressClient;
@@ -29,7 +30,11 @@ public class HomeworkServiceImpl implements HomeworkService {
     private final FileClient fileClient;
     private final CourseClient courseClient;
     private final ProgressClient progressClient;
-    private final CourseAccessClient courseAccessClient;
+
+//    private final CourseAccessClient courseAccessClient;
+
+    @GrpcClient("course-access-client")
+    private CourseAccessServiceGrpc.CourseAccessServiceBlockingStub courseAccessServiceBlockingStub;
 
     @GrpcClient("task-requirements-client")
     private TaskRequirementsServiceGrpc.TaskRequirementsServiceBlockingStub taskRequirementsServiceBlockingStub;
@@ -88,7 +93,11 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     private void validateStudentHasAccessToCourse(String studentId, String taskId) {
         //getting course_id by task_id, then verifying if student has access to course
-        if (!courseAccessClient.getStudentHasAccess(studentId, courseClient.getTaskCourseId(taskId)))
+        if (!courseAccessServiceBlockingStub.hasAccess(HasAccessRequest.newBuilder()
+                .setCourseId(courseClient.getTaskCourseId(taskId))
+                .setUserId(studentId)
+                .build()).getHasAccess()
+        )
             throw new IllegalArgumentException("Student does not have access to course");
     }
 

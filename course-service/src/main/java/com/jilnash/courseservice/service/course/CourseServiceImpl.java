@@ -1,8 +1,9 @@
 package com.jilnash.courseservice.service.course;
 
+import com.jilnash.courseaccessservice.CourseAccessServiceGrpc;
+import com.jilnash.courseaccessservice.HasAccessRequest;
 import com.jilnash.courserightservice.HasRightsRequest;
 import com.jilnash.courserightservice.TeacherRightsServiceGrpc;
-import com.jilnash.courseservice.clients.CourseAccessClient;
 import com.jilnash.courseservice.dto.course.CourseCreateDTO;
 import com.jilnash.courseservice.dto.course.CourseUpdateDTO;
 import com.jilnash.courseservice.mapper.CourseMapper;
@@ -22,7 +23,8 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepo courseRepo;
 
-    private final CourseAccessClient courseAccessClient;
+    @GrpcClient("course-access-client")
+    private CourseAccessServiceGrpc.CourseAccessServiceBlockingStub courseAccessServiceBlockingStub;
 
     @GrpcClient("course-rights-client")
     private TeacherRightsServiceGrpc.TeacherRightsServiceBlockingStub teacherRightsServiceBlockingStub;
@@ -77,7 +79,11 @@ public class CourseServiceImpl implements CourseService {
 
     public void validateStudentCourseAccess(String courseId, String studentId) {
 
-        if (!courseAccessClient.checkAccess(courseId, studentId))
+        if (!courseAccessServiceBlockingStub.hasAccess(HasAccessRequest.newBuilder()
+                .setCourseId(courseId)
+                .setUserId(studentId)
+                .build()).getHasAccess()
+        )
             throw new UsernameNotFoundException("Student does not have access to course");
     }
 }

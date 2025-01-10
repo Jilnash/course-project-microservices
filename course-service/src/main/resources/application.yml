@@ -5,6 +5,9 @@ grpc:
     server:
         port: 6568
     client:
+        course-access-client:
+            address: static://localhost:6569
+            negotiation-type: plaintext
         course-rights-client:
             address: static://localhost:6566
             negotiation-type: plaintext
