@@ -4,20 +4,17 @@ import com.jilnash.courseservice.dto.AppResponse;
 import com.jilnash.courseservice.dto.course.CourseCreateDTO;
 import com.jilnash.courseservice.dto.course.CourseUpdateDTO;
 import com.jilnash.courseservice.service.course.CourseService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/courses")
+@RequiredArgsConstructor
 public class CourseController {
 
     private final CourseService courseService;
-
-    public CourseController(CourseService courseService) {
-        this.courseService = courseService;
-    }
-
 
     @GetMapping
     public ResponseEntity<?> getCourses(@RequestParam(required = false, defaultValue = "") String name) {
@@ -55,9 +52,11 @@ public class CourseController {
     @PostMapping("/{id}")
     public ResponseEntity<?> updateCourse(
             @PathVariable String id,
-            @Validated @RequestBody CourseUpdateDTO courseDTO) {
+            @Validated @RequestBody CourseUpdateDTO courseDTO,
+            @RequestHeader("X-User-Sub") String teacherId) {
 
         courseDTO.setId(id);
+        courseDTO.setTeacherId(teacherId);
 
         return ResponseEntity.ok(
                 new AppResponse(

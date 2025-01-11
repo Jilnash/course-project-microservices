@@ -14,6 +14,8 @@ public class CourseUpdateDTO {
 
     private String id;
 
+    private String teacherId;
+
     @NotNull(message = "Name is required")
     @NotBlank(message = "Name should not be empty")
     private String name;

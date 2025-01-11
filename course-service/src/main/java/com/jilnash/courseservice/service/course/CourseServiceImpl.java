@@ -53,6 +53,8 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Course update(CourseUpdateDTO courseDTO) {
 
+        validateTeacherCourseRights(courseDTO.getId(), courseDTO.getTeacherId(), List.of("UPDATE"));
+
         //check if course exists
         if (!courseRepo.existsById(courseDTO.getId()))
             throw new NoSuchElementException("Course not found with id: " + courseDTO.getId());
