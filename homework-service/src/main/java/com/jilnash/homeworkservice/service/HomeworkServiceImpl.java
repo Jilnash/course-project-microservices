@@ -81,7 +81,7 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         validatePreviousHomeworksChecked(homework.getStudentId(), homework.getTaskId());
 
-        validateAllTaskFilesProvided(homework);//todo: implement later
+        validateAllTaskFilesProvided(homework);
 
         homework.setId(UUID.randomUUID());
         homework.setAttempt(1 + homeworkRepo.countByStudentIdAndTaskId(homework.getStudentId(), homework.getTaskId()));

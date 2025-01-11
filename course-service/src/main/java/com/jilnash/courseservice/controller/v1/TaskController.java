@@ -53,10 +53,12 @@ public class TaskController {
     @PutMapping
     public ResponseEntity<?> createTask(@PathVariable String courseId,
                                         @PathVariable String moduleId,
-                                        @RequestBody TaskCreateDTO taskDto) {
+                                        @RequestBody TaskCreateDTO taskDto,
+                                        @RequestHeader("X-User-Sub") String teacherId) {
 
         taskDto.setCourseId(courseId);
         taskDto.setModuleId(moduleId);
+        taskDto.setTeacherId(teacherId);
 
         return ResponseEntity.ok(
                 new AppResponse(

@@ -69,7 +69,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Boolean create(TaskCreateDTO task) {
 
-        courseService.validateTeacherCourseRights(task.getCourseId(), "1", List.of("CREATE"));
+        courseService.validateTeacherCourseRights(task.getCourseId(), task.getTeacherId(), List.of("CREATE"));
         moduleService.validateModuleExists(task.getModuleId(), task.getCourseId());
 
         Set<String> prereqsAndSuccessorIds =
