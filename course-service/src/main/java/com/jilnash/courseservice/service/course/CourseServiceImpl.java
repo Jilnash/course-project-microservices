@@ -2,8 +2,9 @@ package com.jilnash.courseservice.service.course;
 
 import com.jilnash.courseaccessservice.CourseAccessServiceGrpc;
 import com.jilnash.courseaccessservice.HasAccessRequest;
-import com.jilnash.courserightservice.HasRightsRequest;
-import com.jilnash.courserightservice.TeacherRightsServiceGrpc;
+import com.jilnash.courserightsservice.HasRightsRequest;
+import com.jilnash.courserightsservice.SetCourseOwnerRequest;
+import com.jilnash.courserightsservice.TeacherRightsServiceGrpc;
 import com.jilnash.courseservice.dto.course.CourseCreateDTO;
 import com.jilnash.courseservice.dto.course.CourseUpdateDTO;
 import com.jilnash.courseservice.mapper.CourseMapper;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -47,6 +49,19 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course create(CourseCreateDTO courseDTO) {
+
+        String courseId = UUID.randomUUID().toString();
+        courseDTO.setId(courseId);
+
+        if (!teacherRightsServiceBlockingStub
+                .setCourseOwner(SetCourseOwnerRequest.newBuilder()
+                        .setTeacherId(courseDTO.getAuthorId())
+                        .setCourseId(courseId)
+                        .build())
+                .getSuccess()
+        )
+            throw new RuntimeException("Failed to set course owner");
+
         return courseRepo.save(CourseMapper.toNode(courseDTO));
     }
 

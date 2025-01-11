@@ -12,6 +12,7 @@ public class CourseMapper {
 
     public static Course toNode(CourseCreateDTO courseCreateDTO) {
         return Course.builder()
+                .id(courseCreateDTO.getId())
                 .name(courseCreateDTO.getName())
                 .description(courseCreateDTO.getDescription())
                 .duration(courseCreateDTO.getDuration())

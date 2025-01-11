@@ -13,6 +13,16 @@ message HasRightsResponse {
   bool hasRights = 1;
 }
 
+message SetCourseOwnerRequest {
+  string teacherId = 1;
+  string courseId = 2;
+}
+
+message SetCourseOwnerResponse {
+  bool success = 1;
+}
+
 service TeacherRightsService {
   rpc HasRights(HasRightsRequest) returns (HasRightsResponse);
+  rpc SetCourseOwner(SetCourseOwnerRequest) returns (SetCourseOwnerResponse);
 }

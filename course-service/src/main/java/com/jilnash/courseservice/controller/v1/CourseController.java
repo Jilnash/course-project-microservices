@@ -28,7 +28,10 @@ public class CourseController {
     }
 
     @PutMapping
-    public ResponseEntity<?> createCourse(@Validated @RequestBody CourseCreateDTO courseDTO) {
+    public ResponseEntity<?> createCourse(@Validated @RequestBody CourseCreateDTO courseDTO,
+                                          @RequestHeader("X-User-Sub") String teacherId) {
+        courseDTO.setAuthorId(teacherId);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         400,

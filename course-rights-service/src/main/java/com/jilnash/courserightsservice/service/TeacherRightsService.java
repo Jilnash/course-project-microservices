@@ -43,4 +43,18 @@ public class TeacherRightsService {
 
         return true;
     }
+
+    @Transactional
+    public Boolean createCourseOwner(String courseId, String teacherId) {
+        teacherRightsRepo.saveAll(
+                rightRepo.findAll().stream().map(right ->
+                        TeacherRights.builder()
+                                .courseId(courseId)
+                                .teacherId(teacherId)
+                                .right(right)
+                                .build()).toList()
+        );
+
+        return true;
+    }
 }

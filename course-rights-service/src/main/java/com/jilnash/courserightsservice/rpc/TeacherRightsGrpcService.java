@@ -1,8 +1,6 @@
 package com.jilnash.courserightsservice.rpc;
 
-import com.jilnash.courserightservice.HasRightsRequest;
-import com.jilnash.courserightservice.HasRightsResponse;
-import com.jilnash.courserightservice.TeacherRightsServiceGrpc;
+import com.jilnash.courserightsservice.*;
 import com.jilnash.courserightsservice.service.TeacherRightsService;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +21,15 @@ public class TeacherRightsGrpcService extends TeacherRightsServiceGrpc.TeacherRi
                 new HashSet<>(request.getRightsList()));
 
         responseObserver.onNext(HasRightsResponse.newBuilder().setHasRights(hasRights).build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void setCourseOwner(SetCourseOwnerRequest request, StreamObserver<SetCourseOwnerResponse> responseObserver) {
+
+        responseObserver.onNext(SetCourseOwnerResponse.newBuilder()
+                .setSuccess(rightsService.createCourseOwner(request.getCourseId(), request.getTeacherId()))
+                .build());
         responseObserver.onCompleted();
     }
 }
