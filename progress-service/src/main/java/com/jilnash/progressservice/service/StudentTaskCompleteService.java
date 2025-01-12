@@ -5,6 +5,7 @@ import com.jilnash.progressservice.repo.StudentTaskCompleteRepository;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -22,6 +23,10 @@ public class StudentTaskCompleteService {
 
     public Boolean isTaskComplete(String studentId, String taskId) {
         return studentTaskCompleteRepo.existsByStudentIdAndTaskId(studentId, taskId);
+    }
+
+    public Boolean areTasksCompleted(String studentId, List<String> taskIds) {
+        return new HashSet<>(getCompletedTaskIds(studentId)).containsAll(taskIds);
     }
 
     public Boolean completeTask(String studentId, String taskId) {

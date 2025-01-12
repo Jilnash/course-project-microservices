@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_package = "com.jilnash.progressservice";
+option java_multiple_files = true;
+
+message StudentTaskCompletedRequest {
+  string studentId = 1;
+  repeated string taskIds = 2;
+}
+
+message StudentTaskCompletedResponse {
+  bool isCompleted = 1;
+}
+
+service ProgressService {
+  rpc areTasksCompleted(StudentTaskCompletedRequest) returns (StudentTaskCompletedResponse);
+}
+    
