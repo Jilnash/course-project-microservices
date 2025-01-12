@@ -4,9 +4,10 @@ import com.jilnash.courseaccessservice.CourseAccessServiceGrpc;
 import com.jilnash.courseaccessservice.HasAccessRequest;
 import com.jilnash.homeworkservice.client.CourseClient;
 import com.jilnash.homeworkservice.client.FileClient;
-import com.jilnash.homeworkservice.client.ProgressClient;
 import com.jilnash.homeworkservice.model.Homework;
 import com.jilnash.homeworkservice.repo.HomeworkRepo;
+import com.jilnash.progressservice.ProgressServiceGrpc;
+import com.jilnash.progressservice.StudentTaskCompletedRequest;
 import com.jilnash.taskrequirementsservice.TaskRequirementsServiceGrpc;
 import com.jilnash.taskrequirementsservice.ValidateRequirementsRequest;
 import jakarta.persistence.criteria.Predicate;
@@ -29,9 +30,9 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     private final FileClient fileClient;
     private final CourseClient courseClient;
-    private final ProgressClient progressClient;
 
-//    private final CourseAccessClient courseAccessClient;
+    @GrpcClient(("progress-client"))
+    private ProgressServiceGrpc.ProgressServiceBlockingStub progressServiceBlockingStub;
 
     @GrpcClient("course-access-client")
     private CourseAccessServiceGrpc.CourseAccessServiceBlockingStub courseAccessServiceBlockingStub;
@@ -75,7 +76,7 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         validateStudentHasAccessToCourse(homework.getStudentId(), homework.getTaskId());
 
-        validateStudentCompletedTask(homework.getStudentId(), homework.getTaskId());
+        validateStudentCompletedTasks(homework.getStudentId(), List.of(homework.getTaskId()));
 
         //todo: validate if student completed prereqs
 
@@ -101,8 +102,15 @@ public class HomeworkServiceImpl implements HomeworkService {
             throw new IllegalArgumentException("Student does not have access to course");
     }
 
-    private void validateStudentCompletedTask(String studentId, String taskId) {
-        if (progressClient.isTaskCompletedByStudent(studentId, taskId))
+    private void validateStudentCompletedTasks(String studentId, List<String> taskIds) {
+
+        if (progressServiceBlockingStub.areTasksCompleted(
+                        StudentTaskCompletedRequest.newBuilder()
+                                .setStudentId(studentId)
+                                .addAllTaskIds(taskIds)
+                                .build())
+                .getIsCompleted()
+        )
             throw new IllegalArgumentException("Student already completed this task");
     }
 
