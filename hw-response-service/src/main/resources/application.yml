@@ -1,6 +1,17 @@
 server:
     port: 8089
 
+grpc:
+    server:
+        port: 6572
+    client:
+        progress-grpc-client:
+            address: static://localhost:6571
+            negotiation-type: plaintext
+        course-rights-grpc-client:
+            address: static://localhost:6566
+            negotiation-type: plaintext
+
 spring:
     application:
         name: hw-response-service

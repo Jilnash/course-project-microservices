@@ -37,7 +37,10 @@ public class HwResponseController {
     }
 
     @PutMapping
-    public ResponseEntity<?> createResponse(@Validated @RequestBody HwResponseDTO responseDto) {
+    public ResponseEntity<?> createResponse(@Validated @RequestBody HwResponseDTO responseDto,
+                                            @RequestHeader("X-User-Sub") String teacherId) {
+
+        responseDto.setTeacherId(teacherId);
 
         return ResponseEntity.ok(
                 new AppResponse(

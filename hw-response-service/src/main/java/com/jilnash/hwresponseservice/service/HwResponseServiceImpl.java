@@ -1,14 +1,17 @@
 package com.jilnash.hwresponseservice.service;
 
+import com.jilnash.courserightsservice.HasRightsRequest;
+import com.jilnash.courserightsservice.TeacherRightsServiceGrpc;
 import com.jilnash.hwresponseservice.clients.CourseClient;
-import com.jilnash.hwresponseservice.clients.CourseRightsClient;
 import com.jilnash.hwresponseservice.clients.HwClient;
-import com.jilnash.hwresponseservice.clients.ProgressClient;
 import com.jilnash.hwresponseservice.model.HwResponse;
 import com.jilnash.hwresponseservice.repo.CommentRepo;
 import com.jilnash.hwresponseservice.repo.HwResponseRepo;
+import com.jilnash.progressservice.AddTaskToProgressRequest;
+import com.jilnash.progressservice.ProgressServiceGrpc;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +25,15 @@ public class HwResponseServiceImpl implements HwResponseService {
 
     private final HwResponseRepo hwResponseRepo;
     private final CommentRepo commentRepo;
-    private final CourseRightsClient courseRightsClient;
+
     private final CourseClient courseClient;
     private final HwClient hwClient;
-    private final ProgressClient progressClient;
+
+    @GrpcClient("course-rights-grpc-client")
+    private TeacherRightsServiceGrpc.TeacherRightsServiceBlockingStub courseRightsServiceGrpc;
+
+    @GrpcClient("progress-grpc-client")
+    private ProgressServiceGrpc.ProgressServiceBlockingStub progressServiceGrpc;
 
     @Override
     public List<HwResponse> getResponses(String teacherId, Long homeworkId, Date createdAfter, Date createdBefore) {
@@ -62,13 +70,8 @@ public class HwResponseServiceImpl implements HwResponseService {
     public HwResponse createResponse(HwResponse response) {
 
         String taskId = hwClient.getTaskId(response.getHomeworkId());
-        System.out.println(taskId);
-
-        validateTeacherAllowedToCheckHomework(
-                //getting courseId by hwId
-                courseClient.getTaskCourseId(taskId),
-                response.getTeacherId()
-        );
+        //getting courseId by hwId
+        validateTeacherAllowedToCheckHomework(courseClient.getTaskCourseId(taskId), response.getTeacherId());
 
         //creating response, then saving it for comments' response id
         HwResponse savedResponse = hwResponseRepo.save(response);
@@ -80,16 +83,32 @@ public class HwResponseServiceImpl implements HwResponseService {
         commentRepo.saveAll(response.getComments());
 
         if (response.getIsCorrect())
-            progressClient.addTaskToStudentProgress(hwClient.getStudentId(response.getHomeworkId()), taskId);
+            addTaskToStudentProgress(hwClient.getStudentId(response.getHomeworkId()), taskId);
+
+        //todo: change hw status to `checked`
 
         return savedResponse;
     }
 
     private void validateTeacherAllowedToCheckHomework(String courseId, String teacherId) {
-        //todo: change to "check" right
-        if (courseRightsClient.hasRights(courseId, teacherId, List.of("edit"))) {
-            throw new IllegalArgumentException("Teacher is not allowed to check homework");
-        }
+
+        if (!courseRightsServiceGrpc.hasRights(HasRightsRequest.newBuilder()
+                .setCourseId(courseId)
+                .setTeacherId(teacherId)
+                .addRights("RESPOND_HW")
+                .build()).getHasRights()
+        )
+            throw new IllegalArgumentException("Teacher is not allowed to respond to homework");
+
+    }
+
+    private void addTaskToStudentProgress(String studentId, String taskId) {
+        progressServiceGrpc.addTaskToProgress(
+                AddTaskToProgressRequest.newBuilder()
+                        .setStudentId(studentId)
+                        .setTaskId(taskId)
+                        .build()
+        );
     }
 
     @Override

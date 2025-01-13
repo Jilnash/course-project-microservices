@@ -15,11 +15,10 @@ public class HwResponseDTO implements Serializable {
 
     Long id;
 
-    @NotNull(message = "Teacher id should not be null")
     String teacherId;
 
     @NotNull(message = "Homework id should not be null")
-    Long homeworkId;
+    String homeworkId;
 
     @NotNull(message = "Comments should not be null")
     @NotEmpty(message = "Comments should not be empty")

@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface HwClient {
 
     @GetMapping("/api/v1/homeworks/{id}/task/id")
-    String getTaskId(@PathVariable Long id);
+    String getTaskId(@PathVariable String id);
 
     @GetMapping("/api/v1/homeworks/{hwId}/student/id")
-    String getStudentId(@PathVariable Long hwId);
+    String getStudentId(@PathVariable String hwId);
 }

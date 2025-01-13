@@ -27,7 +27,7 @@ public class HwResponse {
     private String teacherId;
 
     @Column(nullable = false, updatable = false)
-    private Long homeworkId;
+    private String homeworkId;
 
     @OneToMany(mappedBy = "hwResponse")
     private List<Comment> comments;
