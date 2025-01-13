@@ -12,7 +12,17 @@ message StudentTaskCompletedResponse {
   bool isCompleted = 1;
 }
 
+message AddTaskToProgressRequest {
+  string taskId = 2;
+  string studentId = 3;
+}
+
+message AddTaskToProgressResponse {
+  bool added = 1;
+}
+
 service ProgressService {
   rpc areTasksCompleted(StudentTaskCompletedRequest) returns (StudentTaskCompletedResponse);
+  rpc addTaskToProgress(AddTaskToProgressRequest) returns (AddTaskToProgressResponse);
 }
     
