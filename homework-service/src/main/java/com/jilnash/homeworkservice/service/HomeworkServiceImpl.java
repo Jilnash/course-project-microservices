@@ -139,13 +139,13 @@ public class HomeworkServiceImpl implements HomeworkService {
         );
     }
 
-    public String getHwTaskId(Long hwId) {
+    public String getHwTaskId(UUID hwId) {
         return homeworkRepo
                 .getHwTaskId(hwId)
                 .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + hwId));
     }
 
-    public String getHwStudentId(Long hwId) {
+    public String getHwStudentId(UUID hwId) {
         return homeworkRepo
                 .getHwStudentId(hwId)
                 .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + hwId));

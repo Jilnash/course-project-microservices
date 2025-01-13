@@ -10,6 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/homeworks")
@@ -64,12 +65,12 @@ public class HomeworkController {
     }
 
     @GetMapping("{id}/task/id")
-    public String getTaskId(@PathVariable Long id) {
+    public String getTaskId(@PathVariable UUID id) {
         return homeworkService.getHwTaskId(id);
     }
 
     @GetMapping("{hwId}/student/id")
-    public String getStudentId(@PathVariable Long hwId) {
+    public String getStudentId(@PathVariable UUID hwId) {
         return homeworkService.getHwStudentId(hwId);
     }
 }
