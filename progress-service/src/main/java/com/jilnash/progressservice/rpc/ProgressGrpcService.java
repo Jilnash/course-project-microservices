@@ -29,4 +29,16 @@ public class ProgressGrpcService extends ProgressServiceGrpc.ProgressServiceImpl
                 .build());
         response.onCompleted();
     }
+
+    @Override
+    public void insertTaskToProgress(InsertTaskToProgressRequest request, StreamObserver<InsertTaskToProgressResponse> response) {
+        response.onNext(
+                InsertTaskToProgressResponse.newBuilder()
+                        .setInserted(studentTaskCompleteService.addTask(
+                                request.getNewTaskId(),
+                                request.getCompletedTaskIdsList().stream().toList())
+                        )
+                        .build());
+        response.onCompleted();
+    }
 }

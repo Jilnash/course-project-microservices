@@ -21,8 +21,18 @@ message AddTaskToProgressResponse {
   bool added = 1;
 }
 
+message InsertTaskToProgressRequest {
+  string newTaskId = 1;
+  repeated string completedTaskIds = 2;
+}
+
+message InsertTaskToProgressResponse {
+  bool inserted = 1;
+}
+
 service ProgressService {
   rpc areTasksCompleted(StudentTaskCompletedRequest) returns (StudentTaskCompletedResponse);
   rpc addTaskToProgress(AddTaskToProgressRequest) returns (AddTaskToProgressResponse);
+  rpc insertTaskToProgress(InsertTaskToProgressRequest) returns (InsertTaskToProgressResponse);
 }
     

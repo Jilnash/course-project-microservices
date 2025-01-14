@@ -1,13 +1,15 @@
 package com.jilnash.courseservice.service.task;
 
-import com.jilnash.courseservice.clients.ProgressClient;
 import com.jilnash.courseservice.dto.task.*;
 import com.jilnash.courseservice.mapper.TaskMapper;
 import com.jilnash.courseservice.model.Task;
 import com.jilnash.courseservice.repo.TaskRepo;
 import com.jilnash.courseservice.service.course.CourseServiceImpl;
 import com.jilnash.courseservice.service.module.ModuleServiceImpl;
+import com.jilnash.progressservice.InsertTaskToProgressRequest;
+import com.jilnash.progressservice.ProgressServiceGrpc;
 import lombok.RequiredArgsConstructor;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +23,8 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepo taskRepo;
 
-    private final ProgressClient progressClient;
+    @GrpcClient("progress-client")
+    private ProgressServiceGrpc.ProgressServiceBlockingStub progressGrpcClient;
 
     private final ModuleServiceImpl moduleService;
 
@@ -90,7 +93,13 @@ public class TaskServiceImpl implements TaskService {
 
         // the new task should be included in progress
         // of all students who have completed successors the new task
-        progressClient.insertTaskToProgression(generatedTaskId, task.getSuccessorTasksIds().stream().toList());
+        progressGrpcClient.insertTaskToProgress(InsertTaskToProgressRequest.newBuilder()
+                .setNewTaskId(generatedTaskId)
+                .addAllCompletedTaskIds(task.getSuccessorTasksIds())
+                .build()
+        );
+
+        //todo: add requirements
 
         return true;
     }
