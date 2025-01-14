@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class StudentTaskCompleteService {
@@ -77,7 +78,7 @@ public class StudentTaskCompleteService {
     public Boolean addTask(String taskId, List<String> completedTaskIds) {
 
         //get student ids, that have completed any task from the list
-        List<String> studentIds = studentTaskCompleteRepo.findStudentIdsByTaskIds(completedTaskIds);
+        Set<String> studentIds = studentTaskCompleteRepo.findStudentIdsByTaskIds(completedTaskIds);
 
         //adding taskId to the list of completed tasks
         List<StudentTaskComplete> studentTaskCompletes = studentIds.stream().map(studentId -> StudentTaskComplete.builder()

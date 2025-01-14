@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface StudentTaskCompleteRepository extends JpaRepository<StudentTaskComplete, Long> {
@@ -19,7 +20,7 @@ public interface StudentTaskCompleteRepository extends JpaRepository<StudentTask
     List<String> findStudentIdsByTaskId(String taskId);
 
     @Query("SELECT stc.studentId FROM student_task_complete stc WHERE stc.taskId IN :taskIds")
-    List<String> findStudentIdsByTaskIds(List<String> taskIds);
+    Set<String> findStudentIdsByTaskIds(List<String> taskIds);
 
     void deleteAllByTaskId(String taskId);
 
