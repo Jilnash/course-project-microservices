@@ -1,12 +1,14 @@
 package com.jilnash.courseservice.dto.task;
 
 import com.jilnash.courseservice.model.Module;
+import com.jilnash.taskfilerequirementsservice.dto.TaskFileReqDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -30,8 +32,11 @@ public class TaskCreateDTO {
     @NotBlank(message = "Description is required")
     private String description;
 
-    @NotNull(message = "Audio link is required")
+    @NotNull(message = "Requirements are required")
     private String videoLink;
+
+    @NotNull(message = "Requirements are required")
+    private List<TaskFileReqDTO> fileRequirements;
 
     private Module module;
 

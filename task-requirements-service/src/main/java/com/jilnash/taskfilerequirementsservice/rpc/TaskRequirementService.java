@@ -1,9 +1,8 @@
 package com.jilnash.taskfilerequirementsservice.rpc;
 
+import com.jilnash.taskfilerequirementsservice.dto.TaskFileReqDTO;
 import com.jilnash.taskfilerequirementsservice.service.TaskFileRequirementsService;
-import com.jilnash.taskrequirementsservice.TaskRequirementsServiceGrpc;
-import com.jilnash.taskrequirementsservice.ValidateRequirementsRequest;
-import com.jilnash.taskrequirementsservice.ValidateRequirementsResponse;
+import com.jilnash.taskrequirementsservice.*;
 import io.grpc.stub.StreamObserver;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
@@ -27,6 +26,22 @@ public class TaskRequirementService extends TaskRequirementsServiceGrpc.TaskRequ
                                 .toList());
 
         responseObserver.onNext(ValidateRequirementsResponse.newBuilder().setValid(allFilesValid).build());
+        responseObserver.onCompleted();
+    }
+
+    @Override
+    public void setTaskRequirements(SetTaskRequirementsRequest request, StreamObserver<SetTaskRequirementsResponse> responseObserver) {
+
+        taskRequirementService.setTaskRequirements(
+                request.getTaskId(),
+                request.getRequirementsList().stream().map(req -> TaskFileReqDTO.builder()
+                                .contentType(req.getContentType())
+                                .count((short) req.getCount())
+                                .build())
+                        .toList()
+        );
+
+        responseObserver.onNext(SetTaskRequirementsResponse.newBuilder().build());
         responseObserver.onCompleted();
     }
 }

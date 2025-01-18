@@ -12,6 +12,21 @@ message ValidateRequirementsResponse {
   bool valid = 1;
 }
 
+message Requirement {
+  int32 count = 1;
+  string contentType = 2;
+}
+
+message SetTaskRequirementsRequest {
+  repeated Requirement requirements = 1;
+  string taskId = 2;
+}
+
+message SetTaskRequirementsResponse {
+  bool success = 1;
+}
+
 service TaskRequirementsService {
   rpc ValidateHomeworkFiles(ValidateRequirementsRequest) returns (ValidateRequirementsResponse);
+  rpc SetTaskRequirements(SetTaskRequirementsRequest) returns (SetTaskRequirementsResponse);
 }

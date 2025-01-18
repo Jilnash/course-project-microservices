@@ -8,6 +8,8 @@ import com.jilnash.courseservice.service.course.CourseServiceImpl;
 import com.jilnash.courseservice.service.module.ModuleServiceImpl;
 import com.jilnash.progressservice.InsertTaskToProgressRequest;
 import com.jilnash.progressservice.ProgressServiceGrpc;
+import com.jilnash.taskrequirementsservice.SetTaskRequirementsRequest;
+import com.jilnash.taskrequirementsservice.TaskRequirementsServiceGrpc;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.cache.annotation.Cacheable;
@@ -25,6 +27,9 @@ public class TaskServiceImpl implements TaskService {
 
     @GrpcClient("progress-client")
     private ProgressServiceGrpc.ProgressServiceBlockingStub progressGrpcClient;
+
+    @GrpcClient("task-requirements-client")
+    private TaskRequirementsServiceGrpc.TaskRequirementsServiceBlockingStub taskRequirementsGrpcClient;
 
     private final ModuleServiceImpl moduleService;
 
@@ -99,7 +104,17 @@ public class TaskServiceImpl implements TaskService {
                 .build()
         );
 
-        //todo: add requirements
+        taskRequirementsGrpcClient.setTaskRequirements(
+                SetTaskRequirementsRequest.newBuilder()
+                        .setTaskId(generatedTaskId)
+                        .addAllRequirements(task.getFileRequirements().stream()
+                                .map(req -> com.jilnash.taskrequirementsservice.Requirement.newBuilder()
+                                        .setContentType(req.contentType())
+                                        .setCount(req.count())
+                                        .build())
+                                .toList())
+                        .build()
+        );
 
         return true;
     }
