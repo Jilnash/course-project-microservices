@@ -25,15 +25,15 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepo taskRepo;
 
+    private final ModuleServiceImpl moduleService;
+
+    private final CourseServiceImpl courseService;
+
     @GrpcClient("progress-client")
     private ProgressServiceGrpc.ProgressServiceBlockingStub progressGrpcClient;
 
     @GrpcClient("task-requirements-client")
     private TaskRequirementsServiceGrpc.TaskRequirementsServiceBlockingStub taskRequirementsGrpcClient;
-
-    private final ModuleServiceImpl moduleService;
-
-    private final CourseServiceImpl courseService;
 
     @Override
     @Cacheable(value = "taskLists", key = "#moduleId")
@@ -96,6 +96,33 @@ public class TaskServiceImpl implements TaskService {
         task.setTaskId(generatedTaskId);
         taskRepo.createTaskWithRelationships(task);
 
+        updateProgresses(task, generatedTaskId);
+        setTaskRequirements(task, generatedTaskId);
+
+        return true;
+    }
+
+    private Set<String> mergePrerequisitesAndSuccessors(Set<String> prereqs, Set<String> successors) {
+        return Stream.concat(prereqs.stream(), successors.stream()).collect(Collectors.toSet());
+    }
+
+    private Boolean createFirstTaskInModule(TaskCreateDTO taskCreateDTO) {
+
+        // throw exception if module already contains tasks
+        if (moduleService.hasAtLeastOneTask(taskCreateDTO.getModuleId()))
+            throw new RuntimeException("Task should be linked with other tasks");
+
+        taskRepo.save(TaskMapper.toNode(taskCreateDTO));
+
+        return true;
+    }
+
+    private void validatePrerequisitesAndSuccessorsDisjoint(Set<String> prereqs, Set<String> successors) {
+        if (!Collections.disjoint(prereqs, successors))
+            throw new NoSuchElementException("Pre-requisites and successor tasks should be distinct");
+    }
+
+    private void updateProgresses(TaskCreateDTO task, String generatedTaskId) {
         // the new task should be included in progress
         // of all students who have completed successors the new task
         progressGrpcClient.insertTaskToProgress(InsertTaskToProgressRequest.newBuilder()
@@ -103,7 +130,9 @@ public class TaskServiceImpl implements TaskService {
                 .addAllCompletedTaskIds(task.getSuccessorTasksIds())
                 .build()
         );
+    }
 
+    private void setTaskRequirements(TaskCreateDTO task, String generatedTaskId) {
         taskRequirementsGrpcClient.setTaskRequirements(
                 SetTaskRequirementsRequest.newBuilder()
                         .setTaskId(generatedTaskId)
@@ -115,28 +144,6 @@ public class TaskServiceImpl implements TaskService {
                                 .toList())
                         .build()
         );
-
-        return true;
-    }
-
-    public Boolean createFirstTaskInModule(TaskCreateDTO taskCreateDTO) {
-
-        // throw exception if module already contains tasks
-        if (moduleService.hasAtLeastOneTask(taskCreateDTO.getModuleId()))
-            throw new RuntimeException("Task should be linked with other tasks");
-
-        taskRepo.save(TaskMapper.toNode(taskCreateDTO));
-
-        return true;
-    }
-
-    public void validatePrerequisitesAndSuccessorsDisjoint(Set<String> prereqs, Set<String> successors) {
-        if (!Collections.disjoint(prereqs, successors))
-            throw new NoSuchElementException("Pre-requisites and successor tasks should be distinct");
-    }
-
-    public Set<String> mergePrerequisitesAndSuccessors(Set<String> prereqs, Set<String> successors) {
-        return Stream.concat(prereqs.stream(), successors.stream()).collect(Collectors.toSet());
     }
 
     @Override
