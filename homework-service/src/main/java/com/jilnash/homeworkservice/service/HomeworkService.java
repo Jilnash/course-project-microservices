@@ -11,5 +11,5 @@ public interface HomeworkService {
 
     Homework getHomework(Long id);
 
-    Homework saveHomework(Homework homework);
+    Boolean saveHomework(Homework homework);
 }

@@ -72,7 +72,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public Homework saveHomework(Homework homework) {
+    public Boolean saveHomework(Homework homework) {
 
         validateStudentHasAccessToCourse(homework.getStudentId(), homework.getTaskId());
 
@@ -84,12 +84,12 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         validateAllTaskFilesProvided(homework);
 
-        homework.setId(UUID.randomUUID());
         homework.setAttempt(1 + homeworkRepo.countByStudentIdAndTaskId(homework.getStudentId(), homework.getTaskId()));
 
-        uploadHWFiles(homework);
+        var newHw = homeworkRepo.save(homework);
+        uploadHWFiles(newHw);
 
-        return homeworkRepo.save(homework);
+        return true;
     }
 
     private void validateStudentHasAccessToCourse(String studentId, String taskId) {
