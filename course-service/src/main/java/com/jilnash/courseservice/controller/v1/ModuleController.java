@@ -31,9 +31,11 @@ public class ModuleController {
 
     @PutMapping
     public ResponseEntity<?> createModule(@PathVariable String courseId,
+                                          @RequestHeader("X-User-Sub") String teacherId,
                                           @Validated @RequestBody ModuleCreateDTO moduleCreateDTO) {
 
         moduleCreateDTO.setCourseId(courseId);
+        moduleCreateDTO.setTeacherId(teacherId);
 
         return ResponseEntity.ok(
                 new AppResponse(
@@ -62,9 +64,11 @@ public class ModuleController {
     @PostMapping("{moduleId}")
     public ResponseEntity<?> updateModule(@PathVariable String courseId,
                                           @PathVariable String moduleId,
-                                          @Validated @RequestBody ModuleUpdateDTO moduleUpdateDTO) {
+                                          @Validated @RequestBody ModuleUpdateDTO moduleUpdateDTO,
+                                          @RequestHeader("X-User-Sub") String teacherId) {
 
         moduleUpdateDTO.setCourseId(courseId);
+        moduleUpdateDTO.setTeacherId(teacherId);
         moduleUpdateDTO.setId(moduleId);
 
         return ResponseEntity.ok(

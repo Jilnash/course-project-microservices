@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ModuleCreateDTO {
 
+    private String teacherId;
+
     @NotNull(message = "Module name is mandatory")
     @NotBlank(message = "Module name is mandatory")
     private String name;

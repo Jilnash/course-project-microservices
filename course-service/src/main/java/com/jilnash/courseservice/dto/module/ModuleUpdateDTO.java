@@ -15,6 +15,8 @@ public class ModuleUpdateDTO {
 
     private String courseId;
 
+    private String teacherId;
+
     @NotNull(message = "Module name is mandatory")
     @NotBlank(message = "Module name is mandatory")
     private String name;

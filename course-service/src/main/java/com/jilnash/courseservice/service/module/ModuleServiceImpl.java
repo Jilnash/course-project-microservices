@@ -5,7 +5,7 @@ import com.jilnash.courseservice.dto.module.ModuleUpdateDTO;
 import com.jilnash.courseservice.mapper.ModuleMapper;
 import com.jilnash.courseservice.model.Module;
 import com.jilnash.courseservice.repo.ModuleRepo;
-import com.jilnash.courseservice.service.course.CourseService;
+import com.jilnash.courseservice.service.course.CourseServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,7 +20,7 @@ public class ModuleServiceImpl implements ModuleService {
 
     private final ModuleRepo moduleRepo;
 
-    private final CourseService courseService;
+    private final CourseServiceImpl courseService;
 
     @Override
     public List<Module> getModules(String id, String name) {
@@ -50,6 +50,8 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     public Module create(ModuleCreateDTO moduleDTO) {
 
+        courseService.validateTeacherCourseRights(moduleDTO.getCourseId(), moduleDTO.getTeacherId(), List.of("CREATE"));
+
         // check if course exists then set it to moduleDTO
         moduleDTO.setCourse(courseService.getCourse(moduleDTO.getCourseId()));
 
@@ -58,6 +60,8 @@ public class ModuleServiceImpl implements ModuleService {
 
     @Override
     public Module update(ModuleUpdateDTO moduleDTO) {
+
+        courseService.validateTeacherCourseRights(moduleDTO.getCourseId(), moduleDTO.getTeacherId(), List.of("UPDATE"));
 
         // check if module exists by id and courseId
         if (!moduleRepo.existsByIdAndCourseId(moduleDTO.getId(), moduleDTO.getCourseId()))
