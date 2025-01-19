@@ -5,7 +5,7 @@ spring:
     application:
         name: teacher-service
     datasource:
-        url: jdbc:mysql://localhost:3306/course_project_teachers
+        url: jdbc:mysql://localhost:3306/course_project_teachers?createDatabaseIfNotExist=true
         username: root
         password: root
         driver-class-name: com.mysql.cj.jdbc.Driver

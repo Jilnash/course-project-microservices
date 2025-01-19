@@ -9,7 +9,7 @@ spring:
     application:
         name: progress-service
     datasource:
-        url: jdbc:mysql://localhost:3306/progress
+        url: jdbc:mysql://localhost:3306/progress?createDatabaseIfNotExist=true
         username: root
         password: root
         driver-class-name: com.mysql.cj.jdbc.Driver
