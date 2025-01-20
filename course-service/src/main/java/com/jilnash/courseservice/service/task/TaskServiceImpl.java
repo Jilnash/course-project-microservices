@@ -85,34 +85,47 @@ public class TaskServiceImpl implements TaskService {
 
         if (prereqsAndSuccessorIds.isEmpty())
             return createFirstTaskInModule(task);
-
-        validatePrerequisitesAndSuccessorsDisjoint(task.getPrerequisiteTasksIds(), task.getSuccessorTasksIds());
-
-        moduleService.validateModuleContainsTasks(task.getModuleId(), prereqsAndSuccessorIds);
-
-        taskRepo.deleteTaskRelationshipsByTaskIdLinks(task.getRemoveRelationshipIds());
-
-        String generatedTaskId = UUID.randomUUID().toString();
-        task.setTaskId(generatedTaskId);
-        taskRepo.createTaskWithRelationships(task);
-
-        updateProgresses(task, generatedTaskId);
-        setTaskRequirements(task, generatedTaskId);
-
-        return true;
+        else
+            return createTaskWithPrerequisitesAndSuccessors(task, prereqsAndSuccessorIds);
     }
 
     private Set<String> mergePrerequisitesAndSuccessors(Set<String> prereqs, Set<String> successors) {
         return Stream.concat(prereqs.stream(), successors.stream()).collect(Collectors.toSet());
     }
 
-    private Boolean createFirstTaskInModule(TaskCreateDTO taskCreateDTO) {
+    private Boolean createFirstTaskInModule(TaskCreateDTO task) {
 
         // throw exception if module already contains tasks
-        if (moduleService.hasAtLeastOneTask(taskCreateDTO.getModuleId()))
+        if (moduleService.hasAtLeastOneTask(task.getModuleId()))
             throw new RuntimeException("Task should be linked with other tasks");
 
-        taskRepo.save(TaskMapper.toNode(taskCreateDTO));
+        String generatedTaskId = UUID.randomUUID().toString();
+        task.setTaskId(generatedTaskId);
+        taskRepo.createTaskWithoutRelationships(task);
+
+        setTaskRequirements(task, task.getTaskId());
+
+        return true;
+    }
+
+    private Boolean createTaskWithPrerequisitesAndSuccessors(TaskCreateDTO task, Set<String> prereqsAndSuccessorIds) {
+        //prerequisites and successors should be distinct
+        validatePrerequisitesAndSuccessorsDisjoint(task.getPrerequisiteTasksIds(), task.getSuccessorTasksIds());
+
+        //new task should be connected to tasks only in the same module
+        moduleService.validateModuleContainsTasks(task.getModuleId(), prereqsAndSuccessorIds);
+
+        taskRepo.deleteTaskRelationshipsByTaskIdLinks(task.getRemoveRelationshipIds());
+
+        String generatedTaskId = UUID.randomUUID().toString();
+        task.setTaskId(generatedTaskId);
+
+        taskRepo.createTaskWithoutRelationships(task);
+        taskRepo.connectTaskToPrerequisites(task);
+        taskRepo.connectTaskToSuccessors(task);
+
+        updateProgresses(task, generatedTaskId);
+        setTaskRequirements(task, generatedTaskId);
 
         return true;
     }

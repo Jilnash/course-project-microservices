@@ -42,16 +42,18 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
 
     @Query("MATCH (m:Module {id: $taskDTO.moduleId}) " +
             "CREATE (t:Task {id: $taskDTO.taskId, title: $taskDTO.title, description: $taskDTO.description, videoLink: $taskDTO.videoLink}) " +
-            "CREATE (m)-[:CONTAINS]->(t) " +
-            "WITH t " +
-            "UNWIND $taskDTO.successorTasksIds AS suc " +
-            "MATCH (to:Task {id: suc}) " +
-            "CREATE (t)-[:IS_PREREQUISITE]->(to) " +
-            "WITH t " +
-            "UNWIND $taskDTO.prerequisiteTasksIds AS prereq " +
-            "MATCH (from:Task {id: prereq}) " +
-            "CREATE (from)-[:IS_PREREQUISITE]->(t)")
-    void createTaskWithRelationships(TaskCreateDTO taskDTO);
+            "CREATE (m)-[:CONTAINS]->(t) ")
+    void createTaskWithoutRelationships(TaskCreateDTO taskDTO);
+
+    @Query("UNWIND $taskDTO.prerequisiteTasksIds AS prereq " +
+            "MATCH (from:Task {id: prereq}), (to:Task {id: $taskDTO.taskId}) " +
+            "CREATE (from)-[:IS_PREREQUISITE]->(to)")
+    void connectTaskToPrerequisites(TaskCreateDTO taskDTO);
+
+    @Query("UNWIND $taskDTO.successorTasksIds AS suc " +
+            "MATCH (from:Task {id: $taskDTO.taskId}), (to:Task {id: suc}) " +
+            "CREATE (from)-[:IS_PREREQUISITE]->(to)")
+    void connectTaskToSuccessors(TaskCreateDTO taskDTO);
 
     @Query("UNWIND $taskIdLinks AS link " +
             "MATCH (from:Task {id: link.fromTaskId})-[r:IS_PREREQUISITE]->(to:Task {id: link.toTaskId}) " +

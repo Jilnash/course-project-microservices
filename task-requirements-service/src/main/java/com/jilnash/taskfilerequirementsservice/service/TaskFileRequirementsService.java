@@ -31,15 +31,15 @@ public class TaskFileRequirementsService {
 
         taskFileRequirementRepo.deleteAllByTaskId(taskId);
         taskFileRequirementRepo.saveAll(
-                fileRequirementsRepo
-                        .findAllByContentTypeIn(requirements.stream().map(TaskFileReqDTO::contentType).toList())
-                        .stream().map(requirement -> {
-                            TaskFileRequirement taskFileRequirement = new TaskFileRequirement();
-                            taskFileRequirement.setTaskId(taskId);
-                            //todo: setting the count of the requirement
-                            taskFileRequirement.setFileRequirement(requirement);
-                            return taskFileRequirement;
-                        }).toList()
+                requirements.stream().map(requirement ->
+                        TaskFileRequirement.builder()
+                                .taskId(taskId)
+                                .fileRequirement(fileRequirementsRepo
+                                        .findByContentType(requirement.contentType())
+                                        .orElseThrow(() -> new RuntimeException("File requirement not found")))
+                                .count((byte) requirement.count())
+                                .build()
+                ).toList()
         );
 
         return true;

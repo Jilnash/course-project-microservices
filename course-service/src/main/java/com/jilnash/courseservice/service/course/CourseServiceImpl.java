@@ -50,13 +50,12 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Course create(CourseCreateDTO courseDTO) {
 
-        String courseId = UUID.randomUUID().toString();
-        courseDTO.setId(courseId);
+        courseDTO.setId(UUID.randomUUID().toString());
 
         if (!teacherRightsServiceBlockingStub
                 .setCourseOwner(SetCourseOwnerRequest.newBuilder()
                         .setTeacherId(courseDTO.getAuthorId())
-                        .setCourseId(courseId)
+                        .setCourseId(courseDTO.getId())
                         .build())
                 .getSuccess()
         )
