@@ -5,7 +5,9 @@ import com.jilnash.courseservice.dto.task.TaskCreateDTO;
 import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
 import com.jilnash.courseservice.service.task.TaskServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -50,10 +52,10 @@ public class TaskController {
         );
     }
 
-    @PutMapping
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> createTask(@PathVariable String courseId,
                                         @PathVariable String moduleId,
-                                        @RequestBody TaskCreateDTO taskDto,
+                                        @ModelAttribute @Validated TaskCreateDTO taskDto,
                                         @RequestHeader("X-User-Sub") String teacherId) {
 
         taskDto.setCourseId(courseId);

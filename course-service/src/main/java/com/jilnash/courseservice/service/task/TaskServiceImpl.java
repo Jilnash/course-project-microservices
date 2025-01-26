@@ -1,5 +1,6 @@
 package com.jilnash.courseservice.service.task;
 
+import com.jilnash.courseservice.client.FileClient;
 import com.jilnash.courseservice.dto.task.*;
 import com.jilnash.courseservice.mapper.TaskMapper;
 import com.jilnash.courseservice.model.Task;
@@ -28,6 +29,8 @@ public class TaskServiceImpl implements TaskService {
     private final ModuleServiceImpl moduleService;
 
     private final CourseServiceImpl courseService;
+
+    private final FileClient fileClient;
 
     @GrpcClient("progress-client")
     private ProgressServiceGrpc.ProgressServiceBlockingStub progressGrpcClient;
@@ -103,12 +106,19 @@ public class TaskServiceImpl implements TaskService {
         task.setTaskId(generatedTaskId);
         taskRepo.createTaskWithoutRelationships(task);
 
+        fileClient.uploadFiles(
+                "course-project-tasks",
+                "task-" + generatedTaskId + "\\video",
+                List.of(task.getVideoFile())
+        );
+
         setTaskRequirements(task, task.getTaskId());
 
         return true;
     }
 
     private Boolean createTaskWithPrerequisitesAndSuccessors(TaskCreateDTO task, Set<String> prereqsAndSuccessorIds) {
+
         //prerequisites and successors should be distinct
         validatePrerequisitesAndSuccessorsDisjoint(task.getPrerequisiteTasksIds(), task.getSuccessorTasksIds());
 
@@ -123,6 +133,12 @@ public class TaskServiceImpl implements TaskService {
         taskRepo.createTaskWithoutRelationships(task);
         taskRepo.connectTaskToPrerequisites(task);
         taskRepo.connectTaskToSuccessors(task);
+
+        fileClient.uploadFiles(
+                "course-project-tasks",
+                "task-" + generatedTaskId + "\\video",
+                List.of(task.getVideoFile())
+        );
 
         updateProgresses(task, generatedTaskId);
         setTaskRequirements(task, generatedTaskId);

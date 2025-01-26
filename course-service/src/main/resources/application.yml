@@ -29,6 +29,10 @@ spring:
         authentication:
             username: neo4j
             password: radya2004
+    servlet:
+        multipart:
+            max-file-size: 100MB
+            max-request-size: 100MB
 
 eureka:
     client:

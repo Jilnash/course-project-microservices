@@ -19,8 +19,8 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers((request) -> request.getRemoteAddr().equals(gatewayIp)).permitAll()
-                        .anyRequest().denyAll()
+//                        .requestMatchers((request) -> request.getRemoteAddr().equals(gatewayIp)).permitAll()
+                                .anyRequest().permitAll()
                 )
                 .build();
     }
