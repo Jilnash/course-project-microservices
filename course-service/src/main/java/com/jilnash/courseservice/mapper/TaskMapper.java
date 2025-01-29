@@ -22,7 +22,9 @@ public class TaskMapper {
                 task.getId(),
                 task.getTitle(),
                 task.getDescription(),
-                task.getVideoLink()
+                task.getVideoLink(),
+                task.getPrerequisites().stream().map(Task::getId).toList(),
+                task.getSuccessors().stream().map(Task::getId).toList()
         );
     }
 }

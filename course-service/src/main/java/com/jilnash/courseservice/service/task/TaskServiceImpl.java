@@ -58,7 +58,7 @@ public class TaskServiceImpl implements TaskService {
         courseService.validateStudentCourseAccess(courseId, "1");
 
         return TaskMapper.toTaskResponse(
-                taskRepo.getTaskData(id, moduleId, courseId)
+                taskRepo.findByIdAndModule_IdAndModule_Course_Id(id, moduleId, courseId)
                         .orElseThrow(() -> new RuntimeException("Task not found"))
         );
     }
@@ -71,8 +71,8 @@ public class TaskServiceImpl implements TaskService {
         return TaskGraphDTO.builder()
                 .nodes(tasks.stream().map(Task::getId).toList())
                 .edges(tasks.stream()
-                        .flatMap(task -> task.getTasks().stream()
-                                .map(prerequisite -> new TaskGraphEdgeDTO(task.getId(), prerequisite.getId())))
+                        .flatMap(task -> task.getSuccessors().stream()
+                                .map(successor -> new TaskGraphEdgeDTO(task.getId(), successor.getId())))
                         .toList())
                 .build();
     }
@@ -196,7 +196,7 @@ public class TaskServiceImpl implements TaskService {
         return taskRepo
                 .findByIdAndModule_IdAndModule_Course_Id(taskId, moduleId, courseId)
                 .orElseThrow(() -> new NoSuchElementException("Task not found"))
-                .getTasks();
+                .getPrerequisites();
     }
 
     public List<TaskResponseDTO> updateTaskPrerequisite(String courseId, String moduleId, String taskId,
@@ -208,10 +208,10 @@ public class TaskServiceImpl implements TaskService {
                 .findByIdAndModule_IdAndModule_Course_Id(taskId, moduleId, courseId)
                 .orElseThrow(() -> new NoSuchElementException("Task not found"));
 
-        task.getTasks().clear();
-        task.getTasks().addAll(taskRepo.findAllByIdIn(prerequisiteId));
+        task.getPrerequisites().clear();
+        task.getPrerequisites().addAll(taskRepo.findAllByIdIn(prerequisiteId));
 
-        return taskRepo.save(task).getTasks().stream().map(TaskMapper::toTaskResponse).toList();
+        return taskRepo.save(task).getPrerequisites().stream().map(TaskMapper::toTaskResponse).toList();
     }
 
     public String getTaskCourseId(String taskId) {

@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -18,4 +19,8 @@ public class TaskResponseDTO implements Serializable {
     private String description;
 
     private String videoLink;
+
+    private List<String> prerequisites;
+
+    private List<String> successors;
 }

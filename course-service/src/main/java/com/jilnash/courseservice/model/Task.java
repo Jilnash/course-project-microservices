@@ -53,5 +53,8 @@ public class Task {
     private Module module;
 
     @Relationship(type = "IS_PREREQUISITE", direction = Relationship.Direction.OUTGOING)
-    private List<Task> tasks;
+    private List<Task> successors;
+
+    @Relationship(type = "IS_PREREQUISITE", direction = Relationship.Direction.INCOMING)
+    private List<Task> prerequisites;
 }
