@@ -28,7 +28,7 @@ public class TaskServiceImpl implements TaskService {
 
     private final ModuleServiceImpl moduleService;
 
-    private final CourseServiceImpl courseService;
+    private final CourseServiceImpl courseServiceImpl;
 
     private final FileClient fileClient;
 
@@ -42,25 +42,25 @@ public class TaskServiceImpl implements TaskService {
     @Cacheable(value = "taskLists", key = "#moduleId")
     public List<TaskResponseDTO> getTasks(String courseId, String moduleId, String title) {
 
-        courseService.validateStudentCourseAccess(courseId, "1");
-
         return taskRepo
                 .findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(title, moduleId, courseId)
-                .stream()
-                .map(TaskMapper::toTaskResponse)
-                .toList();
+                .stream().map(TaskMapper::toTaskResponse).toList();
     }
 
     @Override
     @Cacheable(value = "tasks", key = "#id")
-    public TaskResponseDTO getTask(String courseId, String moduleId, String id) {
+    public Task getTask(String courseId, String moduleId, String id) {
 
-        courseService.validateStudentCourseAccess(courseId, "1");
+        return taskRepo
+                .findByIdAndModule_IdAndModule_Course_Id(id, moduleId, courseId)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+    }
 
-        return TaskMapper.toTaskResponse(
-                taskRepo.findByIdAndModule_IdAndModule_Course_Id(id, moduleId, courseId)
-                        .orElseThrow(() -> new RuntimeException("Task not found"))
-        );
+    public TaskResponseDTO getTaskToUser(String userId, String courseId, String moduleId, String taskId) {
+
+        courseServiceImpl.validateStudentCourseAccess(courseId, userId);
+
+        return TaskMapper.toTaskResponse(getTask(courseId, moduleId, taskId));
     }
 
     @Cacheable(value = "taskGraphs", key = "#moduleId")
@@ -80,70 +80,57 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Boolean create(TaskCreateDTO task) {
 
-        courseService.validateTeacherCourseRights(task.getCourseId(), task.getTeacherId(), List.of("CREATE"));
-        moduleService.validateModuleExists(task.getModuleId(), task.getCourseId());
+        moduleService.validateModuleExistsInCourse(task.getModuleId(), task.getCourseId());
 
         Set<String> prereqsAndSuccessorIds =
                 mergePrerequisitesAndSuccessors(task.getPrerequisiteTasksIds(), task.getSuccessorTasksIds());
 
+        task.setTaskId(UUID.randomUUID().toString());
+
         if (prereqsAndSuccessorIds.isEmpty())
-            return createFirstTaskInModule(task);
+            createFirstTaskInModule(task);
         else
-            return createTaskWithPrerequisitesAndSuccessors(task, prereqsAndSuccessorIds);
+            createTaskWithPrerequisitesAndSuccessors(task, prereqsAndSuccessorIds);
+
+        setTaskRequirements(task, task.getTaskId());
+
+        fileClient.uploadFiles(
+                "course-project-tasks",
+                "task-" + task.getTaskId() + "\\video",
+                List.of(task.getVideoFile())
+        );
+
+        return true;
     }
 
     private Set<String> mergePrerequisitesAndSuccessors(Set<String> prereqs, Set<String> successors) {
         return Stream.concat(prereqs.stream(), successors.stream()).collect(Collectors.toSet());
     }
 
-    private Boolean createFirstTaskInModule(TaskCreateDTO task) {
+    private void createFirstTaskInModule(TaskCreateDTO task) {
 
         // throw exception if module already contains tasks
         if (moduleService.hasAtLeastOneTask(task.getModuleId()))
             throw new RuntimeException("Task should be linked with other tasks");
 
-        String generatedTaskId = UUID.randomUUID().toString();
-        task.setTaskId(generatedTaskId);
         taskRepo.createTaskWithoutRelationships(task);
-
-        fileClient.uploadFiles(
-                "course-project-tasks",
-                "task-" + generatedTaskId + "\\video",
-                List.of(task.getVideoFile())
-        );
-
-        setTaskRequirements(task, task.getTaskId());
-
-        return true;
     }
 
-    private Boolean createTaskWithPrerequisitesAndSuccessors(TaskCreateDTO task, Set<String> prereqsAndSuccessorIds) {
+    private void createTaskWithPrerequisitesAndSuccessors(TaskCreateDTO task, Set<String> prereqsAndSuccessorIds) {
 
         //prerequisites and successors should be distinct
         validatePrerequisitesAndSuccessorsDisjoint(task.getPrerequisiteTasksIds(), task.getSuccessorTasksIds());
 
         //new task should be connected to tasks only in the same module
-        moduleService.validateModuleContainsTasks(task.getModuleId(), prereqsAndSuccessorIds);
+        moduleService.validateModuleContainsAllTasks(task.getModuleId(), prereqsAndSuccessorIds);
 
         taskRepo.deleteTaskRelationshipsByTaskIdLinks(task.getRemoveRelationshipIds());
-
-        String generatedTaskId = UUID.randomUUID().toString();
-        task.setTaskId(generatedTaskId);
 
         taskRepo.createTaskWithoutRelationships(task);
         taskRepo.connectTaskToPrerequisites(task);
         taskRepo.connectTaskToSuccessors(task);
 
-        fileClient.uploadFiles(
-                "course-project-tasks",
-                "task-" + generatedTaskId + "\\video",
-                List.of(task.getVideoFile())
-        );
-
-        updateProgresses(task, generatedTaskId);
-        setTaskRequirements(task, generatedTaskId);
-
-        return true;
+        updateProgresses(task, task.getTaskId());
     }
 
     private void validatePrerequisitesAndSuccessorsDisjoint(Set<String> prereqs, Set<String> successors) {
@@ -178,8 +165,6 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Task update(TaskUpdateDTO task) {
 
-        courseService.validateTeacherCourseRights(task.getCourseId(), "1", List.of("edit"));
-
         if (!taskRepo.existsByIdAndModuleIdAndModule_CourseId(task.getId(), task.getModuleId(), task.getCourseId()))
             throw new RuntimeException("Task not found");
 
@@ -191,27 +176,22 @@ public class TaskServiceImpl implements TaskService {
         );
     }
 
-    public List<Task> getTaskPrerequisites(String courseId, String moduleId, String taskId) {
+    public List<String> getTaskPrerequisites(String courseId, String moduleId, String taskId) {
 
-        return taskRepo
-                .findByIdAndModule_IdAndModule_Course_Id(taskId, moduleId, courseId)
-                .orElseThrow(() -> new NoSuchElementException("Task not found"))
-                .getPrerequisites();
+        return getTask(courseId, moduleId, taskId).getPrerequisites().stream().map(Task::getId).toList();
     }
 
-    public List<TaskResponseDTO> updateTaskPrerequisite(String courseId, String moduleId, String taskId,
-                                                        List<String> prerequisiteId) {
+    public Boolean updateTaskPrerequisite(String courseId, String moduleId, String taskId, Set<String> prerequisiteIds) {
 
-        courseService.validateTeacherCourseRights(courseId, "1", List.of("edit"));
-
-        Task task = taskRepo
-                .findByIdAndModule_IdAndModule_Course_Id(taskId, moduleId, courseId)
-                .orElseThrow(() -> new NoSuchElementException("Task not found"));
+        moduleService.validateModuleContainsAllTasks(moduleId, prerequisiteIds);
+        Task task = getTask(courseId, moduleId, taskId);
 
         task.getPrerequisites().clear();
-        task.getPrerequisites().addAll(taskRepo.findAllByIdIn(prerequisiteId));
+        task.getPrerequisites().addAll(taskRepo.findAllByIdIn(prerequisiteIds));
 
-        return taskRepo.save(task).getPrerequisites().stream().map(TaskMapper::toTaskResponse).toList();
+        taskRepo.save(task);
+
+        return true;
     }
 
     public String getTaskCourseId(String taskId) {

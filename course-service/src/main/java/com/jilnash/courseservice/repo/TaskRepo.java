@@ -14,19 +14,14 @@ import java.util.Set;
 @Repository
 public interface TaskRepo extends Neo4jRepository<Task, String> {
 
-    List<Task> findAllByIdIn(List<String> ids);
+    List<Task> findAllByIdIn(Set<String> ids);
 
     @Query("MATCH (c:Course) -[:CONTAINS]->(m:Module)-[:CONTAINS]->(t:Task)" +
             "WHERE t.title STARTS WITH $title AND m.id = $moduleId AND c.id = $courseId " +
-            "RETURN t { .id, .title, .description, .videoLink, .audioRequired, .videoRequired }")
+            "RETURN t { .id, .title, .description, .videoLink }")
     List<Task> findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(String title, String moduleId, String courseId);
 
     List<Task> findAllByModule_IdAndModule_Course_Id(String moduleId, String courseId);
-
-    @Query("MATCH (c:Course) -[:CONTAINS]->(m:Module)-[:CONTAINS]->(t:Task)"
-            + "WHERE t.id = $id AND m.id = $moduleId AND c.id = $courseId "
-            + "RETURN t { .id, .title, .description, .videoLink, .audioRequired, .videoRequired }")
-    Optional<Task> getTaskData(String id, String moduleId, String courseId);
 
     Optional<Task> findByIdAndModule_IdAndModule_Course_Id(String id, String moduleId, String courseId);
 

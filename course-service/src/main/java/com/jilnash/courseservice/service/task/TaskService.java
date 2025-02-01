@@ -11,7 +11,7 @@ public interface TaskService {
 
     List<TaskResponseDTO> getTasks(String courseId, String moduleId, String name);
 
-    TaskResponseDTO getTask(String courseId, String moduleId, String id);
+    Task getTask(String courseId, String moduleId, String id);
 
     Boolean create(TaskCreateDTO task);
 

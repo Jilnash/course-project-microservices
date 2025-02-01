@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/modules/{moduleId}/tasks")
@@ -74,12 +74,13 @@ public class TaskController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getTask(@PathVariable String courseId,
                                      @PathVariable String moduleId,
-                                     @PathVariable String id) {
+                                     @PathVariable String id,
+                                     @RequestHeader("X-User-Sub") String userId) {
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Task fetched successfully",
-                        taskService.getTask(courseId, moduleId, id)
+                        taskService.getTaskToUser(userId, courseId, moduleId, id)
                 )
         );
     }
@@ -121,7 +122,7 @@ public class TaskController {
     public ResponseEntity<?> updateTaskPrerequisite(@PathVariable String courseId,
                                                     @PathVariable String moduleId,
                                                     @PathVariable String id,
-                                                    @RequestBody List<String> prerequisiteIds) {
+                                                    @RequestBody Set<String> prerequisiteIds) {
 
         return ResponseEntity.ok(
                 new AppResponse(
