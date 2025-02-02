@@ -3,7 +3,7 @@ package com.jilnash.courseservice.controller.v1;
 import com.jilnash.courseservice.dto.AppResponse;
 import com.jilnash.courseservice.dto.task.TaskCreateDTO;
 import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
-import com.jilnash.courseservice.service.task.TaskServiceImpl;
+import com.jilnash.courseservice.service.task.AuthorizedTaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,20 +17,21 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class TaskController {
 
-    private final TaskServiceImpl taskService;
+    private final AuthorizedTaskService taskService;
 
     @GetMapping
     public ResponseEntity<?> getTasks(@PathVariable String courseId,
                                       @PathVariable String moduleId,
                                       @RequestParam String mode,
-                                      @RequestParam(required = false, defaultValue = "") String name) {
+                                      @RequestParam(required = false, defaultValue = "") String name,
+                                      @RequestHeader("X-User-Sub") String userId) {
 
         if (mode.equals("list"))
             return ResponseEntity.ok(
                     new AppResponse(
                             200,
                             "Tasks fetched successfully",
-                            taskService.getTasks(courseId, moduleId, name)
+                            taskService.getTasksForUser(userId, courseId, moduleId, name)
                     )
             );
 
@@ -39,7 +40,7 @@ public class TaskController {
                     new AppResponse(
                             200,
                             "Tasks fetched successfully",
-                            taskService.getTaskGraph(courseId, moduleId)
+                            taskService.getTaskGraphForUser(userId, courseId, moduleId)
                     )
             );
 
@@ -66,7 +67,7 @@ public class TaskController {
                 new AppResponse(
                         200,
                         "Task created successfully",
-                        taskService.create(taskDto)
+                        taskService.createTaskByUser(teacherId, taskDto)
                 )
         );
     }
@@ -80,7 +81,7 @@ public class TaskController {
                 new AppResponse(
                         200,
                         "Task fetched successfully",
-                        taskService.getTaskToUser(userId, courseId, moduleId, id)
+                        taskService.getTaskForUser(userId, courseId, moduleId, id)
                 )
         );
     }
@@ -89,6 +90,7 @@ public class TaskController {
     public ResponseEntity<?> updateTask(@PathVariable String courseId,
                                         @PathVariable String moduleId,
                                         @PathVariable String id,
+                                        @RequestHeader("X-User-Sub") String teacherId,
                                         @RequestBody TaskUpdateDTO taskDto) {
 
         taskDto.setId(id);
@@ -99,7 +101,7 @@ public class TaskController {
                 new AppResponse(
                         200,
                         "Task updated successfully",
-                        taskService.update(taskDto)
+                        taskService.updateTaskByUser(teacherId, taskDto)
                 )
         );
     }
@@ -107,13 +109,14 @@ public class TaskController {
     @GetMapping("/{id}/prerequisites")
     public ResponseEntity<?> getTaskPrerequisites(@PathVariable String courseId,
                                                   @PathVariable String moduleId,
-                                                  @PathVariable String id) {
+                                                  @PathVariable String id,
+                                                  @RequestHeader("X-User-Sub") String userId) {
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Task prereqs fetched successfully",
-                        taskService.getTaskPrerequisites(courseId, moduleId, id)
+                        taskService.getPrereqsByUser(userId, courseId, moduleId, id)
                 )
         );
     }
@@ -122,13 +125,14 @@ public class TaskController {
     public ResponseEntity<?> updateTaskPrerequisite(@PathVariable String courseId,
                                                     @PathVariable String moduleId,
                                                     @PathVariable String id,
-                                                    @RequestBody Set<String> prerequisiteIds) {
+                                                    @RequestBody Set<String> prerequisiteIds,
+                                                    @RequestHeader("X-User-Sub") String teacherId) {
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Task prereqs updated successfully",
-                        taskService.updateTaskPrerequisite(courseId, moduleId, id, prerequisiteIds)
+                        taskService.updatePrereqsByUser(teacherId, courseId, moduleId, id, prerequisiteIds)
                 )
         );
     }

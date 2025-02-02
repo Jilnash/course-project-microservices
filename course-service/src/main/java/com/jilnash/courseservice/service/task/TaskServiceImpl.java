@@ -1,11 +1,12 @@
 package com.jilnash.courseservice.service.task;
 
 import com.jilnash.courseservice.client.FileClient;
-import com.jilnash.courseservice.dto.task.*;
-import com.jilnash.courseservice.mapper.TaskMapper;
+import com.jilnash.courseservice.dto.task.TaskCreateDTO;
+import com.jilnash.courseservice.dto.task.TaskGraphDTO;
+import com.jilnash.courseservice.dto.task.TaskGraphEdgeDTO;
+import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
 import com.jilnash.courseservice.model.Task;
 import com.jilnash.courseservice.repo.TaskRepo;
-import com.jilnash.courseservice.service.course.CourseServiceImpl;
 import com.jilnash.courseservice.service.module.ModuleServiceImpl;
 import com.jilnash.progressservice.InsertTaskToProgressRequest;
 import com.jilnash.progressservice.ProgressServiceGrpc;
@@ -28,8 +29,6 @@ public class TaskServiceImpl implements TaskService {
 
     private final ModuleServiceImpl moduleService;
 
-    private final CourseServiceImpl courseServiceImpl;
-
     private final FileClient fileClient;
 
     @GrpcClient("progress-client")
@@ -40,11 +39,9 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @Cacheable(value = "taskLists", key = "#moduleId")
-    public List<TaskResponseDTO> getTasks(String courseId, String moduleId, String title) {
+    public List<Task> getTasks(String courseId, String moduleId, String title) {
 
-        return taskRepo
-                .findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(title, moduleId, courseId)
-                .stream().map(TaskMapper::toTaskResponse).toList();
+        return taskRepo.findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(title, moduleId, courseId);
     }
 
     @Override
@@ -54,13 +51,6 @@ public class TaskServiceImpl implements TaskService {
         return taskRepo
                 .findByIdAndModule_IdAndModule_Course_Id(id, moduleId, courseId)
                 .orElseThrow(() -> new RuntimeException("Task not found"));
-    }
-
-    public TaskResponseDTO getTaskToUser(String userId, String courseId, String moduleId, String taskId) {
-
-        courseServiceImpl.validateStudentCourseAccess(courseId, userId);
-
-        return TaskMapper.toTaskResponse(getTask(courseId, moduleId, taskId));
     }
 
     @Cacheable(value = "taskGraphs", key = "#moduleId")
@@ -163,17 +153,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Task update(TaskUpdateDTO task) {
+    public Boolean update(TaskUpdateDTO task) {
 
         if (!taskRepo.existsByIdAndModuleIdAndModule_CourseId(task.getId(), task.getModuleId(), task.getCourseId()))
             throw new RuntimeException("Task not found");
 
-        return taskRepo.updateTaskData(
-                task.getId(),
-                task.getTitle(),
-                task.getDescription(),
-                task.getVideoLink()
-        );
+        taskRepo.updateTaskData(task.getId(), task.getTitle(), task.getDescription(), task.getVideoLink());
+
+        return true;
     }
 
     public List<String> getTaskPrerequisites(String courseId, String moduleId, String taskId) {
