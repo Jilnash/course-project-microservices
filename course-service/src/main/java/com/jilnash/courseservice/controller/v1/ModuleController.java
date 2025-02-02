@@ -3,7 +3,7 @@ package com.jilnash.courseservice.controller.v1;
 import com.jilnash.courseservice.dto.AppResponse;
 import com.jilnash.courseservice.dto.module.ModuleCreateDTO;
 import com.jilnash.courseservice.dto.module.ModuleUpdateDTO;
-import com.jilnash.courseservice.service.module.ModuleServiceImpl;
+import com.jilnash.courseservice.service.module.AuthorizedModuleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -14,17 +14,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class ModuleController {
 
-    private final ModuleServiceImpl moduleService;
+    private final AuthorizedModuleService moduleService;
 
     @GetMapping
-    public ResponseEntity<?> getModules(@PathVariable String courseId,
-                                        @RequestParam(required = false, defaultValue = "") String name) {
+    public ResponseEntity<?> getModules(@PathVariable String courseId) {
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Modules fetched successfully",
-                        moduleService.getModules(courseId, name)
-
+                        moduleService.getModulesInCourse(courseId)
                 )
         );
     }
@@ -35,13 +33,12 @@ public class ModuleController {
                                           @Validated @RequestBody ModuleCreateDTO moduleCreateDTO) {
 
         moduleCreateDTO.setCourseId(courseId);
-        moduleCreateDTO.setTeacherId(teacherId);
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Modules created successfully",
-                        moduleService.create(moduleCreateDTO)
+                        moduleService.createModuleByUser(teacherId, moduleCreateDTO)
 
                 )
         );
@@ -68,14 +65,13 @@ public class ModuleController {
                                           @RequestHeader("X-User-Sub") String teacherId) {
 
         moduleUpdateDTO.setCourseId(courseId);
-        moduleUpdateDTO.setTeacherId(teacherId);
         moduleUpdateDTO.setId(moduleId);
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Module updated successfully",
-                        moduleService.update(moduleUpdateDTO)
+                        moduleService.updateModuleByUser(teacherId, moduleUpdateDTO)
                 )
         );
     }

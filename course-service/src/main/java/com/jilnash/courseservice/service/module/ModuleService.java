@@ -8,9 +8,9 @@ import java.util.List;
 
 public interface ModuleService {
 
-    List<Module> getModules(String courseId, String name);
+    List<Module> getModulesInCourse(String courseId);
 
-    Module getModule(String id);
+    Module getModuleByCourse(String courseId, String id);
 
     Module create(ModuleCreateDTO module);
 

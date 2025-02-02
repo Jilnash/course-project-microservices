@@ -23,21 +23,12 @@ public class ModuleServiceImpl implements ModuleService {
     private final CourseServiceImpl courseService;
 
     @Override
-    public List<Module> getModules(String id, String name) {
+    public List<Module> getModulesInCourse(String courseId) {
 
-        if (!name.isEmpty())
-            return moduleRepo.findAllByNameContainingAndCourseId(name, id);
-
-        return moduleRepo.findAllByCourseId(id);
+        return moduleRepo.findAllByCourseId(courseId);
     }
 
     @Override
-    public Module getModule(String id) {
-        return moduleRepo
-                .findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Module not found with id: " + id));
-    }
-
     @Cacheable(value = "modules", key = "#id")
     public Module getModuleByCourse(String courseId, String id) {
         return moduleRepo
@@ -50,8 +41,6 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     public Module create(ModuleCreateDTO moduleDTO) {
 
-        courseService.validateTeacherCourseRights(moduleDTO.getCourseId(), moduleDTO.getTeacherId(), List.of("CREATE"));
-
         // check if course exists then set it to moduleDTO
         moduleDTO.setCourse(courseService.getCourse(moduleDTO.getCourseId()));
 
@@ -60,8 +49,6 @@ public class ModuleServiceImpl implements ModuleService {
 
     @Override
     public Module update(ModuleUpdateDTO moduleDTO) {
-
-        courseService.validateTeacherCourseRights(moduleDTO.getCourseId(), moduleDTO.getTeacherId(), List.of("UPDATE"));
 
         // check if module exists by id and courseId
         if (!moduleRepo.existsByIdAndCourseId(moduleDTO.getId(), moduleDTO.getCourseId()))
