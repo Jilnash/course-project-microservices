@@ -15,6 +15,7 @@ import com.jilnash.taskrequirementsservice.TaskRequirementsServiceGrpc;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -138,7 +139,8 @@ public class TaskServiceImpl implements TaskService {
         );
     }
 
-    private void setTaskRequirements(TaskCreateDTO task, String generatedTaskId) {
+    @Async
+    protected void setTaskRequirements(TaskCreateDTO task, String generatedTaskId) {
         taskRequirementsGrpcClient.setTaskRequirements(
                 SetTaskRequirementsRequest.newBuilder()
                         .setTaskId(generatedTaskId)
