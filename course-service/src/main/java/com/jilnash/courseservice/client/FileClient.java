@@ -3,6 +3,7 @@ package com.jilnash.courseservice.client;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -14,6 +15,7 @@ import java.util.List;
 @Component
 public class FileClient {
 
+    @Async
     public void uploadFiles(String bucket, String fileName, List<MultipartFile> files) {
 
         HttpHeaders headers = new HttpHeaders();
