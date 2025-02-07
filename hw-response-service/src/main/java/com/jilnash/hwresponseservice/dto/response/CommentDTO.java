@@ -1,4 +1,4 @@
-package com.jilnash.hwresponseservice.dto;
+package com.jilnash.hwresponseservice.dto.response;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;

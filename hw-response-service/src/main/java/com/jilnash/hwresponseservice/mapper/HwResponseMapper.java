@@ -1,6 +1,6 @@
 package com.jilnash.hwresponseservice.mapper;
 
-import com.jilnash.hwresponseservice.dto.HwResponseDTO;
+import com.jilnash.hwresponseservice.dto.response.HwResponseDTO;
 import com.jilnash.hwresponseservice.model.Comment;
 import com.jilnash.hwresponseservice.model.HwResponse;
 import com.jilnash.hwresponseservice.model.TimeRange;
