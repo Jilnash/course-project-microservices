@@ -2,7 +2,6 @@ package com.jilnash.hwresponseservice.controller.v1;
 
 import com.jilnash.hwresponseservice.dto.AppResponse;
 import com.jilnash.hwresponseservice.dto.response.HwResponseDTO;
-import com.jilnash.hwresponseservice.dto.response.comment.FileCommentDTO;
 import com.jilnash.hwresponseservice.mapper.HwResponseMapper;
 import com.jilnash.hwresponseservice.service.HwResponseService;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/hw-responses")
@@ -43,6 +42,7 @@ public class HwResponseController {
                                             @RequestHeader("X-User-Sub") String teacherId) {
 
         responseDto.setTeacherId(teacherId);
+        responseDto.setId(UUID.randomUUID().toString());
 
         return ResponseEntity.ok(
                 new AppResponse(
@@ -54,7 +54,7 @@ public class HwResponseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getResponse(@PathVariable Long id) {
+    public ResponseEntity<?> getResponse(@PathVariable String id) {
 
         return ResponseEntity.ok(
                 new AppResponse(
@@ -66,29 +66,18 @@ public class HwResponseController {
     }
 
     @PostMapping("/{id}")
-    public ResponseEntity<?> updateResponse(@PathVariable Long id, @Validated @RequestBody HwResponseDTO responseDto) {
+    public ResponseEntity<?> updateResponse(@PathVariable String id,
+                                            @Validated @RequestBody HwResponseDTO responseDto,
+                                            @RequestHeader("X-User-Sub") String teacherId) {
 
         responseDto.setId(id);
+        responseDto.setTeacherId(teacherId);
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
                         "Response updated successfully",
                         responseService.updateResponse(responseMapper.toEntity(responseDto))
-                )
-        );
-    }
-
-    @PostMapping("/test")
-    public ResponseEntity<?> test(@Validated @RequestBody List<FileCommentDTO> comments) {
-
-        System.out.println(comments);
-
-        return ResponseEntity.ok(
-                new AppResponse(
-                        200,
-                        "Test response",
-                        "Test response"
                 )
         );
     }

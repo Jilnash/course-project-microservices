@@ -30,4 +30,14 @@ public class ErrHandler {
                 )
         );
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleException(RuntimeException e) {
+        return ResponseEntity.badRequest().body(
+                new AppError(
+                        400,
+                        e.getMessage()
+                )
+        );
+    }
 }

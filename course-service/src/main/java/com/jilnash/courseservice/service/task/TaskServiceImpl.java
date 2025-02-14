@@ -39,14 +39,14 @@ public class TaskServiceImpl implements TaskService {
     private TaskRequirementsServiceGrpc.TaskRequirementsServiceBlockingStub taskRequirementsGrpcClient;
 
     @Override
-    @Cacheable(value = "taskLists", key = "#moduleId")
+//    @Cacheable(value = "taskLists", key = "#moduleId")
     public List<Task> getTasks(String courseId, String moduleId, String title) {
 
         return taskRepo.findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(title, moduleId, courseId);
     }
 
     @Override
-    @Cacheable(value = "tasks", key = "#id")
+//    @Cacheable(value = "tasks", key = "#id")
     public Task getTask(String courseId, String moduleId, String id) {
 
         return taskRepo
