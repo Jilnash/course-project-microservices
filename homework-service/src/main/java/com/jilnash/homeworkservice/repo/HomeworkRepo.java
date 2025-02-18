@@ -11,7 +11,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface HomeworkRepo extends JpaRepository<Homework, Long>, JpaSpecificationExecutor<Homework> {
+public interface HomeworkRepo extends JpaRepository<Homework, UUID>, JpaSpecificationExecutor<Homework> {
 
     @Query("SELECT h.taskId FROM Homework h WHERE h.id = :id")
     Optional<String> getHwTaskId(@Param("id") UUID id);

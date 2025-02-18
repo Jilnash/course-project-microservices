@@ -1,6 +1,6 @@
 package com.jilnash.hwresponseservice.service;
 
-import com.jilnash.hwresponseservice.model.HwResponse;
+import com.jilnash.hwresponseservice.model.mongo.HwResponse;
 
 import java.util.Date;
 import java.util.List;
@@ -9,9 +9,9 @@ public interface HwResponseService {
 
     List<HwResponse> getResponses(String teacherId, Long homeworkId, Date createdAfter, Date createdBefore);
 
-    HwResponse getResponse(Long id);
+    HwResponse getResponse(String id);
 
-    HwResponse createResponse(HwResponse response);
+    Boolean createResponse(HwResponse response);
 
-    HwResponse updateResponse(HwResponse response);
+    Boolean updateResponse(HwResponse response);
 }

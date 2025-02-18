@@ -4,15 +4,16 @@ import com.jilnash.courserightsservice.HasRightsRequest;
 import com.jilnash.courserightsservice.TeacherRightsServiceGrpc;
 import com.jilnash.hwresponseservice.clients.CourseClient;
 import com.jilnash.hwresponseservice.clients.HwClient;
-import com.jilnash.hwresponseservice.model.HwResponse;
-import com.jilnash.hwresponseservice.repo.CommentRepo;
+import com.jilnash.hwresponseservice.model.mongo.HwResponse;
 import com.jilnash.hwresponseservice.repo.HwResponseRepo;
 import com.jilnash.progressservice.AddTaskToProgressRequest;
 import com.jilnash.progressservice.ProgressServiceGrpc;
-import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -23,8 +24,9 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 public class HwResponseServiceImpl implements HwResponseService {
 
+    private final MongoTemplate mongoTemplate;
+
     private final HwResponseRepo hwResponseRepo;
-    private final CommentRepo commentRepo;
 
     private final CourseClient courseClient;
     private final HwClient hwClient;
@@ -38,56 +40,51 @@ public class HwResponseServiceImpl implements HwResponseService {
     @Override
     public List<HwResponse> getResponses(String teacherId, Long homeworkId, Date createdAfter, Date createdBefore) {
 
-        Specification<HwResponse> spec = (root, query, cb) -> {
-            Predicate p = cb.conjunction();
+        Query query = new Query();
 
-            if (teacherId != null)
-                p = cb.and(p, cb.equal(root.get("teacher").get("id"), teacherId));
+        if (teacherId != null)
+            query.addCriteria(Criteria.where("teacherId").is(teacherId));
 
-            if (homeworkId != null)
-                p = cb.and(p, cb.equal(root.get("homework").get("id"), homeworkId));
+        if (homeworkId != null)
+            query.addCriteria(Criteria.where("homeworkId").is(homeworkId));
 
-            if (createdBefore != null)
-                p = cb.and(p, cb.lessThanOrEqualTo(root.get("createdAt"), createdBefore));
+        if (createdAfter != null)
+            query.addCriteria(Criteria.where("createdDate").gte(createdAfter));
 
-            if (createdAfter != null)
-                p = cb.and(p, cb.greaterThanOrEqualTo(root.get("createdAt"), createdAfter));
+        if (createdBefore != null)
+            query.addCriteria(Criteria.where("createdDate").lte(createdBefore));
 
-            return p;
-        };
+        return mongoTemplate.find(query, HwResponse.class);
 
-        return hwResponseRepo.findAll(spec);
     }
 
     @Override
-    public HwResponse getResponse(Long id) {
+    public HwResponse getResponse(String id) {
         return hwResponseRepo
                 .findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Response with id " + id + " not found"));
     }
 
     @Override
-    public HwResponse createResponse(HwResponse response) {
+    public Boolean createResponse(HwResponse response) {
 
         String taskId = hwClient.getTaskId(response.getHomeworkId());
-        //getting courseId by hwId
+
+        //checking if homework already checked
+        if (hwResponseRepo.existsByHomeworkId(response.getHomeworkId()))
+            throw new RuntimeException("Homework already checked");
+
         validateTeacherAllowedToCheckHomework(courseClient.getTaskCourseId(taskId), response.getTeacherId());
 
-        //creating response, then saving it for comments' response id
-        HwResponse savedResponse = hwResponseRepo.save(response);
-
-        //setting comments' response id
-        response.getComments().forEach(comment -> comment.setHwResponse(savedResponse));
-
-        //saving all comments
-        commentRepo.saveAll(response.getComments());
+        //creating response
+        hwResponseRepo.save(response);
 
         if (response.getIsCorrect())
             addTaskToStudentProgress(hwClient.getStudentId(response.getHomeworkId()), taskId);
 
-        //todo: change hw status to `checked`
+        hwClient.setChecked(response.getHomeworkId());
 
-        return savedResponse;
+        return true;
     }
 
     private void validateTeacherAllowedToCheckHomework(String courseId, String teacherId) {
@@ -102,7 +99,8 @@ public class HwResponseServiceImpl implements HwResponseService {
 
     }
 
-    private void addTaskToStudentProgress(String studentId, String taskId) {
+    @Async
+    protected void addTaskToStudentProgress(String studentId, String taskId) {
         progressServiceGrpc.addTaskToProgress(
                 AddTaskToProgressRequest.newBuilder()
                         .setStudentId(studentId)
@@ -112,7 +110,14 @@ public class HwResponseServiceImpl implements HwResponseService {
     }
 
     @Override
-    public HwResponse updateResponse(HwResponse response) {
+    public Boolean updateResponse(HwResponse response) {
+
+        //checking if response id is provided
+        if (response.getId() == null)
+            throw new NoSuchElementException("Response with id not provided");
+
+        //checking if response exists, then getting id
+        String id = getResponse(response.getId()).getId();
 
         //checking if teacher is allowed to check homework
         validateTeacherAllowedToCheckHomework(
@@ -121,22 +126,12 @@ public class HwResponseServiceImpl implements HwResponseService {
                 response.getTeacherId()
         );
 
-        //checking if response id is provided
-        if (response.getId() == null)
-            throw new NoSuchElementException("Response with id not provided");
+        // deleting previous response
+        hwResponseRepo.deleteById(id);
 
-        //deleting all previous comments of the response
-        commentRepo.deleteAll(getResponse(response.getId()).getComments());
+        // saving new response
+        hwResponseRepo.save(response);
 
-        //creating response, then saving it for comments' response id
-        HwResponse savedResponse = hwResponseRepo.save(response);
-
-        //setting comments' response id
-        response.getComments().forEach(comment -> comment.setHwResponse(savedResponse));
-
-        //saving all comments
-        commentRepo.saveAll(response.getComments());
-
-        return savedResponse;
+        return true;
     }
 }

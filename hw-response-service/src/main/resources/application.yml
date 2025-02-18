@@ -15,15 +15,13 @@ grpc:
 spring:
     application:
         name: hw-response-service
-    datasource:
-        url: jdbc:mysql://localhost:3306/course_project_hw_responses?createDatabaseIfNotExist=true
-        username: root
-        password: root
-        driver-class-name: com.mysql.cj.jdbc.Driver
     jpa:
         hibernate:
             ddl-auto: update
         show-sql: true
+    data:
+        mongodb:
+            uri: mongodb://localhost:27017/course_project_hw_responses
 
 eureka:
     client:
