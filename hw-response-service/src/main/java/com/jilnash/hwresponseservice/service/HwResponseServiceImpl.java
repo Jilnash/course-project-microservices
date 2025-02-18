@@ -10,6 +10,7 @@ import com.jilnash.progressservice.AddTaskToProgressRequest;
 import com.jilnash.progressservice.ProgressServiceGrpc;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.scheduling.annotation.Async;
@@ -22,6 +23,8 @@ import java.util.NoSuchElementException;
 @Service
 @RequiredArgsConstructor
 public class HwResponseServiceImpl implements HwResponseService {
+
+    private final MongoTemplate mongoTemplate;
 
     private final HwResponseRepo hwResponseRepo;
 
@@ -51,7 +54,7 @@ public class HwResponseServiceImpl implements HwResponseService {
         if (createdBefore != null)
             query.addCriteria(Criteria.where("createdDate").lte(createdBefore));
 
-        return hwResponseRepo.find(query, HwResponse.class);
+        return mongoTemplate.find(query, HwResponse.class);
 
     }
 
@@ -79,7 +82,7 @@ public class HwResponseServiceImpl implements HwResponseService {
         if (response.getIsCorrect())
             addTaskToStudentProgress(hwClient.getStudentId(response.getHomeworkId()), taskId);
 
-        //todo: change hw status to `checked`
+        hwClient.setChecked(response.getHomeworkId());
 
         return true;
     }

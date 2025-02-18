@@ -54,7 +54,7 @@ public class HomeworkController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getHomework(@PathVariable Long id) {
+    public ResponseEntity<?> getHomework(@PathVariable UUID id) {
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
@@ -72,6 +72,17 @@ public class HomeworkController {
     @GetMapping("{hwId}/student/id")
     public String getStudentId(@PathVariable UUID hwId) {
         return homeworkService.getHwStudentId(hwId);
+    }
+
+    @PutMapping("{hwId}/checked")
+    public ResponseEntity<?> setChecked(@PathVariable UUID hwId) {
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Homework checked successfully",
+                        homeworkService.setChecked(hwId)
+                )
+        );
     }
 }
 

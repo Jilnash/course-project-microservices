@@ -65,7 +65,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     @Override
-    public Homework getHomework(Long id) {
+    public Homework getHomework(UUID id) {
         return homeworkRepo
                 .findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + id));
@@ -149,5 +149,15 @@ public class HomeworkServiceImpl implements HomeworkService {
         return homeworkRepo
                 .getHwStudentId(hwId)
                 .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + hwId));
+    }
+
+    public Boolean setChecked(UUID hwId) {
+
+        var hw = getHomework(hwId);
+
+        hw.setChecked(true);
+        homeworkRepo.save(hw);
+
+        return true;
     }
 }
