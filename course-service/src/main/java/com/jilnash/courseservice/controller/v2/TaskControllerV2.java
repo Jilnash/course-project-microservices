@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v2/tasks")
 @RequiredArgsConstructor
@@ -18,5 +20,11 @@ public class TaskControllerV2 {
     public String getTaskCourseId(@PathVariable String taskId) {
 
         return taskService.getTaskCourseId(taskId);
+    }
+
+    @GetMapping("/{taskId}/prerequisites")
+    private List<String> getTaskPreRequisites(@PathVariable String taskId) {
+
+        return taskService.getTaskPrerequisites(taskId);
     }
 }

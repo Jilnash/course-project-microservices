@@ -76,9 +76,13 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         validateStudentHasAccessToCourse(homework.getStudentId(), homework.getTaskId());
 
-        validateStudentCompletedTasks(homework.getStudentId(), List.of(homework.getTaskId()));
+        // checking if student already completed this task
+        if (validateStudentCompletedTasks(homework.getStudentId(), List.of(homework.getTaskId())))
+            throw new IllegalArgumentException("Student already completed this task");
 
-        //todo: validate if student completed prereqs
+        // checking if student completed all prerequisites
+        if (!validateStudentCompletedTasks(homework.getStudentId(), courseClient.getTaskPreRequisites(homework.getTaskId())))
+            throw new IllegalArgumentException("Student did not complete all prerequisites");
 
         validatePreviousHomeworksChecked(homework.getStudentId(), homework.getTaskId());
 
@@ -102,16 +106,14 @@ public class HomeworkServiceImpl implements HomeworkService {
             throw new IllegalArgumentException("Student does not have access to course");
     }
 
-    private void validateStudentCompletedTasks(String studentId, List<String> taskIds) {
+    private boolean validateStudentCompletedTasks(String studentId, List<String> taskIds) {
 
-        if (progressServiceBlockingStub.areTasksCompleted(
+        return progressServiceBlockingStub.areTasksCompleted(
                         StudentTaskCompletedRequest.newBuilder()
                                 .setStudentId(studentId)
                                 .addAllTaskIds(taskIds)
                                 .build())
-                .getIsCompleted()
-        )
-            throw new IllegalArgumentException("Student already completed this task");
+                .getIsCompleted();
     }
 
     private void validatePreviousHomeworksChecked(String studentId, String taskId) {

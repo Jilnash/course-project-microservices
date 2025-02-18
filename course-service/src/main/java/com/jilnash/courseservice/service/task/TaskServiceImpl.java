@@ -54,6 +54,12 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new RuntimeException("Task not found"));
     }
 
+    public Task getTask(String id) {
+        return taskRepo
+                .findById(id)
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+    }
+
     @Cacheable(value = "taskGraphs", key = "#moduleId")
     public TaskGraphDTO getTaskGraph(String courseId, String moduleId) {
 
@@ -168,6 +174,10 @@ public class TaskServiceImpl implements TaskService {
     public List<String> getTaskPrerequisites(String courseId, String moduleId, String taskId) {
 
         return getTask(courseId, moduleId, taskId).getPrerequisites().stream().map(Task::getId).toList();
+    }
+
+    public List<String> getTaskPrerequisites(String taskId) {
+        return getTask(taskId).getPrerequisites().stream().map(Task::getId).toList();
     }
 
     public Boolean updateTaskPrerequisite(String courseId, String moduleId, String taskId, Set<String> prerequisiteIds) {
