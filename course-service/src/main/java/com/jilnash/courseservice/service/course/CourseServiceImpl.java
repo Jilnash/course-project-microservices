@@ -86,9 +86,12 @@ public class CourseServiceImpl implements CourseService {
 
         try {
             validateStudentCourseAccess(courseId, userId);
-            validateTeacherCourseRights(courseId, userId, List.of("READ"));
         } catch (Exception e) {
-            throw new RuntimeException("Access validation failed", e);
+            try {
+                validateTeacherCourseRights(courseId, userId, List.of("READ"));
+            } catch (Exception e1) {
+                throw new RuntimeException("Access validation failed", e1);
+            }
         }
     }
 
