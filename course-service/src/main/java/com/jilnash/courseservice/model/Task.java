@@ -36,6 +36,9 @@ public class Task implements Serializable {
     @Property("videoLink")
     private String videoLink;
 
+    @Property("isPublic")
+    private Boolean isPublic;
+
     //audit fields
 
     @Property("createdBy")

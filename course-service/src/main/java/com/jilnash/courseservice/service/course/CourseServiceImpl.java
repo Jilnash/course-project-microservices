@@ -82,6 +82,16 @@ public class CourseServiceImpl implements CourseService {
         return null;
     }
 
+    public void validateUserAccess(String courseId, String userId) {
+
+        try {
+            validateStudentCourseAccess(courseId, userId);
+            validateTeacherCourseRights(courseId, userId, List.of("READ"));
+        } catch (Exception e) {
+            throw new RuntimeException("Access validation failed", e);
+        }
+    }
+
     public void validateTeacherCourseRights(String courseId, String teacherId, List<String> rights) {
 
         if (!teacherRightsServiceBlockingStub.hasRights(HasRightsRequest.newBuilder()

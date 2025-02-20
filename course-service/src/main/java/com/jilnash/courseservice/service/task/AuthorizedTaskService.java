@@ -31,10 +31,12 @@ public class AuthorizedTaskService {
 
     public TaskResponseDTO getTaskForUser(String userId, String courseId, String moduleId, String taskId) {
 
-        courseServiceImpl.validateStudentCourseAccess(courseId, userId);
-        //courseServiceImpl.validateTeacherCourseRights(courseId, userId, List.of("READ"));
+        var task = taskService.getTask(courseId, moduleId, taskId);
 
-        return TaskMapper.toTaskResponse(taskService.getTask(courseId, moduleId, taskId));
+        if (!task.getIsPublic())
+            courseServiceImpl.validateUserAccess(courseId, userId);
+
+        return TaskMapper.toTaskResponse(task);
     }
 
     public TaskGraphDTO getTaskGraphForUser(String userId, String courseId, String moduleId) {
