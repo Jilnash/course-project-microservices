@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
@@ -133,6 +134,70 @@ public class TaskController {
                         200,
                         "Task prereqs updated successfully",
                         taskService.updatePrereqsByUser(teacherId, courseId, moduleId, id, prerequisiteIds)
+                )
+        );
+    }
+
+    @PatchMapping("/{id}/title")
+    public ResponseEntity<?> updateTaskTitle(@PathVariable String courseId,
+                                             @PathVariable String moduleId,
+                                             @PathVariable String id,
+                                             @RequestBody String title,
+                                             @RequestHeader("X-User-Sub") String teacherId) {
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Task title updated successfully",
+                        taskService.updateTaskTitleByUser(teacherId, courseId, moduleId, id, title)
+                )
+        );
+    }
+
+    @PatchMapping("/{id}/description")
+    public ResponseEntity<?> updateTaskDescription(@PathVariable String courseId,
+                                                   @PathVariable String moduleId,
+                                                   @PathVariable String id,
+                                                   @RequestBody String description,
+                                                   @RequestHeader("X-User-Sub") String teacherId) {
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Task description updated successfully",
+                        taskService.updateTaskDescription(teacherId, courseId, moduleId, id, description)
+                )
+        );
+    }
+
+    @PatchMapping("/{id}/video")
+    public ResponseEntity<?> updateTaskVideo(@PathVariable String courseId,
+                                             @PathVariable String moduleId,
+                                             @PathVariable String id,
+                                             @RequestPart MultipartFile video,
+                                             @RequestHeader("X-User-Sub") String teacherId) {
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Task video updated successfully",
+                        taskService.updateTaskVideoByUser(teacherId, courseId, moduleId, id, video)
+                )
+        );
+    }
+
+    @PatchMapping("/{id}/isPublic")
+    public ResponseEntity<?> updateTaskIsPublic(@PathVariable String courseId,
+                                                @PathVariable String moduleId,
+                                                @PathVariable String id,
+                                                @RequestBody Boolean isPublic,
+                                                @RequestHeader("X-User-Sub") String teacherId) {
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Task video updated successfully",
+                        taskService.updateTaskIsPublicByUser(teacherId, courseId, moduleId, id, isPublic)
                 )
         );
     }

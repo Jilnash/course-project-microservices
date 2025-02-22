@@ -8,6 +8,7 @@ import com.jilnash.courseservice.mapper.TaskMapper;
 import com.jilnash.courseservice.service.course.CourseServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
@@ -22,8 +23,7 @@ public class AuthorizedTaskService {
 
     public List<TaskResponseDTO> getTasksForUser(String userId, String courseId, String moduleId, String title) {
 
-        courseServiceImpl.validateStudentCourseAccess(courseId, userId);
-        //courseServiceImpl.validateTeacherCourseRights(courseId, userId, List.of("READ"));
+        courseServiceImpl.validateUserAccess(courseId, userId);
 
         return taskService.getTasks(courseId, moduleId, title)
                 .stream().map(TaskMapper::toTaskResponse).toList();
@@ -72,5 +72,33 @@ public class AuthorizedTaskService {
         courseServiceImpl.validateTeacherCourseRights(courseId, userId, List.of("UPDATE"));
 
         return taskService.updateTaskPrerequisite(courseId, moduleId, taskId, preRequisites);
+    }
+
+    public Boolean updateTaskTitleByUser(String userId, String courseId, String moduleId, String taskId, String title) {
+
+        courseServiceImpl.validateTeacherCourseRights(courseId, userId, List.of("UPDATE"));
+
+        return taskService.updateTaskTitle(courseId, moduleId, taskId, title);
+    }
+
+    public Boolean updateTaskVideoByUser(String teacherId, String courseId, String moduleId, String id, MultipartFile video) {
+
+        courseServiceImpl.validateTeacherCourseRights(courseId, teacherId, List.of("UPDATE"));
+
+        return taskService.updateTaskVideo(courseId, moduleId, id, video);
+    }
+
+    public Boolean updateTaskIsPublicByUser(String teacherId, String courseId, String moduleId, String id, Boolean isPublic) {
+
+        courseServiceImpl.validateTeacherCourseRights(courseId, teacherId, List.of("UPDATE"));
+
+        return taskService.updateTaskIsPublic(courseId, moduleId, id, isPublic);
+    }
+
+    public Boolean updateTaskDescription(String teacherId, String courseId, String moduleId, String id, String description) {
+
+        courseServiceImpl.validateTeacherCourseRights(courseId, teacherId, List.of("UPDATE"));
+
+        return taskService.updateTaskDescription(courseId, moduleId, id, description);
     }
 }

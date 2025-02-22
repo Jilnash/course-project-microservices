@@ -84,35 +84,34 @@ public class CourseServiceImpl implements CourseService {
 
     public void validateUserAccess(String courseId, String userId) {
 
-        try {
-            validateStudentCourseAccess(courseId, userId);
-        } catch (Exception e) {
-            try {
-                validateTeacherCourseRights(courseId, userId, List.of("READ"));
-            } catch (Exception e1) {
-                throw new RuntimeException("Access validation failed", e1);
-            }
-        }
+        if (!getStudentCourseAccess(courseId, userId) && !getTeacherHasCourseRights(courseId, userId, List.of("READ")))
+            throw new RuntimeException("Access validation failed");
     }
 
     public void validateTeacherCourseRights(String courseId, String teacherId, List<String> rights) {
 
-        if (!teacherRightsServiceBlockingStub.hasRights(HasRightsRequest.newBuilder()
+        if (!getTeacherHasCourseRights(courseId, teacherId, rights))
+            throw new UsernameNotFoundException("Teacher does not have rights: " + rights);
+    }
+
+    private boolean getTeacherHasCourseRights(String courseId, String teacherId, List<String> rights) {
+        return teacherRightsServiceBlockingStub.hasRights(HasRightsRequest.newBuilder()
                 .setCourseId(courseId)
                 .setTeacherId(teacherId)
                 .addAllRights(rights)
-                .build()).getHasRights()
-        )
-            throw new UsernameNotFoundException("Teacher does not have rights: " + rights);
+                .build()).getHasRights();
     }
 
     public void validateStudentCourseAccess(String courseId, String studentId) {
 
-        if (!courseAccessServiceBlockingStub.hasAccess(HasAccessRequest.newBuilder()
+        if (!getStudentCourseAccess(courseId, studentId))
+            throw new UsernameNotFoundException("Student does not have access to course");
+    }
+
+    private boolean getStudentCourseAccess(String courseId, String studentId) {
+        return courseAccessServiceBlockingStub.hasAccess(HasAccessRequest.newBuilder()
                 .setCourseId(courseId)
                 .setUserId(studentId)
-                .build()).getHasAccess()
-        )
-            throw new UsernameNotFoundException("Student does not have access to course");
+                .build()).getHasAccess();
     }
 }

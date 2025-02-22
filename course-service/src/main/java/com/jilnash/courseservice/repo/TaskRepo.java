@@ -51,4 +51,24 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
             "MATCH (from:Task {id: link.fromTaskId})-[r:IS_PREREQUISITE]->(to:Task {id: link.toTaskId}) " +
             "DELETE r")
     void deleteTaskRelationshipsByTaskIdLinks(Set<TaskLinkDTO> taskIdLinks);
+
+    @Query("MATCH (c:Course) -[:CONTAINS]-> (m:Module) -[:CONTAINS]-> (t:Task) " +
+            "WHERE c.id = $courseId and m.id = $moduleId and t.id = $taskId " +
+            "SET t.title = $title")
+    void updateTaskTitle(String courseId, String moduleId, String taskId, String title);
+
+    @Query("MATCH (c:Course) -[:CONTAINS]-> (m:Module) -[:CONTAINS]-> (t:Task) " +
+            "WHERE c.id = $courseId and m.id = $moduleId and t.id = $taskId " +
+            "SET t.description = $description")
+    void updateTaskDescription(String courseId, String moduleId, String taskId, String description);
+
+    @Query("MATCH (c:Course) -[:CONTAINS]-> (m:Module) -[:CONTAINS]-> (t:Task) " +
+            "WHERE c.id = $courseId and m.id = $moduleId and t.id = $taskId " +
+            "SET t.videoLink = $videoLink")
+    void updateTaskVideoLink(String courseId, String moduleId, String taskId, String videoLink);
+
+    @Query("MATCH (c:Course) -[:CONTAINS]-> (m:Module) -[:CONTAINS]-> (t:Task) " +
+            "WHERE c.id = $courseId and m.id = $moduleId and t.id = $taskId " +
+            "SET t.isPublic = $isPublic")
+    void updateTaskIsPublic(String courseId, String moduleId, String taskId, Boolean isPublic);
 }

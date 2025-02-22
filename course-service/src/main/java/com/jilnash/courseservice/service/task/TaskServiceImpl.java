@@ -17,6 +17,7 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -193,9 +194,41 @@ public class TaskServiceImpl implements TaskService {
         return true;
     }
 
+    public Boolean updateTaskTitle(String courseId, String moduleId, String taskId, String title) {
+        taskRepo.updateTaskTitle(courseId, moduleId, taskId, title);
+        return true;
+    }
+
+    public Boolean updateTaskDescription(String courseId, String moduleId, String taskId, String description) {
+        taskRepo.updateTaskDescription(courseId, moduleId, taskId, description);
+        return true;
+    }
+
     public String getTaskCourseId(String taskId) {
         return taskRepo
                 .getTaskCourseId(taskId)
                 .orElseThrow(() -> new NoSuchElementException("Task not found"));
+    }
+
+    public Boolean updateTaskVideo(String courseId, String moduleId, String id, MultipartFile video) {
+
+        getTask(courseId, moduleId, id);
+        System.out.println(video.getOriginalFilename());
+        fileClient.uploadFiles(
+                "course-project-tasks",
+                "task-" + id + "\\video",
+                List.of(video)
+        );
+
+        taskRepo.updateTaskVideoLink(courseId, moduleId, id, video.getOriginalFilename());
+
+        return true;
+    }
+
+    public Boolean updateTaskIsPublic(String courseId, String moduleId, String id, Boolean isPublic) {
+
+        taskRepo.updateTaskIsPublic(courseId, moduleId, id, isPublic);
+
+        return true;
     }
 }
