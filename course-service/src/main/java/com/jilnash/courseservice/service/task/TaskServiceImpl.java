@@ -33,6 +33,8 @@ public class TaskServiceImpl implements TaskService {
 
     private final FileClient fileClient;
 
+    private static final String TASK_STORAGE_BUCKET = "course-project-tasks";
+
     @GrpcClient("progress-client")
     private ProgressServiceGrpc.ProgressServiceBlockingStub progressGrpcClient;
 
@@ -92,11 +94,7 @@ public class TaskServiceImpl implements TaskService {
 
         setTaskRequirements(task, task.getTaskId());
 
-        fileClient.uploadFiles(
-                "course-project-tasks",
-                "task-" + task.getTaskId() + "\\video",
-                List.of(task.getVideoFile())
-        );
+        fileClient.uploadFiles(TASK_STORAGE_BUCKET, getTaskVideoPath(task.getTaskId()), List.of(task.getVideoFile()));
 
         return true;
     }
@@ -161,11 +159,15 @@ public class TaskServiceImpl implements TaskService {
         );
     }
 
+    private String getTaskVideoPath(String taskId) {
+        return "task-" + taskId + "\\video";
+    }
+
     @Override
     public Boolean update(TaskUpdateDTO task) {
 
-        if (!taskRepo.existsByIdAndModuleIdAndModule_CourseId(task.getId(), task.getModuleId(), task.getCourseId()))
-            throw new RuntimeException("Task not found");
+        // check if task exists
+        getTask(task.getId(), task.getModuleId(), task.getCourseId());
 
         taskRepo.updateTaskData(task.getId(), task.getTitle(), task.getDescription(), task.getVideoLink());
 
@@ -213,7 +215,7 @@ public class TaskServiceImpl implements TaskService {
     public Boolean updateTaskVideo(String courseId, String moduleId, String id, MultipartFile video) {
 
         getTask(courseId, moduleId, id);
-        System.out.println(video.getOriginalFilename());
+
         fileClient.uploadFiles(
                 "course-project-tasks",
                 "task-" + id + "\\video",
