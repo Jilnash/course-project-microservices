@@ -23,33 +23,27 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<?> getTasks(@PathVariable String courseId,
                                       @PathVariable String moduleId,
-                                      @RequestParam String mode,
                                       @RequestParam(required = false, defaultValue = "") String name,
                                       @RequestHeader("X-User-Sub") String userId) {
-
-        if (mode.equals("list"))
-            return ResponseEntity.ok(
-                    new AppResponse(
-                            200,
-                            "Tasks fetched successfully",
-                            taskService.getTasksForUser(userId, courseId, moduleId, name)
-                    )
-            );
-
-        if (mode.equals("graph"))
-            return ResponseEntity.ok(
-                    new AppResponse(
-                            200,
-                            "Tasks fetched successfully",
-                            taskService.getTaskGraphForUser(userId, courseId, moduleId)
-                    )
-            );
-
-        return ResponseEntity.badRequest().body(
+        return ResponseEntity.ok(
                 new AppResponse(
-                        400,
-                        "Invalid mode",
-                        null
+                        200,
+                        "Tasks fetched successfully",
+                        taskService.getTasksForUser(userId, courseId, moduleId, name)
+                )
+        );
+    }
+
+    @GetMapping("/graph")
+    public ResponseEntity<?> getTasks(@PathVariable String courseId,
+                                      @PathVariable String moduleId,
+                                      @RequestHeader("X-User-Sub") String userId) {
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Tasks fetched successfully",
+                        taskService.getTaskGraphForUser(userId, courseId, moduleId)
                 )
         );
     }
