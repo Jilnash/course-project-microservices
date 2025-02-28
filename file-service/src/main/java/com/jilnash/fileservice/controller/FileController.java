@@ -26,6 +26,20 @@ public class FileController {
         );
     }
 
+    @GetMapping("/{bucketName}/presigned")
+    public ResponseEntity<?> getPresignedUrl(@PathVariable String bucketName,
+                                             @RequestParam String fileName) {
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Presigned URL generated successfully",
+                        s3Service.getPreSignedUrl(bucketName, fileName)
+                )
+        );
+    }
+
+
     @PostMapping
     public ResponseEntity<?> uploadFiles(@ModelAttribute @Validated FileUploadDTO fileUploadDTO) throws Exception {
 
