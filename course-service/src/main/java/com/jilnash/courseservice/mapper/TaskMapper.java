@@ -23,6 +23,7 @@ public class TaskMapper {
                 task.getTitle(),
                 task.getDescription(),
                 task.getVideoLink(),
+                task.getIsPublic(),
                 task.getPrerequisites().stream().map(Task::getId).toList(),
                 task.getSuccessors().stream().map(Task::getId).toList()
         );

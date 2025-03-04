@@ -22,8 +22,6 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
 
     Optional<Task> findByIdAndModule_IdAndModule_Course_Id(String id, String moduleId, String courseId);
 
-    Boolean existsByIdAndModuleIdAndModule_CourseId(String id, String moduleId, String courseId);
-
     @Query("MATCH (t:Task {id: $id}) SET t.title = $title, t.description = $description, t.videoLink = $videoLink RETURN t")
     Task updateTaskData(String id, String title, String description, String videoLink);
 
@@ -33,7 +31,9 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
     Optional<String> getTaskCourseId(String taskId);
 
     @Query("MATCH (m:Module {id: $taskDTO.moduleId}) " +
-            "CREATE (t:Task {id: $taskDTO.taskId, title: $taskDTO.title, description: $taskDTO.description, videoLink: $taskDTO.videoLink}) " +
+            "CREATE (t:Task {" +
+            "id: $taskDTO.taskId, title: $taskDTO.title, description: $taskDTO.description, " +
+            "videoLink: $taskDTO.videoLink, isPublic: $taskDTO.isPublic}) " +
             "CREATE (m)-[:CONTAINS]->(t) ")
     void createTaskWithoutRelationships(TaskCreateDTO taskDTO);
 

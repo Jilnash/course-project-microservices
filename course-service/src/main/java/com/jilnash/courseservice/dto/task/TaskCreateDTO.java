@@ -41,6 +41,9 @@ public class TaskCreateDTO {
     @NotNull(message = "Video file is required")
     private MultipartFile videoFile;
 
+    @NotNull(message = "Is public is required")
+    private Boolean isPublic;
+
     private Module module;
 
     private Set<String> prerequisiteTasksIds;
