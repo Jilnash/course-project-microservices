@@ -86,6 +86,7 @@ public class TaskServiceImpl implements TaskService {
                 mergePrerequisitesAndSuccessors(task.getPrerequisiteTasksIds(), task.getSuccessorTasksIds());
 
         task.setTaskId(UUID.randomUUID().toString());
+        task.setVideoLink(task.getVideoFile().getOriginalFilename());
 
         if (prereqsAndSuccessorIds.isEmpty())
             createFirstTaskInModule(task);
@@ -160,7 +161,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private String getTaskVideoPath(String taskId) {
-        return "task-" + taskId + "\\video";
+        return "task-" + taskId + "/video";
     }
 
     @Override

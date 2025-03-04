@@ -33,7 +33,6 @@ public class TaskCreateDTO {
     @NotBlank(message = "Description is required")
     private String description;
 
-    @NotNull(message = "Requirements are required")
     private String videoLink;
 
     @NotNull(message = "Requirements are required")

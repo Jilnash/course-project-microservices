@@ -1,10 +1,12 @@
 package com.jilnash.courseservice.service.task;
 
+import com.jilnash.courseservice.client.FileClient;
 import com.jilnash.courseservice.dto.task.TaskCreateDTO;
 import com.jilnash.courseservice.dto.task.TaskGraphDTO;
 import com.jilnash.courseservice.dto.task.TaskResponseDTO;
 import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
 import com.jilnash.courseservice.mapper.TaskMapper;
+import com.jilnash.courseservice.model.Task;
 import com.jilnash.courseservice.service.course.CourseServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,8 @@ public class AuthorizedTaskService {
 
     private final CourseServiceImpl courseServiceImpl;
 
+    private final FileClient fileClient;
+
     public List<TaskResponseDTO> getTasksForUser(String userId, String courseId, String moduleId, String title) {
 
         courseServiceImpl.validateUserAccess(courseId, userId);
@@ -31,7 +35,11 @@ public class AuthorizedTaskService {
 
     public TaskResponseDTO getTaskForUser(String userId, String courseId, String moduleId, String taskId) {
 
-        var task = taskService.getTask(courseId, moduleId, taskId);
+        Task task = taskService.getTask(courseId, moduleId, taskId);
+
+        task.setVideoLink(fileClient
+                .getPreSignedUrl("course-project-tasks", taskVideoPath(taskId, task.getVideoLink())).join()
+        );
 
         if (!task.getIsPublic())
             courseServiceImpl.validateUserAccess(courseId, userId);
@@ -39,9 +47,13 @@ public class AuthorizedTaskService {
         return TaskMapper.toTaskResponse(task);
     }
 
+    private String taskVideoPath(String taskId, String fileName) {
+        return "task-" + taskId + "/video/" + fileName;
+    }
+
     public TaskGraphDTO getTaskGraphForUser(String userId, String courseId, String moduleId) {
 
-        courseServiceImpl.validateStudentCourseAccess(courseId, userId);
+        courseServiceImpl.validateUserAccess(courseId, userId);
 
         return taskService.getTaskGraph(courseId, moduleId);
     }

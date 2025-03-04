@@ -30,13 +30,7 @@ public class FileController {
     public ResponseEntity<?> getPresignedUrl(@PathVariable String bucketName,
                                              @RequestParam String fileName) {
 
-        return ResponseEntity.ok(
-                new AppResponse(
-                        200,
-                        "Presigned URL generated successfully",
-                        s3Service.getPreSignedUrl(bucketName, fileName)
-                )
-        );
+        return ResponseEntity.ok(s3Service.getPreSignedUrl(bucketName, fileName));
     }
 
 
