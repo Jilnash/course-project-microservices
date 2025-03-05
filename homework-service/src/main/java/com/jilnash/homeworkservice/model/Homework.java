@@ -41,6 +41,10 @@ public class Homework {
     @CreationTimestamp
     private Date createdAt;
 
+    @OneToMany(mappedBy = "homeworkId", fetch = FetchType.LAZY)
+    @ToString.Exclude
+    private List<HomeworkFile> hwFiles;
+
     @Transient
     @JsonIgnore
     private List<MultipartFile> files;

@@ -59,7 +59,18 @@ public class HomeworkController {
                 new AppResponse(
                         200,
                         "Homework fetched successfully",
-                        homeworkService.getHomework(id)
+                        homeworkService.getHomeworkDTO(id)
+                )
+        );
+    }
+
+    @GetMapping("{id}/files/{fileName}")
+    public ResponseEntity<?> getFile(@PathVariable UUID id, @PathVariable String fileName) {
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "File fetched successfully",
+                        homeworkService.getFileURL(id, fileName)
                 )
         );
     }

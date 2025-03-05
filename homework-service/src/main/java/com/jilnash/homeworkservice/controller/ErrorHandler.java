@@ -30,4 +30,14 @@ public class ErrorHandler {
                 )
         );
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(
+                new AppError(
+                        400,
+                        ex.getMessage()
+                )
+        );
+    }
 }

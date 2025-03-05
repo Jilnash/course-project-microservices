@@ -26,4 +26,10 @@ public class FileClient {
         new RestTemplate().postForEntity("http://localhost:8087/api/v1/files",
                 new HttpEntity<>(body, headers), String.class);
     }
+
+    public String getFilePreSignedURL(String bucket, String fileName) {
+        return new RestTemplate()
+                .getForObject("http://localhost:8087/api/v1/files/{bucket}/presigned?fileName={fileName}",
+                        String.class, bucket, fileName);
+    }
 }

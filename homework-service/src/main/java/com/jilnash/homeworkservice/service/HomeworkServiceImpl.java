@@ -4,6 +4,8 @@ import com.jilnash.courseaccessservice.CourseAccessServiceGrpc;
 import com.jilnash.courseaccessservice.HasAccessRequest;
 import com.jilnash.homeworkservice.client.CourseClient;
 import com.jilnash.homeworkservice.client.FileClient;
+import com.jilnash.homeworkservice.dto.HomeworkResponseDTO;
+import com.jilnash.homeworkservice.mapper.HomeworkMapper;
 import com.jilnash.homeworkservice.model.Homework;
 import com.jilnash.homeworkservice.repo.HomeworkRepo;
 import com.jilnash.progressservice.ProgressServiceGrpc;
@@ -14,6 +16,7 @@ import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,7 +32,12 @@ public class HomeworkServiceImpl implements HomeworkService {
     private final HomeworkRepo homeworkRepo;
 
     private final FileClient fileClient;
+
     private final CourseClient courseClient;
+
+    private static final String HW_BUCKET = "course-project-homeworks";
+    private final HomeworkFileService homeworkFileService;
+    private final HomeworkMapper homeworkMapper;
 
     @GrpcClient(("progress-client"))
     private ProgressServiceGrpc.ProgressServiceBlockingStub progressServiceBlockingStub;
@@ -71,6 +79,10 @@ public class HomeworkServiceImpl implements HomeworkService {
                 .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + id));
     }
 
+    public HomeworkResponseDTO getHomeworkDTO(UUID id) {
+        return homeworkMapper.toResponseDTO(getHomework(id));
+    }
+
     @Override
     public Boolean saveHomework(Homework homework) {
 
@@ -92,6 +104,7 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         var newHw = homeworkRepo.save(homework);
         uploadHWFiles(newHw);
+        homeworkFileService.createdHomeworkFiles(newHw);
 
         return true;
     }
@@ -133,9 +146,9 @@ public class HomeworkServiceImpl implements HomeworkService {
             throw new IllegalArgumentException("Not all task files provided");
     }
 
-    private void uploadHWFiles(Homework homework) {
-        fileClient.uploadFile(
-                "course-project-homeworks",
+    @Async
+    protected void uploadHWFiles(Homework homework) {
+        fileClient.uploadFile(HW_BUCKET,
                 "homework-" + homework.getId(),
                 homework.getFiles()
         );
@@ -161,5 +174,14 @@ public class HomeworkServiceImpl implements HomeworkService {
         homeworkRepo.save(hw);
 
         return true;
+    }
+
+    public String getFileURL(UUID id, String fileName) {
+
+        return fileClient.getFilePreSignedURL(HW_BUCKET, hwFileName(id, fileName));
+    }
+
+    public String hwFileName(UUID id, String fileName) {
+        return "homework-" + id + "/" + fileName;
     }
 }
