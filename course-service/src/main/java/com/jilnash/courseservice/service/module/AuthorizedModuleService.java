@@ -4,7 +4,7 @@ import com.jilnash.courseservice.dto.module.ModuleCreateDTO;
 import com.jilnash.courseservice.dto.module.ModuleResponseDTO;
 import com.jilnash.courseservice.dto.module.ModuleUpdateDTO;
 import com.jilnash.courseservice.mapper.ModuleMapper;
-import com.jilnash.courseservice.service.course.CourseServiceImpl;
+import com.jilnash.courseservice.service.courseauthr.CourseAuthorizationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthorizedModuleService {
 
-    private final CourseServiceImpl courseService;
+    private final CourseAuthorizationService courseAuthrService;
 
     private final ModuleServiceImpl moduleService;
 
@@ -28,13 +28,13 @@ public class AuthorizedModuleService {
     }
 
     public Boolean createModuleByUser(String teacherId, ModuleCreateDTO moduleDTO) {
-        courseService.validateTeacherCourseRights(moduleDTO.getCourseId(), teacherId, List.of("CREATE"));
+        courseAuthrService.validateTeacherCourseRights(moduleDTO.getCourseId(), teacherId, List.of("CREATE"));
         moduleService.create(moduleDTO);
         return true;
     }
 
     public Boolean updateModuleByUser(String teacherId, ModuleUpdateDTO moduleDTO) {
-        courseService.validateTeacherCourseRights(moduleDTO.getCourseId(), teacherId, List.of("UPDATE"));
+        courseAuthrService.validateTeacherCourseRights(moduleDTO.getCourseId(), teacherId, List.of("UPDATE"));
         moduleService.update(moduleDTO);
         return true;
     }

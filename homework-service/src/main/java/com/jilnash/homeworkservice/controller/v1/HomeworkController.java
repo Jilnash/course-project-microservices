@@ -5,6 +5,7 @@ import com.jilnash.homeworkservice.dto.HomeworkCreateDTO;
 import com.jilnash.homeworkservice.mapper.HomeworkMapper;
 import com.jilnash.homeworkservice.service.HomeworkServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Date;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/homeworks")
 @RequiredArgsConstructor
@@ -28,6 +30,9 @@ public class HomeworkController {
             @RequestParam(required = false) Boolean checked,
             @RequestParam(required = false) Date createdAfter
     ) {
+
+        log.info("Fetching homeworks");
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
@@ -44,6 +49,8 @@ public class HomeworkController {
 
         homeworkDTO.setStudentId(studentId);
 
+        log.info("Creating homework");
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
@@ -55,6 +62,9 @@ public class HomeworkController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getHomework(@PathVariable UUID id) {
+
+        log.info("Fetching homework");
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
@@ -66,6 +76,9 @@ public class HomeworkController {
 
     @GetMapping("{id}/files/{fileName}")
     public ResponseEntity<?> getFile(@PathVariable UUID id, @PathVariable String fileName) {
+
+        log.info("Fetching homework file");
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,

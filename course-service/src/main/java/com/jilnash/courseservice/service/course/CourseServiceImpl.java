@@ -1,8 +1,5 @@
 package com.jilnash.courseservice.service.course;
 
-import com.jilnash.courseaccessservice.CourseAccessServiceGrpc;
-import com.jilnash.courseaccessservice.HasAccessRequest;
-import com.jilnash.courserightsservice.HasRightsRequest;
 import com.jilnash.courserightsservice.SetCourseOwnerRequest;
 import com.jilnash.courserightsservice.TeacherRightsServiceGrpc;
 import com.jilnash.courseservice.dto.course.CourseCreateDTO;
@@ -10,9 +7,9 @@ import com.jilnash.courseservice.dto.course.CourseUpdateDTO;
 import com.jilnash.courseservice.mapper.CourseMapper;
 import com.jilnash.courseservice.model.Course;
 import com.jilnash.courseservice.repo.CourseRepo;
+import com.jilnash.courseservice.service.courseauthr.CourseAuthorizationService;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,8 +22,7 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseRepo courseRepo;
 
-    @GrpcClient("course-access-client")
-    private CourseAccessServiceGrpc.CourseAccessServiceBlockingStub courseAccessServiceBlockingStub;
+    private final CourseAuthorizationService courseAuthrService;
 
     @GrpcClient("course-rights-client")
     private TeacherRightsServiceGrpc.TeacherRightsServiceBlockingStub teacherRightsServiceBlockingStub;
@@ -67,7 +63,7 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Course update(CourseUpdateDTO courseDTO) {
 
-        validateTeacherCourseRights(courseDTO.getId(), courseDTO.getTeacherId(), List.of("UPDATE"));
+        courseAuthrService.validateTeacherCourseRights(courseDTO.getId(), courseDTO.getTeacherId(), List.of("UPDATE"));
 
         //check if course exists
         if (!courseRepo.existsById(courseDTO.getId()))
@@ -80,38 +76,5 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public Course delete(String id) {
         return null;
-    }
-
-    public void validateUserAccess(String courseId, String userId) {
-
-        if (!getStudentCourseAccess(courseId, userId) && !getTeacherHasCourseRights(courseId, userId, List.of("READ")))
-            throw new RuntimeException("Access validation failed");
-    }
-
-    public void validateTeacherCourseRights(String courseId, String teacherId, List<String> rights) {
-
-        if (!getTeacherHasCourseRights(courseId, teacherId, rights))
-            throw new UsernameNotFoundException("Teacher does not have rights: " + rights);
-    }
-
-    private boolean getTeacherHasCourseRights(String courseId, String teacherId, List<String> rights) {
-        return teacherRightsServiceBlockingStub.hasRights(HasRightsRequest.newBuilder()
-                .setCourseId(courseId)
-                .setTeacherId(teacherId)
-                .addAllRights(rights)
-                .build()).getHasRights();
-    }
-
-    public void validateStudentCourseAccess(String courseId, String studentId) {
-
-        if (!getStudentCourseAccess(courseId, studentId))
-            throw new UsernameNotFoundException("Student does not have access to course");
-    }
-
-    private boolean getStudentCourseAccess(String courseId, String studentId) {
-        return courseAccessServiceBlockingStub.hasAccess(HasAccessRequest.newBuilder()
-                .setCourseId(courseId)
-                .setUserId(studentId)
-                .build()).getHasAccess();
     }
 }
