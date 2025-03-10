@@ -1,5 +1,7 @@
 package com.jilnash.courseservice.client;
 
+import lombok.SneakyThrows;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -18,6 +20,7 @@ public class FileClient {
 
     private final String FILE_SERVICE_URL = "http://localhost:8087/api/v1/files";
 
+    @SneakyThrows
     @Async
     public void uploadFiles(String bucket, String fileName, List<MultipartFile> files) {
 
@@ -27,7 +30,20 @@ public class FileClient {
         MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
         body.add("bucket", bucket);
         body.add("fileName", fileName);
-        files.forEach(file -> body.add("files", new HttpEntity<>(file.getResource())));
+
+        // Convert MultipartFile to ByteArrayResource
+        for (MultipartFile file : files) {
+            ByteArrayResource resource = new ByteArrayResource(file.getBytes()) {
+                @Override
+                public String getFilename() {
+                    return file.getOriginalFilename();  // Ensure the filename is included
+                }
+            };
+            HttpHeaders fileHeaders = new HttpHeaders();
+            fileHeaders.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+            HttpEntity<ByteArrayResource> fileEntity = new HttpEntity<>(resource, fileHeaders);
+            body.add("files", fileEntity);
+        }
 
         new RestTemplate().postForEntity(FILE_SERVICE_URL, new HttpEntity<>(body, headers), String.class);
     }
