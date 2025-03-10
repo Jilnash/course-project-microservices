@@ -61,6 +61,8 @@ public class AuthorizedTaskService {
 
         courseAuthrService.validateUserAccess(courseId, userId);
 
+        log.info("[SERVICE] Fetching task graph for course {} module {}", courseId, moduleId);
+
         return taskService.getTaskGraph(courseId, moduleId);
     }
 
@@ -77,12 +79,16 @@ public class AuthorizedTaskService {
 
         courseAuthrService.validateTeacherCourseRights(task.getCourseId(), userId, List.of("UPDATE"));
 
+        log.info("[SERVICE] Updating task {} in course {} module {}", task.getId(), task.getCourseId(), task.getModuleId());
+
         return taskService.update(task);
     }
 
     public List<String> getPrereqsByUser(String userId, String courseId, String moduleId, String taskId) {
 
         courseAuthrService.validateStudentCourseAccess(courseId, userId);
+
+        log.info("[SERVICE] Fetching prerequisites for task {} in course {} module {}", taskId, courseId, moduleId);
 
         return taskService.getTaskPrerequisites(courseId, moduleId, taskId);
     }
@@ -91,12 +97,16 @@ public class AuthorizedTaskService {
 
         courseAuthrService.validateTeacherCourseRights(courseId, userId, List.of("UPDATE"));
 
+        log.info("[SERVICE] Updating prerequisites for task {} in course {} module {}", taskId, courseId, moduleId);
+
         return taskService.updateTaskPrerequisite(courseId, moduleId, taskId, preRequisites);
     }
 
     public Boolean updateTaskTitleByUser(String userId, String courseId, String moduleId, String taskId, String title) {
 
         courseAuthrService.validateTeacherCourseRights(courseId, userId, List.of("UPDATE"));
+
+        log.info("[SERVICE] Updating title for task {} in course {} module {}", taskId, courseId, moduleId);
 
         return taskService.updateTaskTitle(courseId, moduleId, taskId, title);
     }
@@ -105,6 +115,8 @@ public class AuthorizedTaskService {
 
         courseAuthrService.validateTeacherCourseRights(courseId, teacherId, List.of("UPDATE"));
 
+        log.info("[SERVICE] Updating video for task {} in course {} module {}", id, courseId, moduleId);
+
         return taskService.updateTaskVideo(courseId, moduleId, id, video);
     }
 
@@ -112,12 +124,16 @@ public class AuthorizedTaskService {
 
         courseAuthrService.validateTeacherCourseRights(courseId, teacherId, List.of("UPDATE"));
 
+        log.info("[SERVICE] Updating isPublic for task {} in course {} module {}", id, courseId, moduleId);
+
         return taskService.updateTaskIsPublic(courseId, moduleId, id, isPublic);
     }
 
     public Boolean updateTaskDescription(String teacherId, String courseId, String moduleId, String id, String description) {
 
         courseAuthrService.validateTeacherCourseRights(courseId, teacherId, List.of("UPDATE"));
+
+        log.info("[SERVICE] Updating description for task {} in course {} module {}", id, courseId, moduleId);
 
         return taskService.updateTaskDescription(courseId, moduleId, id, description);
     }
