@@ -4,12 +4,14 @@ import com.jilnash.courseaccessservice.CourseAccessServiceGrpc;
 import com.jilnash.courseaccessservice.HasAccessRequest;
 import com.jilnash.courserightsservice.HasRightsRequest;
 import com.jilnash.courserightsservice.TeacherRightsServiceGrpc;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class CourseAuthorizationService {
 
@@ -32,6 +34,9 @@ public class CourseAuthorizationService {
     }
 
     private boolean getTeacherHasCourseRights(String courseId, String teacherId, List<String> rights) {
+
+        log.info("[EXTERNAL] Checking teacher rights with course-rights-service rpc");
+
         return teacherRightsServiceBlockingStub.hasRights(
                         HasRightsRequest.newBuilder()
                                 .setCourseId(courseId)
@@ -48,6 +53,9 @@ public class CourseAuthorizationService {
     }
 
     private boolean getStudentCourseAccess(String courseId, String studentId) {
+
+        log.info("[EXTERNAL] Checking student access with course-access-service rpc");
+
         return courseAccessServiceBlockingStub.hasAccess(
                         HasAccessRequest.newBuilder()
                                 .setCourseId(courseId)

@@ -1,6 +1,7 @@
 package com.jilnash.courseservice.client;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+@Slf4j
 @Component
 public class FileClient {
 
@@ -23,6 +25,8 @@ public class FileClient {
     @SneakyThrows
     @Async
     public void uploadFiles(String bucket, String fileName, List<MultipartFile> files) {
+
+        log.info("[EXTERNAL] Uploading files to file-service");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
