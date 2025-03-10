@@ -9,6 +9,7 @@ import com.jilnash.courseservice.model.Course;
 import com.jilnash.courseservice.repo.CourseRepo;
 import com.jilnash.courseservice.service.courseauthr.CourseAuthorizationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CourseServiceImpl implements CourseService {
@@ -30,6 +32,8 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public List<Course> getCourses(String name) {
 
+        log.info("[SERVICE] Fetching courses with name: {}", name);
+
         if (!name.isEmpty())
             return courseRepo.findAllByNameContaining(name);
 
@@ -38,6 +42,9 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course getCourse(String id) {
+
+        log.info("[SERVICE] Fetching course with id: {}", id);
+
         return courseRepo
                 .findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Course not found with id: " + id));
@@ -45,6 +52,8 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course create(CourseCreateDTO courseDTO) {
+
+        log.info("[SERVICE] Creating course with name: {}", courseDTO.getName());
 
         courseDTO.setId(UUID.randomUUID().toString());
 
@@ -62,6 +71,8 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Course update(CourseUpdateDTO courseDTO) {
+
+        log.info("[SERVICE] Updating course with id: {}", courseDTO.getId());
 
         courseAuthrService.validateTeacherCourseRights(courseDTO.getId(), courseDTO.getTeacherId(), List.of("UPDATE"));
 

@@ -9,12 +9,14 @@ import com.jilnash.courseservice.mapper.TaskMapper;
 import com.jilnash.courseservice.model.Task;
 import com.jilnash.courseservice.service.courseauthr.CourseAuthorizationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AuthorizedTaskService {
@@ -29,11 +31,15 @@ public class AuthorizedTaskService {
 
         courseAuthrService.validateUserAccess(courseId, userId);
 
+        log.info("[SERVICE] Fetching tasks in course {} module {} with title {}", courseId, moduleId, title);
+
         return taskService.getTasks(courseId, moduleId, title)
                 .stream().map(TaskMapper::toTaskResponse).toList();
     }
 
     public TaskResponseDTO getTaskForUser(String userId, String courseId, String moduleId, String taskId) {
+
+        log.info("[SERVICE] Fetching task {} in course {} module {}", taskId, courseId, moduleId);
 
         Task task = taskService.getTask(courseId, moduleId, taskId);
 
@@ -61,6 +67,8 @@ public class AuthorizedTaskService {
     public Boolean createTaskByUser(String userId, TaskCreateDTO task) {
 
         courseAuthrService.validateTeacherCourseRights(task.getCourseId(), userId, List.of("CREATE"));
+
+        log.info("[SERVICE] Creating task in course {} module {}", task.getCourseId(), task.getModuleId());
 
         return taskService.create(task);
     }

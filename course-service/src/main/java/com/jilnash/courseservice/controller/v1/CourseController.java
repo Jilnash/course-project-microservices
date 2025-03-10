@@ -5,10 +5,12 @@ import com.jilnash.courseservice.dto.course.CourseCreateDTO;
 import com.jilnash.courseservice.dto.course.CourseUpdateDTO;
 import com.jilnash.courseservice.service.course.CourseService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/courses")
 @RequiredArgsConstructor
@@ -18,6 +20,9 @@ public class CourseController {
 
     @GetMapping
     public ResponseEntity<?> getCourses(@RequestParam(required = false, defaultValue = "") String name) {
+
+        log.info("[CONTROLLER] Fetching courses with name: {}", name);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         400,
@@ -30,6 +35,9 @@ public class CourseController {
     @PutMapping
     public ResponseEntity<?> createCourse(@Validated @RequestBody CourseCreateDTO courseDTO,
                                           @RequestHeader("X-User-Sub") String teacherId) {
+
+        log.info("[CONTROLLER] Creating course with name: {}", courseDTO.getName());
+
         courseDTO.setAuthorId(teacherId);
 
         return ResponseEntity.ok(
@@ -43,6 +51,9 @@ public class CourseController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getCourse(@PathVariable String id) {
+
+        log.info("[CONTROLLER] Fetching course with id: {}", id);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         400,
@@ -57,6 +68,8 @@ public class CourseController {
             @PathVariable String id,
             @Validated @RequestBody CourseUpdateDTO courseDTO,
             @RequestHeader("X-User-Sub") String teacherId) {
+
+        log.info("[CONTROLLER] Updating course with id: {}", id);
 
         courseDTO.setId(id);
         courseDTO.setTeacherId(teacherId);

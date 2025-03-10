@@ -5,6 +5,7 @@ import com.jilnash.courseservice.dto.task.TaskCreateDTO;
 import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
 import com.jilnash.courseservice.service.task.AuthorizedTaskService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -13,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/modules/{moduleId}/tasks")
 @RequiredArgsConstructor
@@ -25,6 +27,9 @@ public class TaskController {
                                       @PathVariable String moduleId,
                                       @RequestParam(required = false, defaultValue = "") String name,
                                       @RequestHeader("X-User-Sub") String userId) {
+
+        log.info("[CONTROLLER] Fetching tasks in course {} module {} with name {}", courseId, moduleId, name);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
@@ -38,6 +43,8 @@ public class TaskController {
     public ResponseEntity<?> getTasks(@PathVariable String courseId,
                                       @PathVariable String moduleId,
                                       @RequestHeader("X-User-Sub") String userId) {
+
+        log.info("[CONTROLLER] Fetching task graph in course {} module {}", courseId, moduleId);
 
         return ResponseEntity.ok(
                 new AppResponse(
@@ -53,6 +60,8 @@ public class TaskController {
                                         @PathVariable String moduleId,
                                         @ModelAttribute @Validated TaskCreateDTO taskDto,
                                         @RequestHeader("X-User-Sub") String teacherId) {
+
+        log.info("[CONTROLLER] Creating task in course {} module {}", courseId, moduleId);
 
         taskDto.setCourseId(courseId);
         taskDto.setModuleId(moduleId);
@@ -72,6 +81,9 @@ public class TaskController {
                                      @PathVariable String moduleId,
                                      @PathVariable String id,
                                      @RequestHeader("X-User-Sub") String userId) {
+
+        log.info("[CONTROLLER] Fetching task in course {} module {} with id {}", courseId, moduleId, id);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
@@ -87,6 +99,8 @@ public class TaskController {
                                         @PathVariable String id,
                                         @RequestHeader("X-User-Sub") String teacherId,
                                         @RequestBody TaskUpdateDTO taskDto) {
+
+        log.info("[CONTROLLER] Updating task in course {} module {} with id {}", courseId, moduleId, id);
 
         taskDto.setId(id);
         taskDto.setCourseId(courseId);
@@ -107,6 +121,8 @@ public class TaskController {
                                                   @PathVariable String id,
                                                   @RequestHeader("X-User-Sub") String userId) {
 
+        log.info("[CONTROLLER] Fetching task prereqs in course {} module {} with id {}", courseId, moduleId, id);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
@@ -122,6 +138,8 @@ public class TaskController {
                                                     @PathVariable String id,
                                                     @RequestBody Set<String> prerequisiteIds,
                                                     @RequestHeader("X-User-Sub") String teacherId) {
+
+        log.info("[CONTROLLER] Updating task prereqs in course {} module {} with id {}", courseId, moduleId, id);
 
         return ResponseEntity.ok(
                 new AppResponse(
@@ -139,6 +157,8 @@ public class TaskController {
                                              @RequestBody String title,
                                              @RequestHeader("X-User-Sub") String teacherId) {
 
+        log.info("[CONTROLLER] Updating task title in course {} module {} with id {}", courseId, moduleId, id);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
@@ -154,6 +174,8 @@ public class TaskController {
                                                    @PathVariable String id,
                                                    @RequestBody String description,
                                                    @RequestHeader("X-User-Sub") String teacherId) {
+
+        log.info("[CONTROLLER] Updating task description in course {} module {} with id {}", courseId, moduleId, id);
 
         return ResponseEntity.ok(
                 new AppResponse(
@@ -171,6 +193,8 @@ public class TaskController {
                                              @RequestPart MultipartFile video,
                                              @RequestHeader("X-User-Sub") String teacherId) {
 
+        log.info("[CONTROLLER] Updating task video in course {} module {} with id {}", courseId, moduleId, id);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
@@ -186,6 +210,8 @@ public class TaskController {
                                                 @PathVariable String id,
                                                 @RequestBody Boolean isPublic,
                                                 @RequestHeader("X-User-Sub") String teacherId) {
+
+        log.info("[CONTROLLER] Updating task isPublic in course {} module {} with id {}", courseId, moduleId, id);
 
         return ResponseEntity.ok(
                 new AppResponse(
