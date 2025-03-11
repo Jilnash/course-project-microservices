@@ -31,7 +31,9 @@ public class HomeworkController {
             @RequestParam(required = false) Date createdAfter
     ) {
 
-        log.info("Fetching homeworks");
+        log.info("[CONTROLLER] Fetching homeworks");
+        log.debug("[CONTROLLER] Fetching homeworks with taskId: {}, studentId: {}, checked: {}, createdAfter: {}",
+                taskId, studentId, checked, createdAfter);
 
         return ResponseEntity.ok(
                 new AppResponse(
@@ -49,7 +51,8 @@ public class HomeworkController {
 
         homeworkDTO.setStudentId(studentId);
 
-        log.info("Creating homework");
+        log.info("[CONTROLLER] Creating homework");
+        log.debug("[CONTROLLER] Creating homework to taskId {} by studentId: {}", homeworkDTO.getTaskId(), studentId);
 
         return ResponseEntity.ok(
                 new AppResponse(
@@ -63,7 +66,8 @@ public class HomeworkController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getHomework(@PathVariable UUID id) {
 
-        log.info("Fetching homework");
+        log.info("[CONTROLLER] Fetching homework");
+        log.debug("[CONTROLLER] Fetching homework with id: {}", id);
 
         return ResponseEntity.ok(
                 new AppResponse(
@@ -77,7 +81,8 @@ public class HomeworkController {
     @GetMapping("{id}/files/{fileName}")
     public ResponseEntity<?> getFile(@PathVariable UUID id, @PathVariable String fileName) {
 
-        log.info("Fetching homework file");
+        log.info("[CONTROLLER] Fetching homework file");
+        log.debug("[CONTROLLER] Fetching homework file with id: {}, fileName: {}", id, fileName);
 
         return ResponseEntity.ok(
                 new AppResponse(
@@ -90,16 +95,28 @@ public class HomeworkController {
 
     @GetMapping("{id}/task/id")
     public String getTaskId(@PathVariable UUID id) {
+
+        log.info("[CONTROLLER] Fetching task id");
+        log.debug("[CONTROLLER] Fetching task id with homework id: {}", id);
+
         return homeworkService.getHwTaskId(id);
     }
 
     @GetMapping("{hwId}/student/id")
     public String getStudentId(@PathVariable UUID hwId) {
+
+        log.info("[CONTROLLER] Fetching student id");
+        log.debug("[CONTROLLER] Fetching student id with homework id: {}", hwId);
+
         return homeworkService.getHwStudentId(hwId);
     }
 
     @PutMapping("{hwId}/checked")
     public ResponseEntity<?> setChecked(@PathVariable UUID hwId) {
+
+        log.info("[CONTROLLER] Checking homework");
+        log.debug("[CONTROLLER] Checking homework with id: {}", hwId);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,

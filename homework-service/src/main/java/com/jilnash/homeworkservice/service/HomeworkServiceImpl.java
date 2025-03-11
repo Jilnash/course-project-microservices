@@ -14,6 +14,7 @@ import com.jilnash.taskrequirementsservice.TaskRequirementsServiceGrpc;
 import com.jilnash.taskrequirementsservice.ValidateRequirementsRequest;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HomeworkServiceImpl implements HomeworkService {
@@ -50,6 +52,10 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     @Override
     public List<Homework> getHomeworks(String taskId, String studentId, Boolean checked, Date createdAfter) {
+
+        log.info("[SERVICE] Fetching homeworks");
+        log.debug("[SERVICE] Fetching homeworks with taskId: {}, studentId: {}, checked: {}, createdAfter: {}",
+                taskId, studentId, checked, createdAfter);
 
         Specification<Homework> spec = (root, query, cb) -> {
             Predicate p = cb.conjunction();
@@ -80,11 +86,19 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     public HomeworkResponseDTO getHomeworkDTO(UUID id) {
+
+        log.info("[SERVICE] Fetching homework");
+        log.debug("[SERVICE] Fetching homework with id: {}", id);
+
         return homeworkMapper.toResponseDTO(getHomework(id));
     }
 
     @Override
     public Boolean saveHomework(Homework homework) {
+
+        log.info("[SERVICE] Creating homework");
+        log.debug("[SERVICE] Creating homework to taskId {} by studentId: {}",
+                homework.getTaskId(), homework.getStudentId());
 
         validateStudentHasAccessToCourse(homework.getStudentId(), homework.getTaskId());
 
@@ -155,12 +169,20 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     public String getHwTaskId(UUID hwId) {
+
+        log.info("[SERVICE] Fetching task id");
+        log.debug("[SERVICE] Fetching task id with homework id: {}", hwId);
+
         return homeworkRepo
                 .getHwTaskId(hwId)
                 .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + hwId));
     }
 
     public String getHwStudentId(UUID hwId) {
+
+        log.info("[SERVICE] Fetching student id");
+        log.debug("[SERVICE] Fetching student id with homework id: {}", hwId);
+
         return homeworkRepo
                 .getHwStudentId(hwId)
                 .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + hwId));
@@ -168,8 +190,10 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     public Boolean setChecked(UUID hwId) {
 
-        var hw = getHomework(hwId);
+        log.info("[SERVICE] Checking homework");
+        log.debug("[SERVICE] Checking homework with id: {}", hwId);
 
+        var hw = getHomework(hwId);
         hw.setChecked(true);
         homeworkRepo.save(hw);
 
@@ -177,6 +201,9 @@ public class HomeworkServiceImpl implements HomeworkService {
     }
 
     public String getFileURL(UUID id, String fileName) {
+
+        log.info("[SERVICE] Fetching homework file");
+        log.debug("[SERVICE] Fetching homework file with id: {}, fileName: {}", id, fileName);
 
         return fileClient.getFilePreSignedURL(HW_BUCKET, hwFileName(id, fileName));
     }
