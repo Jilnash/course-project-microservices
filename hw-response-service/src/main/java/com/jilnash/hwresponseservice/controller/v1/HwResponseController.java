@@ -5,6 +5,7 @@ import com.jilnash.hwresponseservice.dto.response.HwResponseDTO;
 import com.jilnash.hwresponseservice.mapper.HwResponseMapper;
 import com.jilnash.hwresponseservice.service.HwResponseService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Date;
 import java.util.UUID;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/v1/hw-responses")
 @RequiredArgsConstructor
@@ -28,6 +30,10 @@ public class HwResponseController {
             @RequestParam(required = false) Date createdAfter,
             @RequestParam(required = false) Date createdBefore) {
 
+        log.info("[CONTROLLER] Fetching homework responses");
+        log.debug("[CONTROLLER] Fetching homework responses with hwId: {}, tId: {}, createdAfter: {}, createdBefore: {}"
+                , hwId, tId, createdAfter, createdBefore);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
@@ -40,6 +46,9 @@ public class HwResponseController {
     @PutMapping
     public ResponseEntity<?> createResponse(@Validated @RequestBody HwResponseDTO responseDto,
                                             @RequestHeader("X-User-Sub") String teacherId) {
+
+        log.info("[CONTROLLER] Creating response");
+        log.debug("[CONTROLLER] Creating response with teacherId: {}", teacherId);
 
         responseDto.setTeacherId(teacherId);
         responseDto.setId(UUID.randomUUID().toString());
@@ -56,6 +65,9 @@ public class HwResponseController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getResponse(@PathVariable String id) {
 
+        log.info("[CONTROLLER] Fetching response");
+        log.debug("[CONTROLLER] Fetching response with id: {}", id);
+
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
@@ -69,6 +81,9 @@ public class HwResponseController {
     public ResponseEntity<?> updateResponse(@PathVariable String id,
                                             @Validated @RequestBody HwResponseDTO responseDto,
                                             @RequestHeader("X-User-Sub") String teacherId) {
+
+        log.info("[CONTROLLER] Updating response");
+        log.debug("[CONTROLLER] Updating response with id: {} by teacherId: {}", id, teacherId);
 
         responseDto.setId(id);
         responseDto.setTeacherId(teacherId);

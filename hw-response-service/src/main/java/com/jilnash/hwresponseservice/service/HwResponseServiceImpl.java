@@ -9,6 +9,7 @@ import com.jilnash.hwresponseservice.repo.HwResponseRepo;
 import com.jilnash.progressservice.AddTaskToProgressRequest;
 import com.jilnash.progressservice.ProgressServiceGrpc;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,6 +21,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class HwResponseServiceImpl implements HwResponseService {
@@ -39,6 +41,11 @@ public class HwResponseServiceImpl implements HwResponseService {
 
     @Override
     public List<HwResponse> getResponses(String teacherId, Long homeworkId, Date createdAfter, Date createdBefore) {
+
+        log.info("[SERVICE] Fetching homework responses");
+        log.debug("[SERVICE] Fetching homework responses with " +
+                        "teacherId: {}, homeworkId: {}, createdAfter: {}, createdBefore: {}",
+                teacherId, homeworkId, createdAfter, createdBefore);
 
         Query query = new Query();
 
@@ -60,6 +67,10 @@ public class HwResponseServiceImpl implements HwResponseService {
 
     @Override
     public HwResponse getResponse(String id) {
+
+        log.info("[SERVICE] Fetching response");
+        log.debug("[SERVICE] Fetching response with id: {}", id);
+
         return hwResponseRepo
                 .findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Response with id " + id + " not found"));
@@ -67,6 +78,9 @@ public class HwResponseServiceImpl implements HwResponseService {
 
     @Override
     public Boolean createResponse(HwResponse response) {
+
+        log.info("[SERVICE] Creating response");
+        log.debug("[SERVICE] Creating response with teacherId: {}", response.getTeacherId());
 
         String taskId = hwClient.getTaskId(response.getHomeworkId());
 
@@ -111,6 +125,10 @@ public class HwResponseServiceImpl implements HwResponseService {
 
     @Override
     public Boolean updateResponse(HwResponse response) {
+
+        log.info("[SERVICE] Updating response");
+        log.debug("[SERVICE] Updating response with id: {} by teacherId: {}",
+                response.getId(), response.getTeacherId());
 
         //checking if response id is provided
         if (response.getId() == null)
