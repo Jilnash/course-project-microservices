@@ -7,6 +7,7 @@ import org.springframework.web.servlet.function.RouterFunction;
 import org.springframework.web.servlet.function.ServerResponse;
 
 import static com.jilnash.apigateway.config.SetUserIdHeaderFilter.setIdHeader;
+import static com.jilnash.apigateway.config.TraceIdHeaderFilter.setTraceIdHeader;
 import static org.springframework.cloud.gateway.server.mvc.filter.FilterFunctions.rewritePath;
 import static org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions.http;
 import static org.springframework.cloud.gateway.server.mvc.predicate.GatewayRequestPredicates.path;
@@ -19,6 +20,7 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> userService() {
         return route(path("/user-service/**"), http("http://localhost:8082"))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setIdHeader()))
+                .filter(HandlerFilterFunction.ofRequestProcessor(setTraceIdHeader()))
                 .filter(rewritePath("/user-service/(?<remaining>.*)", "/${remaining}"));
     }
 
@@ -26,6 +28,7 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> adminService() {
         return route(path("/admin-service/**"), http("http://localhost:8085"))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setIdHeader()))
+                .filter(HandlerFilterFunction.ofRequestProcessor(setTraceIdHeader()))
                 .filter(rewritePath("/admin-service/(?<remaining>.*)", "/${remaining}"));
     }
 
@@ -33,6 +36,7 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> teacherService() {
         return route(path("/teacher-service/**"), http("http://localhost:8084"))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setIdHeader()))
+                .filter(HandlerFilterFunction.ofRequestProcessor(setTraceIdHeader()))
                 .filter(rewritePath("/teacher-service/(?<remaining>.*)", "/${remaining}"));
     }
 
@@ -40,6 +44,7 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> studentService() {
         return route(path("/student-service/**"), http("http://localhost:8083"))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setIdHeader()))
+                .filter(HandlerFilterFunction.ofRequestProcessor(setTraceIdHeader()))
                 .filter(rewritePath("/student-service/(?<remaining>.*)", "/${remaining}"));
     }
 
@@ -47,6 +52,7 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> courseService() {
         return route(path("/course-service/**"), http("http://localhost:8086"))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setIdHeader()))
+                .filter(HandlerFilterFunction.ofRequestProcessor(setTraceIdHeader()))
                 .filter(rewritePath("/course-service/(?<remaining>.*)", "/${remaining}"));
     }
 
@@ -54,6 +60,7 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> fileService() {
         return route(path("/file-service/**"), http("http://localhost:8087"))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setIdHeader()))
+                .filter(HandlerFilterFunction.ofRequestProcessor(setTraceIdHeader()))
                 .filter(rewritePath("/file-service/(?<remaining>.*)", "/${remaining}"));
     }
 
@@ -61,6 +68,7 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> hwService() {
         return route(path("/hw-service/**"), http("http://localhost:8088"))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setIdHeader()))
+                .filter(HandlerFilterFunction.ofRequestProcessor(setTraceIdHeader()))
                 .filter(rewritePath("/hw-service/(?<remaining>.*)", "/${remaining}"));
     }
 
@@ -68,6 +76,7 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> responseService() {
         return route(path("/response-service/**"), http("http://localhost:8089"))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setIdHeader()))
+                .filter(HandlerFilterFunction.ofRequestProcessor(setTraceIdHeader()))
                 .filter(rewritePath("/response-service/(?<remaining>.*)", "/${remaining}"));
     }
 
@@ -75,6 +84,7 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> courseAccessService() {
         return route(path("/course-access-service/**"), http("http://localhost:8090"))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setIdHeader()))
+                .filter(HandlerFilterFunction.ofRequestProcessor(setTraceIdHeader()))
                 .filter(rewritePath("/course-access-service/(?<remaining>.*)", "/${remaining}"));
     }
 
@@ -82,6 +92,7 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> courseRightsService() {
         return route(path("/course-rights-service/**"), http("http://localhost:8091"))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setIdHeader()))
+                .filter(HandlerFilterFunction.ofRequestProcessor(setTraceIdHeader()))
                 .filter(rewritePath("/course-rights-service/(?<remaining>.*)", "/${remaining}"));
     }
 
@@ -89,6 +100,7 @@ public class RouterConfig {
     public RouterFunction<ServerResponse> progressService() {
         return route(path("/progress-service/**"), http("http://localhost:8092"))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setIdHeader()))
+                .filter(HandlerFilterFunction.ofRequestProcessor(setTraceIdHeader()))
                 .filter(rewritePath("/progress-service/(?<remaining>.*)", "/${remaining}"));
     }
 }
