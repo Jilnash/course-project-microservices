@@ -37,6 +37,14 @@ spring:
         redis:
             time-to-live: 3600000
 
+management:
+    endpoints:
+        web:
+            exposure:
+                include: "metrics, prometheus"
+        health:
+            show-details: always
+
 eureka:
     client:
         serviceUrl:
