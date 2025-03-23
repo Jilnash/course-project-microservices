@@ -1,38 +1,5 @@
-server:
-    port: 8088
-
-grpc:
-    server:
-        port: 6567
-    client:
-        progress-client:
-            address: static://localhost:6571
-            negotiation-type: plaintext
-        course-access-client:
-            address: static://localhost:6569
-            negotiation-type: plaintext
-        task-requirements-client:
-            address: static://localhost:6565
-            negotiation-type: plaintext
-
 spring:
     application:
         name: homework-service
-    datasource:
-        url: jdbc:mysql://localhost:3306/course_project_homeworks?createDatabaseIfNotExist=true
-        username: root
-        password: root
-        driver-class-name: com.mysql.cj.jdbc.Driver
-    jpa:
-        hibernate:
-            ddl-auto: update
-        show-sql: true
-    servlet:
-        multipart:
-            max-file-size: 1GB
-            max-request-size: 1GB
-
-eureka:
-    client:
-        serviceUrl:
-            defaultZone: http://localhost:8081/eureka
+    config:
+        import: configserver:http://localhost:8092

@@ -1,0 +1,51 @@
+server:
+    port: 8086
+
+grpc:
+    server:
+        port: 6568
+    client:
+        progress-client:
+            address: static://localhost:6571
+            negotiation-type: plaintext
+        task-requirements-client:
+            address: static://localhost:6565
+            negotiation-type: plaintext
+        course-access-client:
+            address: static://localhost:6569
+            negotiation-type: plaintext
+        course-rights-client:
+            address: static://localhost:6566
+            negotiation-type: plaintext
+
+spring:
+    application:
+        name: course-service
+    data:
+        neo4j:
+            database: neo4j
+    neo4j:
+        uri: bolt://localhost:7687
+        authentication:
+            username: neo4j
+            password: radya2004
+    servlet:
+        multipart:
+            max-file-size: 100MB
+            max-request-size: 100MB
+    cache:
+        redis:
+            time-to-live: 3600000
+
+management:
+    endpoints:
+        web:
+            exposure:
+                include: "metrics, prometheus"
+        health:
+            show-details: always
+
+eureka:
+    client:
+        serviceUrl:
+            defaultZone: http://localhost:8081/eureka/

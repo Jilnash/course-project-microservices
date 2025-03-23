@@ -1,20 +1,5 @@
-server:
-    port: 8087
-
 spring:
     application:
         name: file-service
-    servlet:
-        multipart:
-            max-request-size: 100MB
-            max-file-size: 100MB
-
-eureka:
-    client:
-        service-url:
-            defaultZone: http://localhost:8081/eureka
-
-amazon:
-    aws:
-        access-key: ???
-        secret-key: ???
+    config:
+        import: configserver:http://localhost:8092
