@@ -44,6 +44,17 @@ management:
                 include: "metrics, prometheus"
         health:
             show-details: always
+    metrics:
+        export:
+            prometheus:
+                enabled: true
+    tracing:
+        enabled: true
+        sampling:
+            probability: 1.0
+    otlp:
+        tracing:
+            endpoint: http://localhost:4318/v1/traces
 
 eureka:
     client:
