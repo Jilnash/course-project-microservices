@@ -18,3 +18,8 @@ amazon:
     aws:
         access-key: ???
         secret-key: ???
+
+minio:
+    endpoint: http://localhost:9002
+    access-key: SrpHzBVYnhTFozIzRuFe
+    secret-key: KhR7aaHyoEqtlPHp8jlIKUo24Ms8DR1ySWl3bvpn

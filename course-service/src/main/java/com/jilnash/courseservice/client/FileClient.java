@@ -23,7 +23,6 @@ public class FileClient {
     private final String FILE_SERVICE_URL = "http://localhost:8087/api/v1/files";
 
     @SneakyThrows
-    @Async
     public void uploadFiles(String bucket, String fileName, List<MultipartFile> files) {
 
         log.info("[EXTERNAL] Uploading files to file-service");

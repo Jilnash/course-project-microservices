@@ -14,7 +14,6 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
-import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
@@ -32,7 +31,7 @@ public class S3Service implements StorageService {
     private static final long EXPIRATION_MINUTES = 120;
 
     @Override
-    public String putFiles(String bucketName, String fileName, List<MultipartFile> file) throws IOException {
+    public Boolean putFiles(String bucketName, String fileName, List<MultipartFile> file) throws Exception {
 
         log.info("[SERVICE] Uploading files to bucket");
         log.debug("[SERVICE] Uploading files to bucket: {}, with name: {}", bucketName, fileName);
@@ -54,11 +53,11 @@ public class S3Service implements StorageService {
                     fromBytes(multipartFile.getBytes())
             );
         }
-        return "";
+        return true;
     }
 
     @Override
-    public byte[] getFile(String bucketName, String fileName) throws IOException {
+    public byte[] getFile(String bucketName, String fileName) throws Exception {
 
         log.info("[SERVICE] Fetching file from bucket");
         log.debug("[SERVICE] Fetching file from bucket: {}, with name: {}", bucketName, fileName);
@@ -73,7 +72,8 @@ public class S3Service implements StorageService {
         return object.readAllBytes();
     }
 
-    @Cacheable(value = "task-video-presigned", key = "#bucketName + #keyName")
+    @Override
+    @Cacheable(value = "file-presigned", key = "#bucketName + #keyName")
     public String getPreSignedUrl(String bucketName, String keyName) {
 
         log.info("[SERVICE] Fetching presigned url");
