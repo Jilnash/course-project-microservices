@@ -4,6 +4,11 @@ import com.jilnash.courseaccessservice.CourseAccessServiceGrpc;
 import com.jilnash.courseaccessservice.HasAccessRequest;
 import com.jilnash.courserightsservice.HasRightsRequest;
 import com.jilnash.courserightsservice.TeacherRightsServiceGrpc;
+import io.opentelemetry.api.trace.Span;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.Context;
+import io.opentelemetry.context.Scope;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.scheduling.annotation.Async;
@@ -16,13 +21,17 @@ import java.util.concurrent.ExecutionException;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class CourseAuthorizationService {
+
+    private final Tracer tracer;
 
     @GrpcClient("course-access-client")
     private CourseAccessServiceGrpc.CourseAccessServiceBlockingStub courseAccessServiceBlockingStub;
 
     @GrpcClient("course-rights-client")
     private TeacherRightsServiceGrpc.TeacherRightsServiceBlockingStub teacherRightsServiceBlockingStub;
+
 
     public void validateUserAccess(String courseId, String userId) {
 
@@ -47,16 +56,26 @@ public class CourseAuthorizationService {
 
     @Async
     protected CompletableFuture<Boolean> getTeacherHasCourseRights(String courseId, String teacherId, List<String> rights) {
+        Span span = tracer.spanBuilder("getTeacherHasCourseRights").startSpan();
 
-        log.info("[EXTERNAL] Checking teacher rights with course-rights-service rpc");
+        // Attach current span to the new thread using OpenTelemetry Context
+        try (Scope scope = span.makeCurrent()) {
+            log.info("[EXTERNAL] Checking teacher rights with course-rights-service rpc");
 
-        return CompletableFuture.supplyAsync(() -> teacherRightsServiceBlockingStub.hasRights(
-                        HasRightsRequest.newBuilder()
-                                .setCourseId(courseId)
-                                .setTeacherId(teacherId)
-                                .addAllRights(rights)
-                                .build())
-                .getHasRights());
+            return CompletableFuture.supplyAsync(() -> {
+                try (Scope innerScope = Context.current().makeCurrent()) {
+                    return teacherRightsServiceBlockingStub.hasRights(
+                                    HasRightsRequest.newBuilder()
+                                            .setCourseId(courseId)
+                                            .setTeacherId(teacherId)
+                                            .addAllRights(rights)
+                                            .build())
+                            .getHasRights();
+                }
+            });
+        } finally {
+            span.end();
+        }
     }
 
     public void validateStudentCourseAccess(String courseId, String studentId) {
@@ -71,14 +90,23 @@ public class CourseAuthorizationService {
 
     @Async
     protected CompletableFuture<Boolean> getStudentCourseAccess(String courseId, String studentId) {
+        Span span = tracer.spanBuilder("getStudentCourseAccess").startSpan();
 
         log.info("[EXTERNAL] Checking student access with course-access-service rpc");
 
-        return CompletableFuture.supplyAsync(() -> courseAccessServiceBlockingStub.hasAccess(
-                        HasAccessRequest.newBuilder()
-                                .setCourseId(courseId)
-                                .setUserId(studentId)
-                                .build()).
-                getHasAccess());
+        try (Scope scope = span.makeCurrent()) {
+            return CompletableFuture.supplyAsync(() -> {
+                try (Scope innerScope = Context.current().makeCurrent()) {
+                    return courseAccessServiceBlockingStub.hasAccess(
+                                    HasAccessRequest.newBuilder()
+                                            .setCourseId(courseId)
+                                            .setUserId(studentId)
+                                            .build())
+                            .getHasAccess();
+                }
+            });
+        } finally {
+            span.end();
+        }
     }
 }
