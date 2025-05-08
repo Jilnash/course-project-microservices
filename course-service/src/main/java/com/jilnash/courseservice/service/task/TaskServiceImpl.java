@@ -14,7 +14,9 @@ import com.jilnash.taskrequirementsservice.SetTaskRequirementsRequest;
 import com.jilnash.taskrequirementsservice.TaskRequirementsServiceGrpc;
 import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.client.inject.GrpcClient;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -78,6 +80,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @CacheEvict(value = {"taskLists", "taskGraphs", "tasks"}, key = "#task.moduleId")
     public Boolean create(TaskCreateDTO task) {
 
         moduleService.validateModuleExistsInCourse(task.getModuleId(), task.getCourseId());
@@ -165,6 +168,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    @CacheEvict(value = {"tasks"}, key = "#task.id")
     public Boolean update(TaskUpdateDTO task) {
 
         // check if task exists
@@ -184,6 +188,10 @@ public class TaskServiceImpl implements TaskService {
         return getTask(taskId).getPrerequisites().stream().map(Task::getId).toList();
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = {"taskLists", "taskGraphs"}, key = "#moduleId", allEntries = true),
+            @CacheEvict(value = "tasks", key = "#taskId")
+    })
     public Boolean updateTaskPrerequisite(String courseId, String moduleId, String taskId, Set<String> prerequisiteIds) {
 
         moduleService.validateModuleContainsAllTasks(moduleId, prerequisiteIds);
@@ -197,11 +205,19 @@ public class TaskServiceImpl implements TaskService {
         return true;
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "taskLists", key = "#moduleId"),
+            @CacheEvict(value = "tasks", key = "#taskId")
+    })
     public Boolean updateTaskTitle(String courseId, String moduleId, String taskId, String title) {
         taskRepo.updateTaskTitle(courseId, moduleId, taskId, title);
         return true;
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "taskLists", key = "#moduleId"),
+            @CacheEvict(value = "tasks", key = "#taskId")
+    })
     public Boolean updateTaskDescription(String courseId, String moduleId, String taskId, String description) {
         taskRepo.updateTaskDescription(courseId, moduleId, taskId, description);
         return true;
@@ -213,21 +229,25 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new NoSuchElementException("Task not found"));
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "taskLists", key = "#moduleId"),
+            @CacheEvict(value = "tasks", key = "#id")
+    })
     public Boolean updateTaskVideo(String courseId, String moduleId, String id, MultipartFile video) {
 
         getTask(courseId, moduleId, id);
 
-        fileClient.uploadFiles(
-                "course-project-tasks",
-                "task-" + id + "\\video",
-                List.of(video)
-        );
+        fileClient.uploadFiles("course-project-tasks", "task-" + id + "\\video", List.of(video));
 
         taskRepo.updateTaskVideoLink(courseId, moduleId, id, video.getOriginalFilename());
 
         return true;
     }
 
+    @Caching(evict = {
+            @CacheEvict(value = "taskLists", key = "#moduleId", allEntries = true),
+            @CacheEvict(value = "tasks", key = "#id")
+    })
     public Boolean updateTaskIsPublic(String courseId, String moduleId, String id, Boolean isPublic) {
 
         taskRepo.updateTaskIsPublic(courseId, moduleId, id, isPublic);
