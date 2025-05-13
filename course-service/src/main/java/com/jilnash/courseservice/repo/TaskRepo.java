@@ -34,8 +34,9 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
             "CREATE (t:Task {" +
             "id: $taskDTO.taskId, title: $taskDTO.title, description: $taskDTO.description, " +
             "videoLink: $taskDTO.videoLink, isPublic: $taskDTO.isPublic}) " +
-            "CREATE (m)-[:CONTAINS]->(t) ")
-    void createTaskWithoutRelationships(TaskCreateDTO taskDTO);
+            "CREATE (m)-[:CONTAINS]->(t) " +
+            "RETURN t")
+    Optional<Task> createTaskWithoutRelationships(TaskCreateDTO taskDTO);
 
     @Query("UNWIND $taskDTO.prerequisiteTasksIds AS prereq " +
             "MATCH (from:Task {id: prereq}), (to:Task {id: $taskDTO.taskId}) " +

@@ -81,7 +81,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     @CacheEvict(value = {"taskLists", "taskGraphs", "tasks"}, key = "#task.moduleId")
-    public Boolean create(TaskCreateDTO task) {
+    public Task create(TaskCreateDTO task) {
 
         moduleService.validateModuleExistsInCourse(task.getModuleId(), task.getCourseId());
 
@@ -91,32 +91,31 @@ public class TaskServiceImpl implements TaskService {
         task.setTaskId(UUID.randomUUID().toString());
         task.setVideoLink(task.getVideoFile().getOriginalFilename());
 
-        if (prereqsAndSuccessorIds.isEmpty())
-            createFirstTaskInModule(task);
-        else
-            createTaskWithPrerequisitesAndSuccessors(task, prereqsAndSuccessorIds);
-
         setTaskRequirements(task, task.getTaskId());
 
         fileClient.uploadFiles(TASK_STORAGE_BUCKET, getTaskVideoPath(task.getTaskId()), List.of(task.getVideoFile()));
 
-        return true;
+        if (prereqsAndSuccessorIds.isEmpty())
+            return createFirstTaskInModule(task);
+        else
+            return createTaskWithPrerequisitesAndSuccessors(task, prereqsAndSuccessorIds);
     }
 
     private Set<String> mergePrerequisitesAndSuccessors(Set<String> prereqs, Set<String> successors) {
         return Stream.concat(prereqs.stream(), successors.stream()).collect(Collectors.toSet());
     }
 
-    private void createFirstTaskInModule(TaskCreateDTO task) {
+    private Task createFirstTaskInModule(TaskCreateDTO task) {
 
         // throw exception if module already contains tasks
         if (moduleService.hasAtLeastOneTask(task.getModuleId()))
             throw new RuntimeException("Task should be linked with other tasks");
 
-        taskRepo.createTaskWithoutRelationships(task);
+        return taskRepo.createTaskWithoutRelationships(task)
+                .orElseThrow(() -> new RuntimeException("Error creating first task"));
     }
 
-    private void createTaskWithPrerequisitesAndSuccessors(TaskCreateDTO task, Set<String> prereqsAndSuccessorIds) {
+    private Task createTaskWithPrerequisitesAndSuccessors(TaskCreateDTO task, Set<String> prereqsAndSuccessorIds) {
 
         //prerequisites and successors should be distinct
         validatePrerequisitesAndSuccessorsDisjoint(task.getPrerequisiteTasksIds(), task.getSuccessorTasksIds());
@@ -126,11 +125,14 @@ public class TaskServiceImpl implements TaskService {
 
         taskRepo.deleteTaskRelationshipsByTaskIdLinks(task.getRemoveRelationshipIds());
 
-        taskRepo.createTaskWithoutRelationships(task);
+        updateProgresses(task, task.getTaskId());
+
+        Task newTask = taskRepo.createTaskWithoutRelationships(task)
+                .orElseThrow(() -> new RuntimeException("Error creating task"));
         taskRepo.connectTaskToPrerequisites(task);
         taskRepo.connectTaskToSuccessors(task);
 
-        updateProgresses(task, task.getTaskId());
+        return newTask;
     }
 
     private void validatePrerequisitesAndSuccessorsDisjoint(Set<String> prereqs, Set<String> successors) {
@@ -138,7 +140,8 @@ public class TaskServiceImpl implements TaskService {
             throw new NoSuchElementException("Pre-requisites and successor tasks should be distinct");
     }
 
-    private void updateProgresses(TaskCreateDTO task, String generatedTaskId) {
+    @Async
+    protected void updateProgresses(TaskCreateDTO task, String generatedTaskId) {
         // the new task should be included in progress
         // of all students who have completed successors the new task
         progressGrpcClient.insertTaskToProgress(InsertTaskToProgressRequest.newBuilder()

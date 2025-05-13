@@ -1,10 +1,7 @@
 package com.jilnash.courseservice.service.task;
 
 import com.jilnash.courseservice.client.FileClient;
-import com.jilnash.courseservice.dto.task.TaskCreateDTO;
-import com.jilnash.courseservice.dto.task.TaskGraphDTO;
-import com.jilnash.courseservice.dto.task.TaskResponseDTO;
-import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
+import com.jilnash.courseservice.dto.task.*;
 import com.jilnash.courseservice.mapper.TaskMapper;
 import com.jilnash.courseservice.model.Task;
 import com.jilnash.courseservice.service.courseauthr.CourseAuthorizationService;
@@ -66,13 +63,13 @@ public class AuthorizedTaskService {
         return taskService.getTaskGraph(courseId, moduleId);
     }
 
-    public Boolean createTaskByUser(String userId, TaskCreateDTO task) {
+    public TaskCreateResponseDTO createTaskByUser(String userId, TaskCreateDTO task) {
 
         courseAuthrService.validateTeacherCourseRights(task.getCourseId(), userId, List.of("CREATE"));
 
         log.info("[SERVICE] Creating task in course {} module {}", task.getCourseId(), task.getModuleId());
 
-        return taskService.create(task);
+        return TaskMapper.toTaskCreateResponse(taskService.create(task));
     }
 
     public Boolean updateTaskByUser(String userId, TaskUpdateDTO task) {

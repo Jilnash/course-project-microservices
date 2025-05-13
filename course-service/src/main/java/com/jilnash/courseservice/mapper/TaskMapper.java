@@ -1,6 +1,7 @@
 package com.jilnash.courseservice.mapper;
 
 import com.jilnash.courseservice.dto.task.TaskCreateDTO;
+import com.jilnash.courseservice.dto.task.TaskCreateResponseDTO;
 import com.jilnash.courseservice.dto.task.TaskResponseDTO;
 import com.jilnash.courseservice.model.Task;
 import org.springframework.stereotype.Component;
@@ -27,5 +28,9 @@ public class TaskMapper {
                 task.getPrerequisites().stream().map(Task::getId).toList(),
                 task.getSuccessors().stream().map(Task::getId).toList()
         );
+    }
+
+    public static TaskCreateResponseDTO toTaskCreateResponse(Task task) {
+        return new TaskCreateResponseDTO(task.getId(), task.getTitle());
     }
 }
