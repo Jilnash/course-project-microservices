@@ -143,7 +143,9 @@ public class TaskServiceImpl implements TaskService {
     public Boolean update(TaskUpdateDTO task) {
 
         // check if task exists
-        getTask(task.getId(), task.getModuleId(), task.getCourseId());
+        taskRepo
+                .findByIdAndModule_IdAndModule_Course_Id(task.getId(), task.getModuleId(), task.getCourseId())
+                .orElseThrow(() -> new RuntimeException("Task not found"));
 
         taskRepo.updateTaskData(task.getId(), task.getTitle(), task.getDescription(), task.getVideoLink());
 
