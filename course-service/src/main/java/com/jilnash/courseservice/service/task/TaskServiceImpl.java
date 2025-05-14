@@ -1,6 +1,8 @@
 package com.jilnash.courseservice.service.task;
 
 import com.jilnash.courseservice.client.FileClient;
+import com.jilnash.courseservice.client.ProgressGrpcClient;
+import com.jilnash.courseservice.client.TaskReqGrpcClient;
 import com.jilnash.courseservice.dto.task.TaskCreateDTO;
 import com.jilnash.courseservice.dto.task.TaskGraphDTO;
 import com.jilnash.courseservice.dto.task.TaskGraphEdgeDTO;
@@ -8,16 +10,10 @@ import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
 import com.jilnash.courseservice.model.Task;
 import com.jilnash.courseservice.repo.TaskRepo;
 import com.jilnash.courseservice.service.module.ModuleServiceImpl;
-import com.jilnash.progressservice.InsertTaskToProgressRequest;
-import com.jilnash.progressservice.ProgressServiceGrpc;
-import com.jilnash.taskrequirementsservice.SetTaskRequirementsRequest;
-import com.jilnash.taskrequirementsservice.TaskRequirementsServiceGrpc;
 import lombok.RequiredArgsConstructor;
-import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.Caching;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -35,13 +31,11 @@ public class TaskServiceImpl implements TaskService {
 
     private final FileClient fileClient;
 
+    private final TaskReqGrpcClient taskReqGrpcClient;
+
+    private final ProgressGrpcClient progressGrpcClient;
+
     private static final String TASK_STORAGE_BUCKET = "course-project-tasks";
-
-    @GrpcClient("progress-client")
-    private ProgressServiceGrpc.ProgressServiceBlockingStub progressGrpcClient;
-
-    @GrpcClient("task-requirements-client")
-    private TaskRequirementsServiceGrpc.TaskRequirementsServiceBlockingStub taskRequirementsGrpcClient;
 
     @Override
     @Cacheable(value = "taskLists", key = "#moduleId")
@@ -91,7 +85,7 @@ public class TaskServiceImpl implements TaskService {
         task.setTaskId(UUID.randomUUID().toString());
         task.setVideoLink(task.getVideoFile().getOriginalFilename());
 
-        setTaskRequirements(task, task.getTaskId());
+        taskReqGrpcClient.setTaskRequirements(task, task.getTaskId());
 
         fileClient.uploadFiles(TASK_STORAGE_BUCKET, getTaskVideoPath(task.getTaskId()), List.of(task.getVideoFile()));
 
@@ -125,7 +119,7 @@ public class TaskServiceImpl implements TaskService {
 
         taskRepo.deleteTaskRelationshipsByTaskIdLinks(task.getRemoveRelationshipIds());
 
-        updateProgresses(task, task.getTaskId());
+        progressGrpcClient.updateProgresses(task.getSuccessorTasksIds(), task.getTaskId());
 
         Task newTask = taskRepo.createTaskWithoutRelationships(task)
                 .orElseThrow(() -> new RuntimeException("Error creating task"));
@@ -138,32 +132,6 @@ public class TaskServiceImpl implements TaskService {
     private void validatePrerequisitesAndSuccessorsDisjoint(Set<String> prereqs, Set<String> successors) {
         if (!Collections.disjoint(prereqs, successors))
             throw new NoSuchElementException("Pre-requisites and successor tasks should be distinct");
-    }
-
-    @Async
-    protected void updateProgresses(TaskCreateDTO task, String generatedTaskId) {
-        // the new task should be included in progress
-        // of all students who have completed successors the new task
-        progressGrpcClient.insertTaskToProgress(InsertTaskToProgressRequest.newBuilder()
-                .setNewTaskId(generatedTaskId)
-                .addAllCompletedTaskIds(task.getSuccessorTasksIds())
-                .build()
-        );
-    }
-
-    @Async
-    protected void setTaskRequirements(TaskCreateDTO task, String generatedTaskId) {
-        taskRequirementsGrpcClient.setTaskRequirements(
-                SetTaskRequirementsRequest.newBuilder()
-                        .setTaskId(generatedTaskId)
-                        .addAllRequirements(task.getFileRequirements().stream()
-                                .map(req -> com.jilnash.taskrequirementsservice.Requirement.newBuilder()
-                                        .setContentType(req.contentType())
-                                        .setCount(req.count())
-                                        .build())
-                                .toList())
-                        .build()
-        );
     }
 
     private String getTaskVideoPath(String taskId) {
