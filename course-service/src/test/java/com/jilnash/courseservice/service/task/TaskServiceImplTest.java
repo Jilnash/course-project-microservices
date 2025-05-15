@@ -1,7 +1,6 @@
 package com.jilnash.courseservice.service.task;
 
 import com.jilnash.courseservice.client.FileClient;
-import com.jilnash.courseservice.client.ProgressGrpcClient;
 import com.jilnash.courseservice.client.TaskReqGrpcClient;
 import com.jilnash.courseservice.dto.task.TaskCreateDTO;
 import com.jilnash.courseservice.dto.task.TaskGraphDTO;
@@ -33,8 +32,6 @@ class TaskServiceImplTest {
     @Mock
     private FileClient fileClient;
     @Mock
-    private ProgressGrpcClient progressGrpcClient;
-    @Mock
     private TaskReqGrpcClient taskReqGrpcClient;
 
     @InjectMocks
@@ -46,12 +43,14 @@ class TaskServiceImplTest {
     }
 
     @Test
-    void testGetTasks() {
+    void testGetTasksWhenModuleExistsInCourse() {
         // Arrange
         String courseId = "courseId";
         String moduleId = "moduleId";
         String title = "title";
         List<Task> expectedTasks = List.of(new Task());
+
+        doNothing().when(moduleService).validateModuleExistsInCourse(moduleId, courseId);
         when(taskRepo.findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(title, moduleId, courseId))
                 .thenReturn(expectedTasks);
 
@@ -62,6 +61,21 @@ class TaskServiceImplTest {
         assertEquals(expectedTasks, tasks);
         verify(taskRepo, times(1))
                 .findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(title, moduleId, courseId);
+    }
+
+    @Test
+    void testGetTasksWhenModuleDoesNotExistInCourse() {
+        // Arrange
+        String courseId = "courseId";
+        String moduleId = "moduleId";
+        String title = "title";
+        doThrow(new RuntimeException("Module not found"))
+                .when(moduleService).validateModuleExistsInCourse(moduleId, courseId);
+
+        // Act & Assert
+        Exception thrownException = assertThrows(RuntimeException.class, () -> taskServiceImpl.getTasks(courseId, moduleId, title));
+        assertEquals("Module not found", thrownException.getMessage());
+        verify(taskRepo, never()).findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(title, moduleId, courseId);
     }
 
     @Test
@@ -77,6 +91,67 @@ class TaskServiceImplTest {
         // Assert
         assertEquals(task, result);
         verify(taskRepo, times(1)).findById("taskId");
+    }
+
+    @Test
+    void testGetTaskByCourseModuleAndIdModuleDoesNotExistInCourse() {
+        // Arrange
+        String courseId = "courseId";
+        String moduleId = "moduleId";
+        doThrow(new RuntimeException("Module not found"))
+                .when(moduleService).validateModuleExistsInCourse(moduleId, courseId);
+
+        // Act & Assert
+        Exception exception = assertThrows(
+                RuntimeException.class,
+                () -> taskServiceImpl.getTask(courseId, moduleId, "taskId")
+        );
+        assertEquals("Module not found", exception.getMessage());
+        verify(moduleService, times(1)).validateModuleExistsInCourse(moduleId, courseId);
+        verify(taskRepo, never()).findByIdAndModule_IdAndModule_Course_Id(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    void testGetTaskByCourseModuleAndId() {
+        // Arrange
+        Task task = new Task();
+        task.setId("taskId");
+        String courseId = "courseId";
+        String moduleId = "moduleId";
+
+        doNothing().when(moduleService).validateModuleExistsInCourse(moduleId, courseId);
+        when(taskRepo.findByIdAndModule_IdAndModule_Course_Id("taskId", moduleId, courseId))
+                .thenReturn(Optional.of(task));
+
+        // Act
+        Task result = taskServiceImpl.getTask(courseId, moduleId, "taskId");
+
+        // Assert
+        assertEquals(task, result);
+        verify(moduleService, times(1)).validateModuleExistsInCourse(moduleId, courseId);
+        verify(taskRepo, times(1))
+                .findByIdAndModule_IdAndModule_Course_Id("taskId", moduleId, courseId);
+    }
+
+    @Test
+    void testGetTaskByCourseModuleAndIdNotFound() {
+        // Arrange
+        String courseId = "courseId";
+        String moduleId = "moduleId";
+
+        doNothing().when(moduleService).validateModuleExistsInCourse(moduleId, courseId);
+        when(taskRepo.findByIdAndModule_IdAndModule_Course_Id("taskId", moduleId, courseId))
+                .thenReturn(Optional.empty());
+
+        // Act & Assert
+        RuntimeException exception = assertThrows(
+                RuntimeException.class,
+                () -> taskServiceImpl.getTask(courseId, moduleId, "taskId")
+        );
+        assertEquals("Task not found", exception.getMessage());
+        verify(moduleService, times(1)).validateModuleExistsInCourse(moduleId, courseId);
+        verify(taskRepo, times(1))
+                .findByIdAndModule_IdAndModule_Course_Id("taskId", moduleId, courseId);
     }
 
     @Test

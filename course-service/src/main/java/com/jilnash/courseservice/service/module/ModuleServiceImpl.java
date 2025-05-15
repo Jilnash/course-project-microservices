@@ -74,7 +74,7 @@ public class ModuleServiceImpl implements ModuleService {
 
     public void validateModuleExistsInCourse(String moduleId, String courseId) {
         if (!moduleRepo.existsByIdAndCourseId(moduleId, courseId))
-            throw new UsernameNotFoundException("Module not found with id: " + moduleId + " in course: " + courseId);
+            throw new RuntimeException("Module not found with id: " + moduleId + " in course: " + courseId);
     }
 
     public void validateModuleContainsAllTasks(String moduleId, Set<String> taskIds) {

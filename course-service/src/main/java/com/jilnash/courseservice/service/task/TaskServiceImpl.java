@@ -41,12 +41,16 @@ public class TaskServiceImpl implements TaskService {
     @Cacheable(value = "taskLists", key = "#moduleId")
     public List<Task> getTasks(String courseId, String moduleId, String title) {
 
+        moduleService.validateModuleExistsInCourse(moduleId, courseId);
+
         return taskRepo.findAllByTitleStartingWithAndModule_IdAndModule_Course_Id(title, moduleId, courseId);
     }
 
     @Override
     @Cacheable(value = "tasks", key = "#id")
     public Task getTask(String courseId, String moduleId, String id) {
+
+        moduleService.validateModuleExistsInCourse(moduleId, courseId);
 
         return taskRepo
                 .findByIdAndModule_IdAndModule_Course_Id(id, moduleId, courseId)
