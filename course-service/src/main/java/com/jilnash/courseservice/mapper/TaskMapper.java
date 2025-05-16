@@ -18,7 +18,7 @@ public class TaskMapper {
                 .build();
     }
 
-    public static TaskResponseDTO toTaskResponse(Task task) {
+    public TaskResponseDTO toTaskResponse(Task task) {
         return new TaskResponseDTO(
                 task.getId(),
                 task.getTitle(),
@@ -30,7 +30,7 @@ public class TaskMapper {
         );
     }
 
-    public static TaskCreateResponseDTO toTaskCreateResponse(Task task) {
+    public TaskCreateResponseDTO toTaskCreateResponse(Task task) {
         return new TaskCreateResponseDTO(task.getId(), task.getTitle());
     }
 }
