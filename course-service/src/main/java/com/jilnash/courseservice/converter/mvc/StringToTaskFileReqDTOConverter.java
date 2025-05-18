@@ -14,6 +14,13 @@ public class StringToTaskFileReqDTOConverter implements Converter<String, TaskFi
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Converts a JSON string representation into an instance of TaskFileReqDTO.
+     * Which is needed in create task endpoint.
+     *
+     * @param source the JSON string to be converted
+     * @return an instance of TaskFileReqDTO parsed from the given string
+     */
     @Override
     public TaskFileReqDTO convert(String source) {
         return objectMapper.convertValue(source, TaskFileReqDTO.class);

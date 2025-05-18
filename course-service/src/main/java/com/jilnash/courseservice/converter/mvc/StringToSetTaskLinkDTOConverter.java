@@ -17,6 +17,14 @@ public class StringToSetTaskLinkDTOConverter implements Converter<String, Set<Ta
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Converts a JSON string representation of a set of TaskLinkDTO objects
+     * into a Set<TaskLinkDTO> instance using ObjectMapper. It is needed in task creation endpoint.
+     *
+     * @param source the JSON string to be converted
+     * @return a Set of TaskLinkDTO objects parsed from the given string
+     * @throws IllegalArgumentException if the conversion process encounters an error
+     */
     @Override
     public Set<TaskLinkDTO> convert(String source) {
         try {

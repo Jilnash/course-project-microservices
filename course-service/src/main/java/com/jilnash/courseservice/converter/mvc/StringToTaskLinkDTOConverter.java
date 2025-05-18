@@ -14,6 +14,13 @@ public class StringToTaskLinkDTOConverter implements Converter<String, TaskLinkD
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Converts a JSON string representation into an instance of TaskLinkDTO.
+     * Which is needed in task creation endpoint.
+     *
+     * @param source the JSON string to be converted
+     * @return an instance of TaskLinkDTO parsed from the given string
+     */
     @Override
     public TaskLinkDTO convert(String source) {
         return objectMapper.convertValue(source, TaskLinkDTO.class);

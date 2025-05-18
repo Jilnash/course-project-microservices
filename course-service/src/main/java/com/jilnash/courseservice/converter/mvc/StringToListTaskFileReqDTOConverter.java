@@ -17,6 +17,14 @@ public class StringToListTaskFileReqDTOConverter implements Converter<String, Li
         this.objectMapper = objectMapper;
     }
 
+    /**
+     * Converts a JSON string representation of a list of TaskFileReqDTO objects
+     * into a List<TaskFileReqDTO> instance using ObjectMapper. It is needed in task creation endpoint.
+     *
+     * @param source the JSON string to be converted
+     * @return a List of TaskFileReqDTO objects parsed from the given string
+     * @throws IllegalArgumentException if the conversion process encounters an error
+     */
     @Override
     public List<TaskFileReqDTO> convert(String source) {
         try {
