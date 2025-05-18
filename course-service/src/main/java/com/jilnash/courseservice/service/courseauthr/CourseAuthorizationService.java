@@ -1,16 +1,13 @@
 package com.jilnash.courseservice.service.courseauthr;
 
-import com.jilnash.courseaccessservice.CourseAccessServiceGrpc;
-import com.jilnash.courseaccessservice.HasAccessRequest;
-import com.jilnash.courserightsservice.HasRightsRequest;
-import com.jilnash.courserightsservice.TeacherRightsServiceGrpc;
+import com.jilnash.courseservice.client.CourseAccessGrpcClient;
+import com.jilnash.courseservice.client.TeacherRightsGrpcClient;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.Scope;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -30,11 +27,8 @@ public class CourseAuthorizationService {
 
     private final Tracer tracer;
 
-    @GrpcClient("course-access-client")
-    private CourseAccessServiceGrpc.CourseAccessServiceBlockingStub courseAccessServiceBlockingStub;
-
-    @GrpcClient("course-rights-client")
-    private TeacherRightsServiceGrpc.TeacherRightsServiceBlockingStub teacherRightsServiceBlockingStub;
+    private final TeacherRightsGrpcClient teacherRightsGrpcClient;
+    private final CourseAccessGrpcClient courseAccessGrpcClient;
 
 
     /**
@@ -83,9 +77,9 @@ public class CourseAuthorizationService {
      * Checks if a teacher has specific rights for a given course by interacting with the course-rights-service
      * through an asynchronous gRPC call.
      *
-     * @param courseId the unique identifier of the course
+     * @param courseId  the unique identifier of the course
      * @param teacherId the unique identifier of the teacher
-     * @param rights a list of rights to check for the teacher
+     * @param rights    a list of rights to check for the teacher
      * @return a CompletableFuture containing a Boolean value indicating whether the teacher has the specified rights
      */
     @Async
@@ -98,13 +92,7 @@ public class CourseAuthorizationService {
 
             return CompletableFuture.supplyAsync(() -> {
                 try (Scope innerScope = Context.current().makeCurrent()) {
-                    return teacherRightsServiceBlockingStub.hasRights(
-                                    HasRightsRequest.newBuilder()
-                                            .setCourseId(courseId)
-                                            .setTeacherId(teacherId)
-                                            .addAllRights(rights)
-                                            .build())
-                            .getHasRights();
+                    return teacherRightsGrpcClient.hasRightsInCourse(courseId, teacherId, rights);
                 }
             });
         } finally {
@@ -117,10 +105,10 @@ public class CourseAuthorizationService {
      * {@link UsernameNotFoundException} is thrown. Handles any execution errors during the validation
      * process by wrapping them in a {@link RuntimeException}.
      *
-     * @param courseId the unique identifier of the course
+     * @param courseId  the unique identifier of the course
      * @param studentId the unique identifier of the student
      * @throws UsernameNotFoundException if the student does not have access to the course
-     * @throws RuntimeException if an error occurs during the execution of the access validation
+     * @throws RuntimeException          if an error occurs during the execution of the access validation
      */
     public void validateStudentCourseAccess(String courseId, String studentId) {
 
@@ -135,7 +123,7 @@ public class CourseAuthorizationService {
     /**
      * Checks if a student has access to a specific course by communicating with an external course access service.
      *
-     * @param courseId the unique identifier of the course
+     * @param courseId  the unique identifier of the course
      * @param studentId the unique identifier of the student
      * @return a CompletableFuture containing a Boolean value indicating whether the student has access to the course
      */
@@ -148,12 +136,7 @@ public class CourseAuthorizationService {
         try (Scope scope = span.makeCurrent()) {
             return CompletableFuture.supplyAsync(() -> {
                 try (Scope innerScope = Context.current().makeCurrent()) {
-                    return courseAccessServiceBlockingStub.hasAccess(
-                                    HasAccessRequest.newBuilder()
-                                            .setCourseId(courseId)
-                                            .setUserId(studentId)
-                                            .build())
-                            .getHasAccess();
+                    return courseAccessGrpcClient.hasAccess(courseId, studentId);
                 }
             });
         } finally {

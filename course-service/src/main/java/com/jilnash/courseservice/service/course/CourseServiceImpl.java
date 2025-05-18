@@ -1,7 +1,6 @@
 package com.jilnash.courseservice.service.course;
 
-import com.jilnash.courserightsservice.SetCourseOwnerRequest;
-import com.jilnash.courserightsservice.TeacherRightsServiceGrpc;
+import com.jilnash.courseservice.client.TeacherRightsGrpcClient;
 import com.jilnash.courseservice.dto.course.CourseCreateDTO;
 import com.jilnash.courseservice.dto.course.CourseUpdateDTO;
 import com.jilnash.courseservice.mapper.CourseMapper;
@@ -10,7 +9,6 @@ import com.jilnash.courseservice.repo.CourseRepo;
 import com.jilnash.courseservice.service.courseauthr.CourseAuthorizationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,8 +34,7 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseAuthorizationService courseAuthrService;
 
-    @GrpcClient("course-rights-client")
-    private TeacherRightsServiceGrpc.TeacherRightsServiceBlockingStub teacherRightsServiceBlockingStub;
+    private final TeacherRightsGrpcClient teacherRightsGrpcClient;
 
     /**
      * Retrieves a list of courses based on the specified name. If the name is not provided or empty,
@@ -77,7 +74,7 @@ public class CourseServiceImpl implements CourseService {
 
     /**
      * Creates a new course with the provided information.
-     *
+     * <p>
      * The method generates a unique identifier for the course, assigns the
      * ownership of the course to the specified teacher by communicating with
      * an external service, and saves the course instance in the repository.
@@ -96,13 +93,7 @@ public class CourseServiceImpl implements CourseService {
 
         courseDTO.setId(UUID.randomUUID().toString());
 
-        if (!teacherRightsServiceBlockingStub
-                .setCourseOwner(SetCourseOwnerRequest.newBuilder()
-                        .setTeacherId(courseDTO.getAuthorId())
-                        .setCourseId(courseDTO.getId())
-                        .build())
-                .getSuccess()
-        )
+        if (!teacherRightsGrpcClient.createCourseOwner(courseDTO.getAuthorId(), courseDTO.getId()))
             throw new RuntimeException("Failed to set course owner");
 
         return courseRepo.save(courseMapper.toNode(courseDTO));
@@ -110,7 +101,7 @@ public class CourseServiceImpl implements CourseService {
 
     /**
      * Updates an existing course with the details provided in the CourseUpdateDTO.
-     *
+     * <p>
      * The method validates the teacher's rights to update the course and checks if
      * the course exists in the repository. If the course is found, it saves the updated
      * course details and returns the updated entity.
