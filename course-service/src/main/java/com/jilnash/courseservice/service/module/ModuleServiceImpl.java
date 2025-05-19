@@ -72,7 +72,7 @@ public class ModuleServiceImpl implements ModuleService {
     @Override
     public Module create(ModuleCreateDTO moduleDTO) {
 
-        // check if course exists then set it to moduleDTO
+        // check if course exists by calling `getCourse` then set it to moduleDTO
         moduleDTO.setCourse(courseService.getCourse(moduleDTO.getCourseId()));
 
         return moduleRepo.save(moduleMapper.toNode(moduleDTO));
@@ -122,7 +122,7 @@ public class ModuleServiceImpl implements ModuleService {
     public Boolean hasAtLeastOneTask(String id) {
         return moduleRepo
                 .hasAtLeastOneTask(id)
-                .orElseThrow(() -> new UsernameNotFoundException("Module does not exist"));
+                .orElseThrow(() -> new RuntimeException("Module does not exist"));
     }
 
     /**

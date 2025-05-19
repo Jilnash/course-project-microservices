@@ -78,12 +78,12 @@ public class AuthorizedModuleService {
     }
 
     /**
-     * Updates the details of a module within a course based on the provided information,
-     * ensuring that the teacher has the necessary rights to perform the action.
+     * Updates an existing module within a course based on the provided details and ensures
+     * that the teacher has the necessary rights to perform this operation.
      *
      * @param teacherId The unique identifier of the teacher attempting to update the module.
-     * @param moduleDTO An object containing the updated details of the module, including
-     *                  its ID, name, description, and associated course ID.
+     * @param moduleDTO An object containing the updated details of the module, including its ID,
+     *                  name, description, and associated course ID.
      * @return A Boolean value indicating whether the module was successfully updated.
      */
     public Boolean updateModuleByUser(String teacherId, ModuleUpdateDTO moduleDTO) {
