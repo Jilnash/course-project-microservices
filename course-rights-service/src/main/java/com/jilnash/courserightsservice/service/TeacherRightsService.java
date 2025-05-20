@@ -3,6 +3,7 @@ package com.jilnash.courserightsservice.service;
 import com.jilnash.courserightsservice.model.TeacherRights;
 import com.jilnash.courserightsservice.repo.RightRepository;
 import com.jilnash.courserightsservice.repo.TeacherRightsRepo;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -36,7 +37,7 @@ public class TeacherRightsService {
         teacherRightsRepo.deleteAllByCourseIdAndTeacherId(courseId, teacherId);
         teacherRightsRepo.saveAll(
                 rightRepo.findAllByNameIn(rights)
-                        .orElseThrow(() -> new RuntimeException("Rights not found"))
+                        .orElseThrow(() -> new EntityNotFoundException("Rights not found"))
                         .stream()
                         .map(right -> TeacherRights.builder()
                                 .courseId(courseId)
