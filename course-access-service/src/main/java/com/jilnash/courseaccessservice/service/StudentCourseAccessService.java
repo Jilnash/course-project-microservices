@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 
+/**
+ * Service class responsible for managing student access to courses.
+ * Provides methods to check if a student has access to a course and to handle course purchases.
+ * Relies on the {@link StudentCourseAccessRepo} for database interactions.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -15,6 +20,13 @@ public class StudentCourseAccessService {
 
     private final StudentCourseAccessRepo studentCourseAccessRepo;
 
+    /**
+     * Checks if a student has access to a specific course based on the current date and their access period.
+     *
+     * @param studentId the unique identifier of the student
+     * @param courseId  the unique identifier of the course
+     * @return true if the student has access to the course, false otherwise
+     */
     public Boolean getStudentHasAccess(String studentId, String courseId) {
 
         log.info("[SERVICE] Getting student has access to course");
@@ -26,6 +38,16 @@ public class StudentCourseAccessService {
                 );
     }
 
+    /**
+     * Processes the purchase of a course for a student. Verifies if the student already has access
+     * to the course before saving the new access. Throws an exception if the student already
+     * has access to the course.
+     *
+     * @param studentCourseAccess an object representing the details of the course access
+     *                             being purchased, including studentId, courseId, startDate, and endDate
+     * @return the saved {@code StudentCourseAccess} object representing the purchased course access
+     * @throws RuntimeException if the student already has access to the specified course
+     */
     public StudentCourseAccess purchase(StudentCourseAccess studentCourseAccess) {
 
         log.info("[SERVICE] Purchasing course");
