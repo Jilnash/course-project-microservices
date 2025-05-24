@@ -18,4 +18,14 @@ public class ErrHandler {
                 )
         );
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<?> handleRuntimeException(RuntimeException e) {
+        return ResponseEntity.internalServerError().body(
+                new AppError(
+                        500,
+                        e.getMessage()
+                )
+        );
+    }
 }

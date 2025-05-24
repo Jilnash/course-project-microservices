@@ -9,6 +9,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * REST controller for handling file-related operations using MinIO storage.
+ * Provides endpoints for downloading files, generating pre-signed URLs, and uploading files.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/files")
@@ -17,6 +21,14 @@ public class FileController {
 
     private final MinIOService storageService;
 
+    /**
+     * Retrieves a file from the specified bucket in MinIO storage.
+     *
+     * @param bucketName the name of the bucket from which the file is being retrieved
+     * @param fileName   the name of the file to be fetched
+     * @return a ResponseEntity containing the file data, or appropriate error details if the file cannot be retrieved
+     * @throws Exception if an error occurs during the file retrieval process
+     */
     @GetMapping("/{bucketName}")
     public ResponseEntity<?> getFile(@PathVariable String bucketName,
                                      @RequestParam String fileName) throws Exception {
@@ -29,6 +41,16 @@ public class FileController {
         );
     }
 
+    /**
+     * Generates a pre-signed URL for accessing a specific file stored in a MinIO bucket.
+     * The pre-signed URL provides temporary access to the file and allows HTTP GET requests.
+     *
+     * @param bucketName the name of the bucket containing the file for which the pre-signed URL is generated
+     * @param fileName the name of the file for which the pre-signed URL is generated
+     * @return a ResponseEntity containing the generated pre-signed URL, or an appropriate error message if the URL cannot
+     *         be generated
+     * @throws Exception if an error occurs during the pre-signed URL generation process
+     */
     @GetMapping("/{bucketName}/presigned")
     public ResponseEntity<?> getPresignedUrl(@PathVariable String bucketName,
                                              @RequestParam String fileName) throws Exception {
@@ -40,6 +62,17 @@ public class FileController {
     }
 
 
+    /**
+     * Uploads multiple files to the specified bucket in MinIO storage.
+     * Files are stored under a directory named by the provided filename prefix.
+     *
+     * @param fileUploadDTO the data transfer object containing the bucket name,
+     *                      the filename prefix, and the list of files to be uploaded
+     * @return a ResponseEntity containing an AppResponse with the status, message,
+     *         and the result of the upload operation
+     * @throws Exception if an error occurs during the file upload process, including issues
+     *                   with bucket creation, file storage, or other related problems
+     */
     @PostMapping
     public ResponseEntity<?> uploadFiles(@ModelAttribute @Validated FileUploadDTO fileUploadDTO) throws Exception {
 
