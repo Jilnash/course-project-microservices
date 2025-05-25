@@ -1,25 +1,16 @@
 package com.jilnash.homeworkservice.service;
 
-import com.jilnash.courseaccessservice.CourseAccessServiceGrpc;
-import com.jilnash.courseaccessservice.HasAccessRequest;
-import com.jilnash.homeworkservice.client.CourseClient;
-import com.jilnash.homeworkservice.client.FileClient;
+import com.jilnash.homeworkservice.client.*;
 import com.jilnash.homeworkservice.dto.HomeworkResponseDTO;
 import com.jilnash.homeworkservice.mapper.HomeworkMapper;
 import com.jilnash.homeworkservice.model.Homework;
 import com.jilnash.homeworkservice.repo.HomeworkRepo;
-import com.jilnash.progressservice.ProgressServiceGrpc;
-import com.jilnash.progressservice.StudentTaskCompletedRequest;
-import com.jilnash.taskrequirementsservice.TaskRequirementsServiceGrpc;
-import com.jilnash.taskrequirementsservice.ValidateRequirementsRequest;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
 import java.util.List;
@@ -38,17 +29,16 @@ public class HomeworkServiceImpl implements HomeworkService {
     private final CourseClient courseClient;
 
     private static final String HW_BUCKET = "course-project-homeworks";
+
     private final HomeworkFileService homeworkFileService;
+
     private final HomeworkMapper homeworkMapper;
 
-    @GrpcClient(("progress-client"))
-    private ProgressServiceGrpc.ProgressServiceBlockingStub progressServiceBlockingStub;
+    private final ProgressGrpcClient progressGrpcClient;
 
-    @GrpcClient("course-access-client")
-    private CourseAccessServiceGrpc.CourseAccessServiceBlockingStub courseAccessServiceBlockingStub;
+    private final CourseAccessGrpcClient courseAccessGrpcClient;
 
-    @GrpcClient("task-requirements-client")
-    private TaskRequirementsServiceGrpc.TaskRequirementsServiceBlockingStub taskRequirementsServiceBlockingStub;
+    private final TaskReqsGrpcClient taskReqsGrpcClient;
 
     @Override
     public List<Homework> getHomeworks(String taskId, String studentId, Boolean checked, Date createdAfter) {
@@ -100,19 +90,20 @@ public class HomeworkServiceImpl implements HomeworkService {
         log.debug("[SERVICE] Creating homework to taskId {} by studentId: {}",
                 homework.getTaskId(), homework.getStudentId());
 
-        validateStudentHasAccessToCourse(homework.getStudentId(), homework.getTaskId());
+        courseAccessGrpcClient.validateStudentHasAccessToCourse(homework.getStudentId(), homework.getTaskId());
 
         // checking if student already completed this task
-        if (validateStudentCompletedTasks(homework.getStudentId(), List.of(homework.getTaskId())))
+        if (progressGrpcClient.validateStudentCompletedTasks(homework.getStudentId(), List.of(homework.getTaskId())))
             throw new IllegalArgumentException("Student already completed this task");
 
         // checking if student completed all prerequisites
-        if (!validateStudentCompletedTasks(homework.getStudentId(), courseClient.getTaskPreRequisites(homework.getTaskId())))
+        if (!progressGrpcClient.validateStudentCompletedTasks
+                (homework.getStudentId(), courseClient.getTaskPreRequisites(homework.getTaskId())))
             throw new IllegalArgumentException("Student did not complete all prerequisites");
 
         validatePreviousHomeworksChecked(homework.getStudentId(), homework.getTaskId());
 
-        validateAllTaskFilesProvided(homework);
+        taskReqsGrpcClient.validateAllTaskFilesProvided(homework);
 
         homework.setAttempt(1 + homeworkRepo.countByStudentIdAndTaskId(homework.getStudentId(), homework.getTaskId()));
 
@@ -123,41 +114,9 @@ public class HomeworkServiceImpl implements HomeworkService {
         return true;
     }
 
-    private void validateStudentHasAccessToCourse(String studentId, String taskId) {
-        //getting course_id by task_id, then verifying if student has access to course
-        if (!courseAccessServiceBlockingStub.hasAccess(HasAccessRequest.newBuilder()
-                .setCourseId(courseClient.getTaskCourseId(taskId))
-                .setUserId(studentId)
-                .build()).getHasAccess()
-        )
-            throw new IllegalArgumentException("Student does not have access to course");
-    }
-
-    private boolean validateStudentCompletedTasks(String studentId, List<String> taskIds) {
-
-        return progressServiceBlockingStub.areTasksCompleted(
-                        StudentTaskCompletedRequest.newBuilder()
-                                .setStudentId(studentId)
-                                .addAllTaskIds(taskIds)
-                                .build())
-                .getIsCompleted();
-    }
-
     private void validatePreviousHomeworksChecked(String studentId, String taskId) {
         if (homeworkRepo.getHwUnchecked(studentId, taskId))
             throw new IllegalArgumentException("Previous homework is not checked yet");
-    }
-
-    private void validateAllTaskFilesProvided(Homework homework) {
-
-        if (!taskRequirementsServiceBlockingStub.validateHomeworkFiles(
-                        ValidateRequirementsRequest.newBuilder()
-                                .setTaskId(homework.getTaskId())
-                                .addAllRequirements(homework.getFiles().stream().map(MultipartFile::getContentType).toList())
-                                .build())
-                .getValid()
-        )
-            throw new IllegalArgumentException("Not all task files provided");
     }
 
     @Async
@@ -208,7 +167,7 @@ public class HomeworkServiceImpl implements HomeworkService {
         return fileClient.getFilePreSignedURL(HW_BUCKET, hwFileName(id, fileName));
     }
 
-    public String hwFileName(UUID id, String fileName) {
+    private String hwFileName(UUID id, String fileName) {
         return "homework-" + id + "/" + fileName;
     }
 }
