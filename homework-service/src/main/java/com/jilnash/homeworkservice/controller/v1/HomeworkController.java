@@ -88,7 +88,7 @@ public class HomeworkController {
                 new AppResponse(
                         200,
                         "File fetched successfully",
-                        homeworkService.getFileURL(id, fileName)
+                        homeworkService.getHwFileURL(id, fileName)
                 )
         );
     }

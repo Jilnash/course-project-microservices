@@ -5,6 +5,7 @@ import com.jilnash.homeworkservice.dto.HomeworkResponseDTO;
 import com.jilnash.homeworkservice.mapper.HomeworkMapper;
 import com.jilnash.homeworkservice.model.Homework;
 import com.jilnash.homeworkservice.repo.HomeworkRepo;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -105,7 +106,7 @@ public class HomeworkServiceImpl implements HomeworkService {
     public Homework getHomework(UUID id) {
         return homeworkRepo
                 .findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Homework not found with id: " + id));
     }
 
     /**
@@ -143,16 +144,18 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         courseAccessGrpcClient.validateStudentHasAccessToCourse(homework.getStudentId(), homework.getTaskId());
 
-        // checking if student already completed this task
+        // checking if a student already completed this task
         if (progressGrpcClient.validateStudentCompletedTasks(homework.getStudentId(), List.of(homework.getTaskId())))
             throw new IllegalArgumentException("Student already completed this task");
 
-        // checking if student completed all prerequisites
+        // checking if a student completed all prerequisites
         if (!progressGrpcClient.validateStudentCompletedTasks
                 (homework.getStudentId(), courseClient.getTaskPreRequisites(homework.getTaskId())))
             throw new IllegalArgumentException("Student did not complete all prerequisites");
 
-        validatePreviousHomeworksChecked(homework.getStudentId(), homework.getTaskId());
+        // checking if previously sent homework is checked
+        if (homeworkRepo.getHwUnchecked(homework.getStudentId(), homework.getTaskId()))
+            throw new IllegalArgumentException("Previous homework is not checked yet");
 
         taskReqsGrpcClient.validateAllTaskFilesProvided(homework);
 
@@ -163,11 +166,6 @@ public class HomeworkServiceImpl implements HomeworkService {
         homeworkFileService.createdHomeworkFiles(newHw);
 
         return true;
-    }
-
-    private void validatePreviousHomeworksChecked(String studentId, String taskId) {
-        if (homeworkRepo.getHwUnchecked(studentId, taskId))
-            throw new IllegalArgumentException("Previous homework is not checked yet");
     }
 
     @Async
@@ -192,7 +190,7 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         return homeworkRepo
                 .getHwTaskId(hwId)
-                .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + hwId));
+                .orElseThrow(() -> new EntityNotFoundException("Homework not found with id: " + hwId));
     }
 
     /**
@@ -209,7 +207,7 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         return homeworkRepo
                 .getHwStudentId(hwId)
-                .orElseThrow(() -> new NoSuchElementException("Homework not found with id: " + hwId));
+                .orElseThrow(() -> new EntityNotFoundException("Homework not found with id: " + hwId));
     }
 
     /**
@@ -223,7 +221,9 @@ public class HomeworkServiceImpl implements HomeworkService {
         log.info("[SERVICE] Checking homework");
         log.debug("[SERVICE] Checking homework with id: {}", hwId);
 
-        var hw = getHomework(hwId);
+        var hw = homeworkRepo.findById(hwId)
+                .orElseThrow(() -> new EntityNotFoundException("Homework not found with id: " + hwId));
+
         hw.setChecked(true);
         homeworkRepo.save(hw);
 
@@ -233,26 +233,15 @@ public class HomeworkServiceImpl implements HomeworkService {
     /**
      * Retrieves the pre-signed URL for a homework file based on the given ID and file name.
      *
-     * @param id the unique identifier of the homework file
+     * @param id       the unique identifier of the homework file
      * @param fileName the name of the file to fetch
      * @return the pre-signed URL for the specified file
      */
-    public String getFileURL(UUID id, String fileName) {
+    public String getHwFileURL(UUID id, String fileName) {
 
         log.info("[SERVICE] Fetching homework file");
         log.debug("[SERVICE] Fetching homework file with id: {}, fileName: {}", id, fileName);
 
-        return fileClient.getFilePreSignedURL(HW_BUCKET, hwFileName(id, fileName));
-    }
-
-    /**
-     * Generates a formatted homework file path using the provided UUID and file name.
-     *
-     * @param id the unique identifier associated with the homework
-     * @param fileName the name of the homework file
-     * @return a formatted string representing the homework file path
-     */
-    private String hwFileName(UUID id, String fileName) {
-        return "homework-" + id + "/" + fileName;
+        return fileClient.getFilePreSignedURL(HW_BUCKET, "homework-" + id + "/" + fileName);
     }
 }

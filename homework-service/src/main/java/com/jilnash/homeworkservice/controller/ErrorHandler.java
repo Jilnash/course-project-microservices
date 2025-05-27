@@ -1,6 +1,7 @@
 package com.jilnash.homeworkservice.controller;
 
 import com.jilnash.homeworkservice.dto.AppError;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -23,6 +24,16 @@ public class ErrorHandler {
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<?> handleNoSuchElementException(NoSuchElementException ex) {
+        return ResponseEntity.badRequest().body(
+                new AppError(
+                        400,
+                        ex.getMessage()
+                )
+        );
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<?> handleEntityNotFoundException(EntityNotFoundException ex) {
         return ResponseEntity.badRequest().body(
                 new AppError(
                         400,
