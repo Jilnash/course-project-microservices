@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Date;
 import java.util.UUID;
 
+/**
+ * Controller for managing homework-related operations in the application.
+ * Handles requests and responses for fetching, creating, and updating homework entities.
+ */
 @Slf4j
 @RestController
 @RequestMapping("/api/v1/homeworks")
@@ -23,6 +27,15 @@ public class HomeworkController {
 
     private final HomeworkMapper homeworkMapper;
 
+    /**
+     * Retrieves a list of homeworks based on the provided filtering criteria.
+     *
+     * @param taskId       the ID of the task to filter homeworks by; can be null to retrieve homeworks without this filter.
+     * @param studentId    the ID of the student to filter homeworks by; can be null to retrieve homeworks without this filter.
+     * @param checked      a flag indicating whether to filter homeworks based on their checked status; can be null to retrieve homeworks without this filter.
+     * @param createdAfter the date to filter homeworks created on or after this date; can be null to retrieve homeworks without this filter.
+     * @return a ResponseEntity containing a response object with the filtered list of homeworks and the response metadata.
+     */
     @GetMapping
     public ResponseEntity<?> getHomeworks(
             @RequestParam(required = false) String taskId,
@@ -44,6 +57,16 @@ public class HomeworkController {
         );
     }
 
+    /**
+     * Creates a new homework submission based on the provided data.
+     * This includes setting the student ID from the request header and saving the homework entity.
+     *
+     * @param homeworkDTO a data transfer object containing the details of the homework to be created;
+     *                    includes task ID, checked status, and associated files.
+     * @param studentId   the unique identifier of the student, provided via the "X-User-Sub" request header.
+     * @return a ResponseEntity containing an AppResponse object with the status,
+     * message, and details of the created homework record.
+     */
     @PutMapping
     public ResponseEntity<?> createHomework(
             @ModelAttribute @Validated HomeworkCreateDTO homeworkDTO,
@@ -63,6 +86,13 @@ public class HomeworkController {
         );
     }
 
+    /**
+     * Retrieves a specific homework entity based on the provided unique identifier.
+     *
+     * @param id the unique identifier of the homework to retrieve
+     * @return a ResponseEntity containing an AppResponse object with the status,
+     *         message, and details of the fetched homework
+     */
     @GetMapping("/{id}")
     public ResponseEntity<?> getHomework(@PathVariable UUID id) {
 
@@ -78,6 +108,14 @@ public class HomeworkController {
         );
     }
 
+    /**
+     * Retrieves the URL of a specific homework file based on the provided homework ID and file name.
+     *
+     * @param id       the unique identifier of the homework
+     * @param fileName the name of the file associated with the homework
+     * @return a ResponseEntity containing an AppResponse object with the status,
+     *         message, and the URL of the requested file
+     */
     @GetMapping("{id}/files/{fileName}")
     public ResponseEntity<?> getFile(@PathVariable UUID id, @PathVariable String fileName) {
 
@@ -93,6 +131,12 @@ public class HomeworkController {
         );
     }
 
+    /**
+     * Retrieves the task ID associated with a given homework ID.
+     *
+     * @param id the unique identifier of the homework for which the task ID is to be fetched
+     * @return the task ID associated with the specified homework ID
+     */
     @GetMapping("{id}/task/id")
     public String getTaskId(@PathVariable UUID id) {
 
@@ -102,6 +146,12 @@ public class HomeworkController {
         return homeworkService.getHwTaskId(id);
     }
 
+    /**
+     * Retrieves the student ID associated with a given homework ID.
+     *
+     * @param hwId the unique identifier of the homework for which the student ID is to be fetched
+     * @return the student ID associated with the specified homework ID
+     */
     @GetMapping("{hwId}/student/id")
     public String getStudentId(@PathVariable UUID hwId) {
 
@@ -111,6 +161,13 @@ public class HomeworkController {
         return homeworkService.getHwStudentId(hwId);
     }
 
+    /**
+     * Marks the homework associated with the given ID as checked.
+     *
+     * @param hwId the unique identifier of the homework to be marked as checked
+     * @return a ResponseEntity containing an AppResponse object with the status,
+     *         message, and details of the updated homework
+     */
     @PutMapping("{hwId}/checked")
     public ResponseEntity<?> setChecked(@PathVariable UUID hwId) {
 
