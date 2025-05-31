@@ -135,7 +135,7 @@ public class FileControllerTest {
                         .param("fileName", fileName)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"status\":200,\"message\":\"File uploaded successfully\",\"data\":[\"test-file.txt\"]}"));
+                .andExpect(content().json("{\"status\":200,\"message\":\"File uploaded successfully\",\"data\":true}"));
     }
 
     @Test
