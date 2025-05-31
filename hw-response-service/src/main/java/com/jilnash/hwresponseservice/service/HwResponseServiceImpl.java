@@ -1,20 +1,16 @@
 package com.jilnash.hwresponseservice.service;
 
-import com.jilnash.courserightsservice.HasRightsRequest;
-import com.jilnash.courserightsservice.TeacherRightsServiceGrpc;
 import com.jilnash.hwresponseservice.clients.CourseClient;
+import com.jilnash.hwresponseservice.clients.CourseRightsGrpcClient;
 import com.jilnash.hwresponseservice.clients.HwClient;
+import com.jilnash.hwresponseservice.clients.ProgressGrpcClient;
 import com.jilnash.hwresponseservice.model.mongo.HwResponse;
 import com.jilnash.hwresponseservice.repo.HwResponseRepo;
-import com.jilnash.progressservice.AddTaskToProgressRequest;
-import com.jilnash.progressservice.ProgressServiceGrpc;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -31,13 +27,12 @@ public class HwResponseServiceImpl implements HwResponseService {
     private final HwResponseRepo hwResponseRepo;
 
     private final CourseClient courseClient;
+
     private final HwClient hwClient;
 
-    @GrpcClient("course-rights-grpc-client")
-    private TeacherRightsServiceGrpc.TeacherRightsServiceBlockingStub courseRightsServiceGrpc;
+    private final CourseRightsGrpcClient courseRightsGrpcClient;
 
-    @GrpcClient("progress-grpc-client")
-    private ProgressServiceGrpc.ProgressServiceBlockingStub progressServiceGrpc;
+    private final ProgressGrpcClient progressGrpcClient;
 
     @Override
     public List<HwResponse> getResponses(String teacherId, Long homeworkId, Date createdAfter, Date createdBefore) {
@@ -88,39 +83,18 @@ public class HwResponseServiceImpl implements HwResponseService {
         if (hwResponseRepo.existsByHomeworkId(response.getHomeworkId()))
             throw new RuntimeException("Homework already checked");
 
-        validateTeacherAllowedToCheckHomework(courseClient.getTaskCourseId(taskId), response.getTeacherId());
+        courseRightsGrpcClient.
+                validateTeacherAllowedToCheckHomework(courseClient.getTaskCourseId(taskId), response.getTeacherId());
 
         //creating response
         hwResponseRepo.save(response);
 
         if (response.getIsCorrect())
-            addTaskToStudentProgress(hwClient.getStudentId(response.getHomeworkId()), taskId);
+            progressGrpcClient.addTaskToStudentProgress(hwClient.getStudentId(response.getHomeworkId()), taskId);
 
         hwClient.setChecked(response.getHomeworkId());
 
         return true;
-    }
-
-    private void validateTeacherAllowedToCheckHomework(String courseId, String teacherId) {
-
-        if (!courseRightsServiceGrpc.hasRights(HasRightsRequest.newBuilder()
-                .setCourseId(courseId)
-                .setTeacherId(teacherId)
-                .addRights("RESPOND_HW")
-                .build()).getHasRights()
-        )
-            throw new IllegalArgumentException("Teacher is not allowed to respond to homework");
-
-    }
-
-    @Async
-    protected void addTaskToStudentProgress(String studentId, String taskId) {
-        progressServiceGrpc.addTaskToProgress(
-                AddTaskToProgressRequest.newBuilder()
-                        .setStudentId(studentId)
-                        .setTaskId(taskId)
-                        .build()
-        );
     }
 
     @Override
@@ -132,17 +106,21 @@ public class HwResponseServiceImpl implements HwResponseService {
 
         //checking if response id is provided
         if (response.getId() == null)
-            throw new NoSuchElementException("Response with id not provided");
+            throw new IllegalArgumentException("Response with id not provided");
 
         //checking if response exists, then getting id
-        String id = getResponse(response.getId()).getId();
+        String id = hwResponseRepo
+                .findById(response.getId())
+                .orElseThrow(() -> new NoSuchElementException("Response with id " + response.getId() + " not found"))
+                .getId();
 
-        //checking if teacher is allowed to check homework
-        validateTeacherAllowedToCheckHomework(
-                //getting courseId by hwId
-                courseClient.getTaskCourseId(hwClient.getTaskId(response.getHomeworkId())),
-                response.getTeacherId()
-        );
+        //checking if teacher has permissions to check homework
+        courseRightsGrpcClient.
+                validateTeacherAllowedToCheckHomework(
+                        //getting courseId by hwId
+                        courseClient.getTaskCourseId(hwClient.getTaskId(response.getHomeworkId())),
+                        response.getTeacherId()
+                );
 
         // deleting previous response
         hwResponseRepo.deleteById(id);
