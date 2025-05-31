@@ -1,5 +1,6 @@
 package com.jilnash.homeworkservice.dto;
 
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ public class HomeworkCreateDTO {
     private String studentId;
 
     @NotNull(message = "Task id is required")
+    @NotEmpty(message = "Task id cannot be empty")
     private String taskId;
 
     private Boolean checked = false;

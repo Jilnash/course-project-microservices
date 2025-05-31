@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.client.RestClientException;
 
 import java.util.NoSuchElementException;
 
@@ -44,6 +45,16 @@ public class ErrorHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(
+                new AppError(
+                        400,
+                        ex.getMessage()
+                )
+        );
+    }
+
+    @ExceptionHandler(RestClientException.class)
+    public ResponseEntity<?> handleRestClientException(RestClientException ex) {
         return ResponseEntity.badRequest().body(
                 new AppError(
                         400,
