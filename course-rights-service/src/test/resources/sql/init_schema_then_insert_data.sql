@@ -1,0 +1,12 @@
+-- drop table if exists rights;
+--
+-- create table rights (
+--     id bigint auto_increment primary key,
+--     `name` varchar(255) not null,
+-- );
+--
+-- insert into rights (`name`) values
+-- ('read'),
+-- ('create'),
+-- ('delete'),
+-- ('update');
