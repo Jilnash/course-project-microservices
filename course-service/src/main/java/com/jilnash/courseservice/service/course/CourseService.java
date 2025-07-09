@@ -1,7 +1,6 @@
 package com.jilnash.courseservice.service.course;
 
 import com.jilnash.courseservice.dto.course.CourseCreateDTO;
-import com.jilnash.courseservice.dto.course.CourseUpdateDTO;
 import com.jilnash.courseservice.model.Course;
 
 import java.util.List;
@@ -12,9 +11,23 @@ public interface CourseService {
 
     Course getCourse(String id);
 
-    Course create(CourseCreateDTO course);
+    String getCourseAuthor(String courseId);
 
-    Course update(CourseUpdateDTO course);
+    String getCourseName(String courseId);
 
-    Course delete(String id);
+    String getCourseDescription(String courseId);
+
+    String getCourseDuration(String courseId);
+
+    Course createCourse(CourseCreateDTO course);
+
+    Boolean updateCourseName(String courseId, String name);
+
+    Boolean updateCourseDescription(String courseId, String description);
+
+    Boolean updateCourseDuration(String courseId, String duration);
+
+    Boolean softDelete(String id);
+
+    Boolean hardDelete(String id);
 }

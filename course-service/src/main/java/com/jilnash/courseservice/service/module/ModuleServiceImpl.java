@@ -1,17 +1,16 @@
 package com.jilnash.courseservice.service.module;
 
 import com.jilnash.courseservice.dto.module.ModuleCreateDTO;
-import com.jilnash.courseservice.dto.module.ModuleUpdateDTO;
 import com.jilnash.courseservice.mapper.ModuleMapper;
 import com.jilnash.courseservice.model.Module;
 import com.jilnash.courseservice.repo.ModuleRepo;
 import com.jilnash.courseservice.service.course.CourseServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 /**
@@ -37,9 +36,15 @@ public class ModuleServiceImpl implements ModuleService {
      * @return a list of modules that belong to the specified course
      */
     @Override
-    public List<Module> getModulesInCourse(String courseId) {
+    public List<Module> getModules(String courseId) {
 
         return moduleRepo.findAllByCourseId(courseId);
+    }
+
+    @Override
+    public Module getModule(String id) {
+        return moduleRepo.findModuleById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("Module not found with id: " + id));
     }
 
     /**
@@ -51,8 +56,7 @@ public class ModuleServiceImpl implements ModuleService {
      * @throws UsernameNotFoundException if no module is found with the specified identifiers
      */
     @Override
-    @Cacheable(value = "modules", key = "#id")
-    public Module getModuleByCourse(String courseId, String id) {
+    public Module getModule(String courseId, String id) {
         return moduleRepo
                 .findByIdAndCourseId(id, courseId)
                 .orElseThrow(() -> new UsernameNotFoundException(
@@ -70,7 +74,7 @@ public class ModuleServiceImpl implements ModuleService {
      * @return the newly created Module entity saved in the repository
      */
     @Override
-    public Module create(ModuleCreateDTO moduleDTO) {
+    public Module createModule(ModuleCreateDTO moduleDTO) {
 
         // check if course exists by calling `getCourse` then set it to moduleDTO
         moduleDTO.setCourse(courseService.getCourse(moduleDTO.getCourseId()));
@@ -78,27 +82,26 @@ public class ModuleServiceImpl implements ModuleService {
         return moduleRepo.save(moduleMapper.toNode(moduleDTO));
     }
 
-    /**
-     * Updates an existing module with the provided details from the ModuleUpdateDTO.
-     * The method validates if the module exists for the given id and courseId before updating.
-     *
-     * @param moduleDTO the data transfer object containing updated details of the module,
-     *                  including its id, name, description, and the course it belongs to
-     * @return the updated Module entity with the changes applied
-     * @throws UsernameNotFoundException if the module does not exist with the specified id and courseId
-     */
     @Override
-    public Module update(ModuleUpdateDTO moduleDTO) {
+    public Boolean updateModuleName(String courseId, String id, String name) {
 
         // check if module exists by id and courseId
-        if (!moduleRepo.existsByIdAndCourseId(moduleDTO.getId(), moduleDTO.getCourseId()))
-            throw new UsernameNotFoundException("Module not found with id: " + moduleDTO.getId());
+        if (!moduleRepo.existsByIdAndCourseId(id, courseId))
+            throw new NoSuchElementException("Module not found with id: " + id + " in course: " + courseId);
 
-        return moduleRepo.updateModuleData(
-                moduleDTO.getId(),
-                moduleDTO.getName(),
-                moduleDTO.getDescription()
-        );
+        moduleRepo.updateModuleName(id, name);
+        return true;
+    }
+
+    @Override
+    public Boolean updateModuleDescription(String courseId, String id, String description) {
+
+        // check if module exists by id and courseId
+        if (!moduleRepo.existsByIdAndCourseId(id, courseId))
+            throw new NoSuchElementException("Module not found with id: " + id + " in course: " + courseId);
+
+        moduleRepo.updateModuleDescription(id, description);
+        return true;
     }
 
     /**
@@ -108,21 +111,19 @@ public class ModuleServiceImpl implements ModuleService {
      * @return the deleted Module entity, or null if the module was not found
      */
     @Override
-    public Module delete(String id) {
-        return null;
+    public Boolean softDeleteModule(String id) {
+        return moduleRepo.findModuleById(id)
+                .map(module -> {
+                    module.setDeletedAt(new java.util.Date());
+                    moduleRepo.save(module);
+                    return true;
+                })
+                .orElseThrow(() -> new NoSuchElementException("Module not found with id: " + id));
     }
 
-    /**
-     * Determines whether the module with the given identifier has at least one associated task.
-     *
-     * @param id the unique identifier of the module
-     * @return true if the module contains at least one task, false otherwise
-     * @throws UsernameNotFoundException if the module with the specified identifier is not found
-     */
-    public Boolean hasAtLeastOneTask(String id) {
-        return moduleRepo
-                .hasAtLeastOneTask(id)
-                .orElseThrow(() -> new RuntimeException("Module does not exist"));
+    @Override
+    public Boolean hardDeleteModule(String id) {
+        return null;
     }
 
     /**
@@ -134,7 +135,8 @@ public class ModuleServiceImpl implements ModuleService {
      * @param courseId the unique identifier of the course in which the module should exist
      * @throws RuntimeException if the module is not found within the specified course
      */
-    public void validateModuleExistsInCourse(String moduleId, String courseId) {
+    @Override
+    public void validateModuleExists(String moduleId, String courseId) {
         if (!moduleRepo.existsByIdAndCourseId(moduleId, courseId))
             throw new RuntimeException("Module not found with id: " + moduleId + " in course: " + courseId);
     }
@@ -144,11 +146,26 @@ public class ModuleServiceImpl implements ModuleService {
      * If the module does not include all tasks listed in the given set, an exception is thrown.
      *
      * @param moduleId the unique identifier of the module to validate
-     * @param taskIds a set of task identifiers to check for inclusion in the module
+     * @param taskIds  a set of task identifiers to check for inclusion in the module
      * @throws RuntimeException if the module does not contain all specified tasks
      */
+    @Override
     public void validateModuleContainsAllTasks(String moduleId, Set<String> taskIds) {
         if (!moduleRepo.containsTasks(moduleId, taskIds))
             throw new RuntimeException("Module does not contain all tasks in: " + taskIds);
+    }
+
+    /**
+     * Determines whether the module with the given identifier has at least one associated task.
+     *
+     * @param id the unique identifier of the module
+     * @return true if the module contains at least one task, false otherwise
+     * @throws UsernameNotFoundException if the module with the specified identifier is not found
+     */
+    @Override
+    public Boolean hasAtLeastOneTask(String id) {
+        return moduleRepo
+                .hasAtLeastOneTask(id)
+                .orElseThrow(() -> new RuntimeException("Module does not exist"));
     }
 }

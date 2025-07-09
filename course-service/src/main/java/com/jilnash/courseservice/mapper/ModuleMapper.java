@@ -5,6 +5,8 @@ import com.jilnash.courseservice.dto.module.ModuleResponseDTO;
 import com.jilnash.courseservice.model.Module;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 /**
  * Mapper class to map between Module entities and their corresponding DTOs.
  * This class is responsible for converting data between Module, ModuleCreateDTO, and ModuleResponseDTO objects.
@@ -23,6 +25,8 @@ public class ModuleMapper {
                 .name(moduleCreateDTO.getName())
                 .description(moduleCreateDTO.getDescription())
                 .course(moduleCreateDTO.getCourse())
+                .createdAt(new Date())
+                .createdBy(moduleCreateDTO.getAuthorId())
                 .build();
     }
 

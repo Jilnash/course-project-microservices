@@ -10,8 +10,8 @@ public class TaskLinkDTOConverter implements Converter<TaskLinkDTO, Value> {
     @Override
     public Value convert(TaskLinkDTO source) {
         return Values.parameters(
-                "fromTaskId", source.getFrom(),
-                "toTaskId", source.getTo()
+                "fromTaskId", source.from(),
+                "toTaskId", source.to()
         );
     }
 }

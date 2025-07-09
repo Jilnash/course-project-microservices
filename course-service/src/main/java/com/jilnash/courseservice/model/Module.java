@@ -37,7 +37,7 @@ public class Module implements Serializable {
 
     @CreatedBy
     @Property("createdBy")
-    private Long createdBy;
+    private String createdBy;
 
     @CreatedDate
     @Property("createdAt")
@@ -46,6 +46,8 @@ public class Module implements Serializable {
     @LastModifiedDate
     @Property("updatedAt")
     private Date updatedAt;
+
+    private Date deletedAt;
 
     //relationships
 

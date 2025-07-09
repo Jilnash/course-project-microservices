@@ -18,7 +18,7 @@ public class TaskResponseDTO implements Serializable {
 
     private String description;
 
-    private String videoLink;
+    private String videoFileName;
 
     private Boolean isPublic;
 

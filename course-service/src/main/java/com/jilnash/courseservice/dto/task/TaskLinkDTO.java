@@ -1,9 +1,6 @@
 package com.jilnash.courseservice.dto.task;
 
-import lombok.Data;
-
-@Data
-public class TaskLinkDTO {
-    private String from;
-    private String to;
+public record TaskLinkDTO(String from, String to) {
+//    private String from;
+//    private String to;
 }

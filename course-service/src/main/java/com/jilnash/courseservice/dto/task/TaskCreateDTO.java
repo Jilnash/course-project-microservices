@@ -1,15 +1,11 @@
 package com.jilnash.courseservice.dto.task;
 
-import com.jilnash.courseservice.model.Module;
-import com.jilnash.taskfilerequirementsservice.dto.TaskFileReqDTO;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -17,6 +13,7 @@ import java.util.Set;
 @AllArgsConstructor
 public class TaskCreateDTO {
 
+    @NotNull(message = "Task ID is required")
     private String taskId;
 
     private String courseId;
@@ -33,22 +30,19 @@ public class TaskCreateDTO {
     @NotBlank(message = "Description is required")
     private String description;
 
-    private String videoLink;
+    private String videoFileName;
 
-    @NotNull(message = "Requirements are required")
-    private List<TaskFileReqDTO> fileRequirements;
-
-    @NotNull(message = "Video file is required")
-    private MultipartFile videoFile;
+//    @NotNull(message = "Requirements are required")
+//    private List<TaskFileReqDTO> fileRequirements;
 
     @NotNull(message = "Is public is required")
     private Boolean isPublic;
 
-    private Module module;
+//    private Module module;
 
     private Set<String> prerequisiteTasksIds;
 
     private Set<String> successorTasksIds;
 
-    private Set<TaskLinkDTO> removeRelationshipIds;
+//    private Set<TaskLinkDTO> removeRelationshipIds;
 }

@@ -2,15 +2,13 @@ package com.jilnash.courseservice.controller.v1;
 
 import com.jilnash.courseservice.dto.AppResponse;
 import com.jilnash.courseservice.dto.task.TaskCreateDTO;
-import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
-import com.jilnash.courseservice.service.task.AuthorizedTaskService;
+import com.jilnash.courseservice.mapper.TaskMapper;
+import com.jilnash.courseservice.service.task.TaskServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
@@ -20,13 +18,13 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class TaskController {
 
-    private final AuthorizedTaskService taskService;
+    private final TaskServiceImpl taskService;
+    private final TaskMapper taskMapper;
 
     @GetMapping
     public ResponseEntity<?> getTasks(@PathVariable String courseId,
                                       @PathVariable String moduleId,
-                                      @RequestParam(required = false, defaultValue = "") String name,
-                                      @RequestHeader("X-User-Sub") String userId) {
+                                      @RequestParam(required = false, defaultValue = "") String name) {
 
         log.info("[CONTROLLER] Fetching tasks in course {} module {} with name {}", courseId, moduleId, name);
 
@@ -34,15 +32,14 @@ public class TaskController {
                 new AppResponse(
                         200,
                         "Tasks fetched successfully",
-                        taskService.getTasksForUser(userId, courseId, moduleId, name)
+                        taskService.getTasks(courseId, moduleId, name)
                 )
         );
     }
 
     @GetMapping("/graph")
     public ResponseEntity<?> getTasks(@PathVariable String courseId,
-                                      @PathVariable String moduleId,
-                                      @RequestHeader("X-User-Sub") String userId) {
+                                      @PathVariable String moduleId) {
 
         log.info("[CONTROLLER] Fetching task graph in course {} module {}", courseId, moduleId);
 
@@ -50,16 +47,16 @@ public class TaskController {
                 new AppResponse(
                         200,
                         "Tasks fetched successfully",
-                        taskService.getTaskGraphForUser(userId, courseId, moduleId)
+                        taskService.getTasksAsGraph(courseId, moduleId)
                 )
         );
     }
 
-    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping
     public ResponseEntity<?> createTask(@PathVariable String courseId,
                                         @PathVariable String moduleId,
-                                        @ModelAttribute @Validated TaskCreateDTO taskDto,
-                                        @RequestHeader("X-User-Sub") String teacherId) {
+                                        @RequestHeader("X-User-Sub") String teacherId,
+                                        @RequestBody @Validated TaskCreateDTO taskDto) {
 
         log.info("[CONTROLLER] Creating task in course {} module {}", courseId, moduleId);
 
@@ -71,7 +68,7 @@ public class TaskController {
                 new AppResponse(
                         200,
                         "Task created successfully",
-                        taskService.createTaskByUser(teacherId, taskDto)
+                        taskMapper.toTaskCreateResponse(taskService.createTask(taskDto))
                 )
         );
     }
@@ -79,8 +76,7 @@ public class TaskController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getTask(@PathVariable String courseId,
                                      @PathVariable String moduleId,
-                                     @PathVariable String id,
-                                     @RequestHeader("X-User-Sub") String userId) {
+                                     @PathVariable String id) {
 
         log.info("[CONTROLLER] Fetching task in course {} module {} with id {}", courseId, moduleId, id);
 
@@ -88,64 +84,7 @@ public class TaskController {
                 new AppResponse(
                         200,
                         "Task fetched successfully",
-                        taskService.getTaskForUser(userId, courseId, moduleId, id)
-                )
-        );
-    }
-
-    @PostMapping("/{id}")
-    public ResponseEntity<?> updateTask(@PathVariable String courseId,
-                                        @PathVariable String moduleId,
-                                        @PathVariable String id,
-                                        @RequestHeader("X-User-Sub") String teacherId,
-                                        @RequestBody TaskUpdateDTO taskDto) {
-
-        log.info("[CONTROLLER] Updating task in course {} module {} with id {}", courseId, moduleId, id);
-
-        taskDto.setId(id);
-        taskDto.setCourseId(courseId);
-        taskDto.setModuleId(moduleId);
-
-        return ResponseEntity.ok(
-                new AppResponse(
-                        200,
-                        "Task updated successfully",
-                        taskService.updateTaskByUser(teacherId, taskDto)
-                )
-        );
-    }
-
-    @GetMapping("/{id}/prerequisites")
-    public ResponseEntity<?> getTaskPrerequisites(@PathVariable String courseId,
-                                                  @PathVariable String moduleId,
-                                                  @PathVariable String id,
-                                                  @RequestHeader("X-User-Sub") String userId) {
-
-        log.info("[CONTROLLER] Fetching task prereqs in course {} module {} with id {}", courseId, moduleId, id);
-
-        return ResponseEntity.ok(
-                new AppResponse(
-                        200,
-                        "Task prereqs fetched successfully",
-                        taskService.getPrereqsByUser(userId, courseId, moduleId, id)
-                )
-        );
-    }
-
-    @PostMapping("/{id}/prerequisites")
-    public ResponseEntity<?> updateTaskPrerequisite(@PathVariable String courseId,
-                                                    @PathVariable String moduleId,
-                                                    @PathVariable String id,
-                                                    @RequestBody Set<String> prerequisiteIds,
-                                                    @RequestHeader("X-User-Sub") String teacherId) {
-
-        log.info("[CONTROLLER] Updating task prereqs in course {} module {} with id {}", courseId, moduleId, id);
-
-        return ResponseEntity.ok(
-                new AppResponse(
-                        200,
-                        "Task prereqs updated successfully",
-                        taskService.updatePrereqsByUser(teacherId, courseId, moduleId, id, prerequisiteIds)
+                        taskMapper.toTaskResponse(taskService.getTask(courseId, moduleId, id))
                 )
         );
     }
@@ -154,8 +93,7 @@ public class TaskController {
     public ResponseEntity<?> updateTaskTitle(@PathVariable String courseId,
                                              @PathVariable String moduleId,
                                              @PathVariable String id,
-                                             @RequestBody String title,
-                                             @RequestHeader("X-User-Sub") String teacherId) {
+                                             @RequestBody String title) {
 
         log.info("[CONTROLLER] Updating task title in course {} module {} with id {}", courseId, moduleId, id);
 
@@ -163,7 +101,7 @@ public class TaskController {
                 new AppResponse(
                         200,
                         "Task title updated successfully",
-                        taskService.updateTaskTitleByUser(teacherId, courseId, moduleId, id, title)
+                        taskService.updateTaskTitle(courseId, moduleId, id, title)
                 )
         );
     }
@@ -172,8 +110,7 @@ public class TaskController {
     public ResponseEntity<?> updateTaskDescription(@PathVariable String courseId,
                                                    @PathVariable String moduleId,
                                                    @PathVariable String id,
-                                                   @RequestBody String description,
-                                                   @RequestHeader("X-User-Sub") String teacherId) {
+                                                   @RequestBody String description) {
 
         log.info("[CONTROLLER] Updating task description in course {} module {} with id {}", courseId, moduleId, id);
 
@@ -181,7 +118,7 @@ public class TaskController {
                 new AppResponse(
                         200,
                         "Task description updated successfully",
-                        taskService.updateTaskDescription(teacherId, courseId, moduleId, id, description)
+                        taskService.updateTaskDescription(courseId, moduleId, id, description)
                 )
         );
     }
@@ -190,8 +127,7 @@ public class TaskController {
     public ResponseEntity<?> updateTaskVideo(@PathVariable String courseId,
                                              @PathVariable String moduleId,
                                              @PathVariable String id,
-                                             @RequestPart MultipartFile video,
-                                             @RequestHeader("X-User-Sub") String teacherId) {
+                                             @RequestBody String videoFileName) {
 
         log.info("[CONTROLLER] Updating task video in course {} module {} with id {}", courseId, moduleId, id);
 
@@ -199,7 +135,7 @@ public class TaskController {
                 new AppResponse(
                         200,
                         "Task video updated successfully",
-                        taskService.updateTaskVideoByUser(teacherId, courseId, moduleId, id, video)
+                        taskService.updateTaskVideoFileName(courseId, moduleId, id, videoFileName)
                 )
         );
     }
@@ -208,16 +144,98 @@ public class TaskController {
     public ResponseEntity<?> updateTaskIsPublic(@PathVariable String courseId,
                                                 @PathVariable String moduleId,
                                                 @PathVariable String id,
-                                                @RequestBody Boolean isPublic,
-                                                @RequestHeader("X-User-Sub") String teacherId) {
+                                                @RequestBody Boolean isPublic) {
 
         log.info("[CONTROLLER] Updating task isPublic in course {} module {} with id {}", courseId, moduleId, id);
 
         return ResponseEntity.ok(
                 new AppResponse(
                         200,
-                        "Task video updated successfully",
-                        taskService.updateTaskIsPublicByUser(teacherId, courseId, moduleId, id, isPublic)
+                        "Task isPublic updated successfully",
+                        taskService.updateTaskIsPublic(courseId, moduleId, id, isPublic)
+                )
+        );
+    }
+
+    @PatchMapping("/{id}/prerequisites")
+    public ResponseEntity<?> updateTaskPrerequisite(@PathVariable String courseId,
+                                                    @PathVariable String moduleId,
+                                                    @PathVariable String id,
+                                                    @RequestBody Set<String> prerequisiteIds) {
+
+        log.info("[CONTROLLER] Updating task prereqs in course {} module {} with id {}", courseId, moduleId, id);
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Task prereqs updated successfully",
+                        taskService.updateTaskPrerequisites(courseId, moduleId, id, prerequisiteIds)
+                )
+        );
+    }
+
+    @PatchMapping("/{id}/hwPostingInterval")
+    public ResponseEntity<?> updateTaskHwPostingInterval(@PathVariable String courseId,
+                                                         @PathVariable String moduleId,
+                                                         @PathVariable String id,
+                                                         @RequestBody Integer hwPostingInterval) {
+
+        log.info("[CONTROLLER] Updating task hwPostingInterval in course {} module {} with id {}", courseId, moduleId, id);
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Task hwPostingInterval updated successfully",
+                        taskService.updateTaskHwPostingInterval(courseId, moduleId, id, hwPostingInterval)
+                )
+        );
+    }
+
+    @PatchMapping("/{id}/successors")
+    public ResponseEntity<?> updateTaskSuccessor(@PathVariable String courseId,
+                                                 @PathVariable String moduleId,
+                                                 @PathVariable String id,
+                                                 @RequestBody Set<String> successorIds) {
+
+        log.info("[CONTROLLER] Updating task successors in course {} module {} with id {}", courseId, moduleId, id);
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Task successors updated successfully",
+                        taskService.updateTaskSuccessors(courseId, moduleId, id, successorIds)
+                )
+        );
+    }
+
+    @DeleteMapping("/{id}/soft")
+    public ResponseEntity<?> softDeleteTask(@PathVariable String courseId,
+                                            @PathVariable String moduleId,
+                                            @PathVariable String id) {
+
+        log.info("[CONTROLLER] Soft deleting task in course {} module {} with id {}", courseId, moduleId, id);
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Task soft deleted successfully",
+                        taskService.softDeleteTask(courseId, moduleId, id)
+                )
+        );
+    }
+
+    @DeleteMapping("/{id}/hard")
+    public ResponseEntity<?> hardDeleteTask(@PathVariable String courseId,
+                                            @PathVariable String moduleId,
+                                            @PathVariable String id) {
+
+        log.info("[CONTROLLER] Hard deleting task in course {} module {} with id {}", courseId, moduleId, id);
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Task hard deleted successfully",
+                        taskService.hardDeleteTask(courseId, moduleId, id)
                 )
         );
     }

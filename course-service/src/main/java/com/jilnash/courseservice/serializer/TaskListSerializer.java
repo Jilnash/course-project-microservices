@@ -6,12 +6,12 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.jilnash.courseservice.model.Task;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.Set;
 
-public class TaskListSerializer extends JsonSerializer<List<Task>> {
+public class TaskListSerializer extends JsonSerializer<Set<Task>> {
 
     @Override
-    public void serialize(List<Task> tasks, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(Set<Task> tasks, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
 
         if (tasks == null) {
             jsonGenerator.writeNull();

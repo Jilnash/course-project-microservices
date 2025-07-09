@@ -1,20 +1,32 @@
 package com.jilnash.courseservice.service.module;
 
 import com.jilnash.courseservice.dto.module.ModuleCreateDTO;
-import com.jilnash.courseservice.dto.module.ModuleUpdateDTO;
 import com.jilnash.courseservice.model.Module;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ModuleService {
 
-    List<Module> getModulesInCourse(String courseId);
+    List<Module> getModules(String courseId);
 
-    Module getModuleByCourse(String courseId, String id);
+    Module getModule(String id);
 
-    Module create(ModuleCreateDTO module);
+    Module getModule(String courseId, String id);
 
-    Module update(ModuleUpdateDTO module);
+    Module createModule(ModuleCreateDTO module);
 
-    Module delete(String id);
+    Boolean updateModuleName(String courseId, String id, String name);
+
+    Boolean updateModuleDescription(String courseId, String id, String description);
+
+    Boolean softDeleteModule(String id);
+
+    Boolean hardDeleteModule(String id);
+
+    void validateModuleExists(String courseId, String id);
+
+    void validateModuleContainsAllTasks(String id, Set<String> taskIds);
+
+    Boolean hasAtLeastOneTask(String id);
 }

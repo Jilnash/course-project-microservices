@@ -1,23 +1,6 @@
 server:
     port: 8086
 
-grpc:
-    server:
-        port: 6568
-    client:
-        progress-client:
-            address: static://localhost:6571
-            negotiation-type: plaintext
-        task-requirements-client:
-            address: static://localhost:6565
-            negotiation-type: plaintext
-        course-access-client:
-            address: static://localhost:6569
-            negotiation-type: plaintext
-        course-rights-client:
-            address: static://localhost:6566
-            negotiation-type: plaintext
-
 spring:
     application:
         name: course-service

@@ -13,7 +13,7 @@ import java.util.Set;
 @Repository
 public interface ModuleRepo extends Neo4jRepository<Module, String> {
 
-    List<Module> findAllByNameContainingAndCourseId(String name, String courseId);
+    Optional<Module> findModuleById(String id);
 
     List<Module> findAllByCourseId(String courseId);
 
@@ -21,12 +21,11 @@ public interface ModuleRepo extends Neo4jRepository<Module, String> {
 
     Boolean existsByIdAndCourseId(String id, String courseId);
 
-    @Query("MATCH (m:Module {id: $id}) " +
-            "SET m.name = $name, m.description = $description " +
-            "RETURN m")
-    Module updateModuleData(@Param("id") String id,
-                            @Param("name") String name,
-                            @Param("description") String description);
+    @Query("MATCH (m:Module {id: $id}) SET m.name = $name")
+    void updateModuleName(@Param("id") String id, @Param("name") String name);
+
+    @Query("MATCH (m:Module {id: $id}) SET m.description = $description RETURN m")
+    void updateModuleDescription(@Param("id") String id, @Param("description") String description);
 
     @Query("MATCH (m:Module)-[:CONTAINS]->(t:Task) WHERE m.id = $id RETURN count(t) > 0")
     Optional<Boolean> hasAtLeastOneTask(@Param("id") String id);

@@ -1,12 +1,9 @@
 package com.jilnash.courseservice.service.course;
 
-import com.jilnash.courseservice.client.TeacherRightsGrpcClient;
 import com.jilnash.courseservice.dto.course.CourseCreateDTO;
-import com.jilnash.courseservice.dto.course.CourseUpdateDTO;
 import com.jilnash.courseservice.mapper.CourseMapper;
 import com.jilnash.courseservice.model.Course;
 import com.jilnash.courseservice.repo.CourseRepo;
-import com.jilnash.courseservice.service.courseauthr.CourseAuthorizationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -32,10 +29,6 @@ public class CourseServiceImpl implements CourseService {
 
     private final CourseMapper courseMapper;
 
-    private final CourseAuthorizationService courseAuthrService;
-
-    private final TeacherRightsGrpcClient teacherRightsGrpcClient;
-
     /**
      * Retrieves a list of courses based on the specified name. If the name is not provided or empty,
      * all courses are retrieved. The method utilizes the repository to perform a search for courses
@@ -50,9 +43,9 @@ public class CourseServiceImpl implements CourseService {
         log.info("[SERVICE] Fetching courses with name: {}", name);
 
         if (!name.isEmpty())
-            return courseRepo.findAllByNameContaining(name);
+            return courseRepo.findAllByNameContainingAndDeletedAtIsNull(name);
 
-        return courseRepo.findAll();
+        return courseRepo.findAllByDeletedAtIsNull();
     }
 
     /**
@@ -72,6 +65,26 @@ public class CourseServiceImpl implements CourseService {
                 .orElseThrow(() -> new NoSuchElementException("Course not found with id: " + id));
     }
 
+    @Override
+    public String getCourseAuthor(String courseId) {
+        return "";
+    }
+
+    @Override
+    public String getCourseName(String courseId) {
+        return getCourse(courseId).getName();
+    }
+
+    @Override
+    public String getCourseDescription(String courseId) {
+        return getCourse(courseId).getDescription();
+    }
+
+    @Override
+    public String getCourseDuration(String courseId) {
+        return getCourse(courseId).getDuration();
+    }
+
     /**
      * Creates a new course with the provided information.
      * <p>
@@ -87,48 +100,69 @@ public class CourseServiceImpl implements CourseService {
      * @throws RuntimeException if the course ownership cannot be assigned.
      */
     @Override
-    public Course create(CourseCreateDTO courseDTO) {
+    public Course createCourse(CourseCreateDTO courseDTO) {
 
         log.info("[SERVICE] Creating course with name: {}", courseDTO.getName());
 
         courseDTO.setId(UUID.randomUUID().toString());
 
-        if (!teacherRightsGrpcClient.createCourseOwner(courseDTO.getAuthorId(), courseDTO.getId()))
-            throw new RuntimeException("Failed to set course owner");
-
         return courseRepo.save(courseMapper.toNode(courseDTO));
     }
 
-    /**
-     * Updates an existing course with the details provided in the CourseUpdateDTO.
-     * <p>
-     * The method validates the teacher's rights to update the course and checks if
-     * the course exists in the repository. If the course is found, it saves the updated
-     * course details and returns the updated entity.
-     *
-     * @param courseDTO the Data Transfer Object (DTO) containing the updated information
-     *                  for the course, including id, teacherId, name, description,
-     *                  duration, and homework posting interval.
-     * @return the updated Course entity after being saved in the repository.
-     * @throws NoSuchElementException if the course with the specified id does not exist.
-     */
     @Override
-    public Course update(CourseUpdateDTO courseDTO) {
+    public Boolean updateCourseName(String courseId, String name) {
 
-        log.info("[SERVICE] Updating course with id: {}", courseDTO.getId());
+        log.info("[SERVICE] Updating course name with id: {}", courseId);
 
-        courseAuthrService.validateTeacherCourseRights(courseDTO.getId(), courseDTO.getTeacherId(), List.of("UPDATE"));
-
-        //check if course exists
-        if (!courseRepo.existsById(courseDTO.getId()))
-            throw new NoSuchElementException("Course not found with id: " + courseDTO.getId());
+        courseRepo.updateCourseName(courseId, name);
 
         //save course then returning
-        return courseRepo.save(courseMapper.toNode(courseDTO));
+        return true;
     }
 
     @Override
-    public Course delete(String id) {
-        return null;
+    public Boolean updateCourseDescription(String courseId, String description) {
+
+        log.info("[SERVICE] Updating course name with id: {}", courseId);
+
+        courseRepo.updateCourseDescription(courseId, description);
+
+        //save course then returning
+        return true;
+    }
+
+    @Override
+    public Boolean updateCourseDuration(String courseId, String duration) {
+
+        log.info("[SERVICE] Updating course name with id: {}", courseId);
+
+        courseRepo.updateCourseDuration(courseId, duration);
+
+        //save course then returning
+        return true;
+    }
+
+    @Override
+    public Boolean softDelete(String id) {
+        return courseRepo
+                .findById(id)
+                .map(course -> {
+                    log.info("[SERVICE] Soft deleting course with id: {}", id);
+                    course.setDeletedAt(new java.util.Date());
+                    courseRepo.save(course);
+                    return true;
+                })
+                .orElseThrow(() -> new NoSuchElementException("Course not found with id: " + id));
+    }
+
+    @Override
+
+    public Boolean hardDelete(String id) {
+
+        log.info("[SERVICE] Hard deleting course with id: {}", id);
+
+//        courseRepo.deleteById(id);
+
+        return true;
     }
 }

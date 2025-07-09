@@ -10,7 +10,7 @@ import org.springframework.data.neo4j.core.support.UUIDStringGenerator;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 @Builder
 @Getter
@@ -33,16 +33,19 @@ public class Task implements Serializable {
     @Property("description")
     private String description;
 
-    @Property("videoLink")
-    private String videoLink;
+    @Property("videoFileName")
+    private String videoFileName;
 
     @Property("isPublic")
     private Boolean isPublic;
 
+    @Property("hwPostingInterval")
+    private Integer hwPostingInterval;
+
     //audit fields
 
     @Property("createdBy")
-    private Long createdBy;
+    private String createdBy;
 
     @CreatedDate
     private Date createdAt;
@@ -60,9 +63,9 @@ public class Task implements Serializable {
 
     @JsonSerialize(using = TaskListSerializer.class)
     @Relationship(type = "IS_PREREQUISITE", direction = Relationship.Direction.OUTGOING)
-    private List<Task> successors;
+    private Set<Task> successors;
 
     @JsonSerialize(using = TaskListSerializer.class)
     @Relationship(type = "IS_PREREQUISITE", direction = Relationship.Direction.INCOMING)
-    private List<Task> prerequisites;
+    private Set<Task> prerequisites;
 }

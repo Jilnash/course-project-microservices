@@ -37,15 +37,11 @@ public class Course implements Serializable {
     @Property("duration")
     private String duration;
 
-    @Property("hwPostingDayInterval")
-    private Integer hwPostingDayInterval;
-
-
     //audit fields
 
     @CreatedBy
     @Property("createdBy")
-    private Long createdBy;
+    private String createdBy;
 
     @CreatedDate
     @Property("createdAt")
@@ -54,4 +50,6 @@ public class Course implements Serializable {
     @LastModifiedDate
     @Property("updatedAt")
     private Date updatedAt;
+
+    private Date deletedAt;
 }

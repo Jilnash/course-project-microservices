@@ -23,10 +23,10 @@ public class CourseMapper {
     public Course toNode(CourseCreateDTO courseCreateDTO) {
         return Course.builder()
                 .id(courseCreateDTO.getId())
+                .createdBy(courseCreateDTO.getAuthorId())
                 .name(courseCreateDTO.getName())
                 .description(courseCreateDTO.getDescription())
                 .duration(courseCreateDTO.getDuration())
-                .hwPostingDayInterval(courseCreateDTO.getHwPostingDayInterval())
                 .createdAt(new Date())
                 .build();
     }
@@ -43,7 +43,6 @@ public class CourseMapper {
                 .name(courseUpdateDTO.getName())
                 .description(courseUpdateDTO.getDescription())
                 .duration(courseUpdateDTO.getDuration())
-                .hwPostingDayInterval(courseUpdateDTO.getHwPostingDayInterval())
                 .updatedAt(new Date())
                 .build();
     }

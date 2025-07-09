@@ -1,18 +1,57 @@
 package com.jilnash.courseservice.service.task;
 
 import com.jilnash.courseservice.dto.task.TaskCreateDTO;
-import com.jilnash.courseservice.dto.task.TaskUpdateDTO;
+import com.jilnash.courseservice.dto.task.TaskGraphDTO;
 import com.jilnash.courseservice.model.Task;
 
 import java.util.List;
+import java.util.Set;
 
 public interface TaskService {
 
     List<Task> getTasks(String courseId, String moduleId, String name);
 
+    TaskGraphDTO getTasksAsGraph(String courseId, String moduleId);
+
+    Task getTask(String id);
+
     Task getTask(String courseId, String moduleId, String id);
 
-    Task create(TaskCreateDTO task);
+    String getTaskCourseId(String id);
 
-    Boolean update(TaskUpdateDTO task);
+    String getTaskModuleId(String id);
+
+    String getTaskTitle(String id);
+
+    String getTaskDescription(String id);
+
+    String getTaskVideoFileName(String id);
+
+    Boolean getTaskIsPublic(String id);
+
+    Integer getTaskHwPostingInterval(String id);
+
+    List<String> getTaskPrerequisites(String id);
+
+    List<String> getTaskSuccessors(String id);
+
+    Task createTask(TaskCreateDTO taskCreateDTO);
+
+    Boolean updateTaskTitle(String courseId, String moduleId, String taskId, String title);
+
+    Boolean updateTaskDescription(String courseId, String moduleId, String taskId, String description);
+
+    Boolean updateTaskVideoFileName(String courseId, String moduleId, String id, String videoFileName);
+
+    Boolean updateTaskIsPublic(String courseId, String moduleId, String id, Boolean isPublic);
+
+    Boolean updateTaskHwPostingInterval(String courseId, String moduleId, String id, Integer hwPostingInterval);
+
+    Boolean updateTaskPrerequisites(String courseId, String moduleId, String taskId, Set<String> prerequisiteTasksIds);
+
+    Boolean updateTaskSuccessors(String courseId, String moduleId, String taskId, Set<String> successorTasksIds);
+
+    Boolean softDeleteTask(String courseId, String moduleId, String taskId);
+
+    Boolean hardDeleteTask(String courseId, String moduleId, String taskId);
 }
