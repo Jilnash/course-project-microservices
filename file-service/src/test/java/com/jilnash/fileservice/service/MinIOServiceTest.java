@@ -112,7 +112,7 @@ public class MinIOServiceTest {
     }
 
     @Test
-    void putFiles_ShouldUploadFiles_WhenAllParametersAreValid() throws Exception {
+    void uploadFiles_ShouldUploadFiles_WhenAllParametersAreValid() throws Exception {
         // Arrange
         String bucket = "test-bucket";
         String filename = "folder";
@@ -127,7 +127,7 @@ public class MinIOServiceTest {
         when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(true);
 
         // Act
-        Boolean result = minIOService.putFiles(bucket, filename, List.of(file1, file2));
+        Boolean result = minIOService.uploadFiles(bucket, filename, List.of(file1, file2));
 
         // Assert
         assertEquals(true, result);
@@ -136,7 +136,7 @@ public class MinIOServiceTest {
     }
 
     @Test
-    void putFiles_ShouldCreateBucket_WhenBucketDoesNotExist() throws Exception {
+    void uploadFiles_ShouldCreateBucket_WhenBucketDoesNotExist() throws Exception {
         // Arrange
         String bucket = "new-bucket";
         String filename = "folder";
@@ -147,7 +147,7 @@ public class MinIOServiceTest {
         when(minioClient.bucketExists(any(BucketExistsArgs.class))).thenReturn(false);
 
         // Act
-        Boolean result = minIOService.putFiles(bucket, filename, List.of(file));
+        Boolean result = minIOService.uploadFiles(bucket, filename, List.of(file));
 
         // Assert
         assertEquals(true, result);
@@ -157,7 +157,7 @@ public class MinIOServiceTest {
     }
 
     @Test
-    void putFiles_ShouldThrowException_WhenUploadFails() throws Exception {
+    void uploadFiles_ShouldThrowException_WhenUploadFails() throws Exception {
         // Arrange
         String bucket = "test-bucket";
         String filename = "folder";
@@ -171,7 +171,7 @@ public class MinIOServiceTest {
 
         // Act & Assert
         RuntimeException exception = org.junit.jupiter.api.Assertions.assertThrows(RuntimeException.class, () ->
-                minIOService.putFiles(bucket, filename, List.of(file))
+                minIOService.uploadFiles(bucket, filename, List.of(file))
         );
 
         assertEquals("Upload failed", exception.getMessage());

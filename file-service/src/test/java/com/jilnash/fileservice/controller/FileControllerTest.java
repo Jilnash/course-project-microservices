@@ -127,7 +127,7 @@ public class FileControllerTest {
                 List.of(mockFile)
         );
 
-        when(minIOService.putFiles(bucketName, fileName, fileUploadDTO.files())).thenReturn(true);
+        when(minIOService.uploadFiles(bucketName, fileName, fileUploadDTO.files())).thenReturn(true);
 
         mockMvc.perform(multipart("/api/v1/files")
                         .file(mockFile)
@@ -150,7 +150,7 @@ public class FileControllerTest {
                 "test content".getBytes()
         );
 
-        when(minIOService.putFiles(bucketName, fileName, List.of(mockFile)))
+        when(minIOService.uploadFiles(bucketName, fileName, List.of(mockFile)))
                 .thenThrow(new RuntimeException("Upload failed"));
 
         mockMvc.perform(multipart("/api/v1/files")

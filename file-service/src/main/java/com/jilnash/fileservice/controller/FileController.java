@@ -46,9 +46,9 @@ public class FileController {
      * The pre-signed URL provides temporary access to the file and allows HTTP GET requests.
      *
      * @param bucketName the name of the bucket containing the file for which the pre-signed URL is generated
-     * @param fileName the name of the file for which the pre-signed URL is generated
+     * @param fileName   the name of the file for which the pre-signed URL is generated
      * @return a ResponseEntity containing the generated pre-signed URL, or an appropriate error message if the URL cannot
-     *         be generated
+     * be generated
      * @throws Exception if an error occurs during the pre-signed URL generation process
      */
     @GetMapping("/{bucketName}/presigned")
@@ -69,7 +69,7 @@ public class FileController {
      * @param fileUploadDTO the data transfer object containing the bucket name,
      *                      the filename prefix, and the list of files to be uploaded
      * @return a ResponseEntity containing an AppResponse with the status, message,
-     *         and the result of the upload operation
+     * and the result of the upload operation
      * @throws Exception if an error occurs during the file upload process, including issues
      *                   with bucket creation, file storage, or other related problems
      */
@@ -84,8 +84,20 @@ public class FileController {
                 new AppResponse(
                         200,
                         "File uploaded successfully",
-                        storageService.putFiles(fileUploadDTO.bucket(), fileUploadDTO.fileName(), fileUploadDTO.files())
+                        storageService.uploadFiles(fileUploadDTO.bucket(), fileUploadDTO.fileName(), fileUploadDTO.files())
                 )
         );
+    }
+
+    @DeleteMapping("{bucketName}/soft")
+    public ResponseEntity<?> deleteFile(@PathVariable String bucketName,
+                                        @RequestParam String fileName) {
+
+        log.info("[CONTROLLER] Deleting file from bucket");
+        log.debug("[CONTROLLER] Deleting file: {} from bucket: {}", fileName, bucketName);
+
+        storageService.softDeleteFile(bucketName, fileName);
+
+        return ResponseEntity.ok("File deleted successfully");
     }
 }

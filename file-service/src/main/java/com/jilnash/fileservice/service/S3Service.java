@@ -31,7 +31,7 @@ public class S3Service implements StorageService {
     private static final long EXPIRATION_MINUTES = 120;
 
     @Override
-    public Boolean putFiles(String bucketName, String fileName, List<MultipartFile> file) throws Exception {
+    public Boolean uploadFiles(String bucketName, String fileName, List<MultipartFile> file) throws Exception {
 
         log.info("[SERVICE] Uploading files to bucket");
         log.debug("[SERVICE] Uploading files to bucket: {}, with name: {}", bucketName, fileName);
@@ -90,5 +90,11 @@ public class S3Service implements StorageService {
                 .build();
 
         return s3Presigner.presignGetObject(getObjectPresignRequest).url().toString();
+    }
+
+    @Override
+    public void softDeleteFile(String bucketName, String fileName) {
+
+//        return null;
     }
 }

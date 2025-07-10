@@ -6,9 +6,11 @@ import java.util.List;
 
 public interface StorageService {
 
-    Boolean putFiles(String bucket, String filename, List<MultipartFile> fileContent) throws Exception;
+    Boolean uploadFiles(String bucket, String filename, List<MultipartFile> fileContent) throws Exception;
 
     byte[] getFile(String bucket, String fileName) throws Exception;
 
     String getPreSignedUrl(String bucket, String fileName) throws Exception;
+
+    void softDeleteFile(String bucketName, String fileName);
 }
