@@ -1,16 +1,13 @@
 package com.jilnash.homeworkservice.service;
 
-import com.jilnash.homeworkservice.client.*;
-import com.jilnash.homeworkservice.dto.HomeworkResponseDTO;
-import com.jilnash.homeworkservice.mapper.HomeworkMapper;
 import com.jilnash.homeworkservice.model.Homework;
+import com.jilnash.homeworkservice.model.HomeworkFile;
 import com.jilnash.homeworkservice.repo.HomeworkRepo;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.sql.Date;
@@ -41,21 +38,7 @@ public class HomeworkServiceImpl implements HomeworkService {
 
     private final HomeworkRepo homeworkRepo;
 
-    private final FileClient fileClient;
-
-    private final CourseClient courseClient;
-
-    private static final String HW_BUCKET = "course-project-homeworks";
-
     private final HomeworkFileService homeworkFileService;
-
-    private final HomeworkMapper homeworkMapper;
-
-    private final ProgressGrpcClient progressGrpcClient;
-
-    private final CourseAccessGrpcClient courseAccessGrpcClient;
-
-    private final TaskReqsGrpcClient taskReqsGrpcClient;
 
     /**
      * Retrieves a list of Homework entities filtered by various criteria.
@@ -109,18 +92,46 @@ public class HomeworkServiceImpl implements HomeworkService {
                 .orElseThrow(() -> new EntityNotFoundException("Homework not found with id: " + id));
     }
 
-    /**
-     * Retrieves the HomeworkResponseDTO representation of a Homework entity by its unique identifier.
-     *
-     * @param id the unique identifier of the Homework entity to retrieve
-     * @return the HomeworkResponseDTO representation of the Homework entity corresponding to the provided identifier
-     */
-    public HomeworkResponseDTO getHomeworkDTO(UUID id) {
+    @Override
+    public String getHomeworkStudentId(UUID id) {
+        return homeworkRepo.getHwStudentId(id)
+                .orElseThrow(() -> new EntityNotFoundException("Homework not found with id: " + id));
+    }
 
-        log.info("[SERVICE] Fetching homework");
-        log.debug("[SERVICE] Fetching homework with id: {}", id);
+    @Override
+    public String getHomeworkTaskId(UUID id) {
+        return homeworkRepo.getHwTaskId(id)
+                .orElseThrow(() -> new EntityNotFoundException("Homework not found with id: " + id));
+    }
 
-        return homeworkMapper.toResponseDTO(getHomework(id));
+    @Override
+    public Boolean isHomeworkChecked(UUID id) {
+        return getHomework(id).getChecked();
+    }
+
+    @Override
+    public Integer getHomeworkAttempt(UUID id) {
+        return getHomework(id).getAttempt();
+    }
+
+    @Override
+    public Date getHomeworkCreatedAt(UUID id) {
+        return getHomework(id).getCreatedAt();
+    }
+
+    @Override
+    public List<String> getHomeworkFileNames(UUID id) {
+        return getHomework(id)
+                .getHwFiles()
+                .stream()
+                .map(HomeworkFile::getFileName)
+                .toList();
+    }
+
+    @Override
+    public Boolean setHomeworkChecked(UUID id) {
+        homeworkRepo.updateIsChecked(id, true);
+        return true;
     }
 
     /**
@@ -136,112 +147,38 @@ public class HomeworkServiceImpl implements HomeworkService {
      *                                  homework submissions are still unchecked
      */
     @Override
-    public Boolean saveHomework(Homework homework) {
+    public Boolean createHomework(Homework homework) {
 
         log.info("[SERVICE] Creating homework");
         log.debug("[SERVICE] Creating homework to taskId {} by studentId: {}",
                 homework.getTaskId(), homework.getStudentId());
 
-        courseAccessGrpcClient.validateStudentHasAccessToCourse(homework.getStudentId(), homework.getTaskId());
-
-        // checking if a student already completed this task
-        if (progressGrpcClient.validateStudentCompletedTasks(homework.getStudentId(), List.of(homework.getTaskId())))
-            throw new IllegalArgumentException("Student already completed this task");
-
-        // checking if a student completed all prerequisites
-        if (!progressGrpcClient.validateStudentCompletedTasks
-                (homework.getStudentId(), courseClient.getTaskPreRequisites(homework.getTaskId())))
-            throw new IllegalArgumentException("Student did not complete all prerequisites");
-
         // checking if previously sent homework is checked
         if (homeworkRepo.getHwUnchecked(homework.getStudentId(), homework.getTaskId()))
             throw new IllegalArgumentException("Previous homework is not checked yet");
 
-        taskReqsGrpcClient.validateAllTaskFilesProvided(homework);
-
         homework.setAttempt(1 + homeworkRepo.countByStudentIdAndTaskId(homework.getStudentId(), homework.getTaskId()));
 
-        var newHw = homeworkRepo.save(homework);
-        uploadHWFiles(newHw);
-        homeworkFileService.createdHomeworkFiles(newHw);
+        homeworkFileService.createdHomeworkFiles(homeworkRepo.save(homework));
 
         return true;
     }
 
-    @Async
-    protected void uploadHWFiles(Homework homework) {
-        fileClient.uploadFile(HW_BUCKET,
-                "homework-" + homework.getId(),
-                homework.getFiles()
-        );
+    @Override
+    public Boolean softDeleteHomework(UUID id) {
+        return homeworkRepo.findById(id)
+                .map(hw -> {
+                    hw.setDeletedAt(new Date(System.currentTimeMillis()));
+                    homeworkRepo.save(hw);
+                    return true;
+                })
+                .orElseThrow(() -> new EntityNotFoundException("Homework not found with id: " + id));
     }
 
-    /**
-     * Retrieves the task ID associated with a specific homework ID.
-     *
-     * @param hwId the unique identifier of the homework
-     * @return the task ID linked to the given homework ID
-     * @throws NoSuchElementException if no homework is found with the specified ID
-     */
-    public String getHwTaskId(UUID hwId) {
-
-        log.info("[SERVICE] Fetching task id");
-        log.debug("[SERVICE] Fetching task id with homework id: {}", hwId);
-
-        return homeworkRepo
-                .getHwTaskId(hwId)
-                .orElseThrow(() -> new EntityNotFoundException("Homework not found with id: " + hwId));
-    }
-
-    /**
-     * Retrieves the student ID associated with a specific homework ID.
-     *
-     * @param hwId the unique identifier of the homework
-     * @return the student ID linked to the given homework ID
-     * @throws NoSuchElementException if no homework is found with the specified ID
-     */
-    public String getHwStudentId(UUID hwId) {
-
-        log.info("[SERVICE] Fetching student id");
-        log.debug("[SERVICE] Fetching student id with homework id: {}", hwId);
-
-        return homeworkRepo
-                .getHwStudentId(hwId)
-                .orElseThrow(() -> new EntityNotFoundException("Homework not found with id: " + hwId));
-    }
-
-    /**
-     * Sets the specified homework as checked using its unique identifier (UUID).
-     *
-     * @param hwId the unique identifier of the homework to be set as checked
-     * @return true if the operation completes successfully
-     */
-    public Boolean setChecked(UUID hwId) {
-
-        log.info("[SERVICE] Checking homework");
-        log.debug("[SERVICE] Checking homework with id: {}", hwId);
-
-        var hw = homeworkRepo.findById(hwId)
-                .orElseThrow(() -> new EntityNotFoundException("Homework not found with id: " + hwId));
-
-        hw.setChecked(true);
-        homeworkRepo.save(hw);
-
+    @Override
+    public Boolean hardDeleteHomework(UUID id) {
+        log.info("[SERVICE] Hard deleting homework with id: {}", id);
+        homeworkRepo.deleteById(id);
         return true;
-    }
-
-    /**
-     * Retrieves the pre-signed URL for a homework file based on the given ID and file name.
-     *
-     * @param id       the unique identifier of the homework file
-     * @param fileName the name of the file to fetch
-     * @return the pre-signed URL for the specified file
-     */
-    public String getHwFileURL(UUID id, String fileName) {
-
-        log.info("[SERVICE] Fetching homework file");
-        log.debug("[SERVICE] Fetching homework file with id: {}, fileName: {}", id, fileName);
-
-        return fileClient.getFilePreSignedURL(HW_BUCKET, "homework-" + id + "/" + fileName);
     }
 }

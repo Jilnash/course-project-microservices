@@ -15,6 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 public class HomeworkCreateDTO {
 
+    @NotNull(message = "Student id is required")
+    @NotEmpty(message = "Student id cannot be empty")
     private String studentId;
 
     @NotNull(message = "Task id is required")

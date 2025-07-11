@@ -6,6 +6,8 @@ import com.jilnash.homeworkservice.model.Homework;
 import com.jilnash.homeworkservice.model.HomeworkFile;
 import org.springframework.stereotype.Component;
 
+import java.sql.Date;
+
 @Component
 public class HomeworkMapper {
 
@@ -16,6 +18,7 @@ public class HomeworkMapper {
                 .taskId(homeworkDTO.getTaskId())
                 .checked(homeworkDTO.getChecked())
                 .files(homeworkDTO.getFiles())
+                .deletedAt(new Date(System.currentTimeMillis()))
                 .build();
     }
 

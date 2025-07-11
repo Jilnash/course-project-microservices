@@ -3,6 +3,7 @@ package com.jilnash.homeworkservice.repo;
 import com.jilnash.homeworkservice.model.Homework;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -24,4 +25,12 @@ public interface HomeworkRepo extends JpaRepository<Homework, UUID>, JpaSpecific
     Boolean getHwUnchecked(@Param("studentId") String studentId, @Param("taskId") String taskId);
 
     Integer countByStudentIdAndTaskId(String studentId, String taskId);
+
+    @Modifying
+    @Query("UPDATE Homework h SET h.checked = :b WHERE h.id = :id")
+    void updateIsChecked(UUID id, boolean b);
+
+    @Modifying
+    @Query("DELETE FROM Homework h WHERE h.studentId = :studentId AND h.taskId = :taskId AND h.attempt = :attempt")
+    void deleteHomework(String studentId, String taskId, Integer attempt);
 }

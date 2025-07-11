@@ -41,7 +41,10 @@ public class Homework {
     @CreationTimestamp
     private Date createdAt;
 
-    @OneToMany(mappedBy = "homeworkId", fetch = FetchType.LAZY)
+    @Column
+    private Date deletedAt;
+
+    @OneToMany(mappedBy = "homeworkId", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @ToString.Exclude
     private List<HomeworkFile> hwFiles;
 

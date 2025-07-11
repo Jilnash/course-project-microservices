@@ -1,6 +1,7 @@
 package com.jilnash.homeworkservice.service;
 
 import com.jilnash.homeworkservice.model.Homework;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.util.List;
@@ -12,5 +13,24 @@ public interface HomeworkService {
 
     Homework getHomework(UUID id);
 
-    Boolean saveHomework(Homework homework);
+    String getHomeworkStudentId(UUID id);
+
+    String getHomeworkTaskId(UUID id);
+
+    Boolean isHomeworkChecked(UUID id);
+
+    Integer getHomeworkAttempt(UUID id);
+
+    Date getHomeworkCreatedAt(UUID id);
+
+    List<String> getHomeworkFileNames(UUID id);
+
+    @Transactional
+    Boolean setHomeworkChecked(UUID id);
+
+    Boolean createHomework(Homework homework);
+
+    Boolean softDeleteHomework(UUID id);
+
+    Boolean hardDeleteHomework(UUID id);
 }

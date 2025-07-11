@@ -1,5 +1,6 @@
-package com.jilnash.homeworkservice.model;
+package com.jilnash.homeworkservice.repo;
 
+import com.jilnash.homeworkservice.model.HomeworkFile;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
