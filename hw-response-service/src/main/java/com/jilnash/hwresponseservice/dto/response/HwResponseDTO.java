@@ -7,6 +7,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -26,4 +27,8 @@ public class HwResponseDTO {
 
     @NotNull(message = "Is correct should not be null")
     Boolean isCorrect;
+
+    Date createdAt;
+
+    Date updatedAt;
 }

@@ -1,9 +1,5 @@
 package com.jilnash.hwresponseservice.service;
 
-import com.jilnash.hwresponseservice.clients.CourseClient;
-import com.jilnash.hwresponseservice.clients.CourseRightsGrpcClient;
-import com.jilnash.hwresponseservice.clients.HwClient;
-import com.jilnash.hwresponseservice.clients.ProgressGrpcClient;
 import com.jilnash.hwresponseservice.model.mongo.HwResponse;
 import com.jilnash.hwresponseservice.repo.HwResponseRepo;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -25,14 +22,6 @@ public class HwResponseServiceImpl implements HwResponseService {
     private final MongoTemplate mongoTemplate;
 
     private final HwResponseRepo hwResponseRepo;
-
-    private final CourseClient courseClient;
-
-    private final HwClient hwClient;
-
-    private final CourseRightsGrpcClient courseRightsGrpcClient;
-
-    private final ProgressGrpcClient progressGrpcClient;
 
     @Override
     public List<HwResponse> getResponses(String teacherId, Long homeworkId, Date createdAfter, Date createdBefore) {
@@ -77,22 +66,12 @@ public class HwResponseServiceImpl implements HwResponseService {
         log.info("[SERVICE] Creating response");
         log.debug("[SERVICE] Creating response with teacherId: {}", response.getTeacherId());
 
-        String taskId = hwClient.getTaskId(response.getHomeworkId());
-
         //checking if homework already checked
         if (hwResponseRepo.existsByHomeworkId(response.getHomeworkId()))
             throw new RuntimeException("Homework already checked");
 
-        courseRightsGrpcClient.
-                validateTeacherAllowedToCheckHomework(courseClient.getTaskCourseId(taskId), response.getTeacherId());
-
         //creating response
         hwResponseRepo.save(response);
-
-        if (response.getIsCorrect())
-            progressGrpcClient.addTaskToStudentProgress(hwClient.getStudentId(response.getHomeworkId()), taskId);
-
-        hwClient.setChecked(response.getHomeworkId());
 
         return true;
     }
@@ -104,30 +83,44 @@ public class HwResponseServiceImpl implements HwResponseService {
         log.debug("[SERVICE] Updating response with id: {} by teacherId: {}",
                 response.getId(), response.getTeacherId());
 
-        //checking if response id is provided
-        if (response.getId() == null)
-            throw new IllegalArgumentException("Response with id not provided");
+        //checking if response exists, then soft deleting it
+        HwResponse previousResponse = hwResponseRepo.findById(response.getId())
+                .orElseThrow(() -> new NoSuchElementException("Response with id " + response.getId() + " not found"));
+        previousResponse.setDeletedAt(new Date());
+        hwResponseRepo.save(previousResponse);
 
-        //checking if response exists, then getting id
-        String id = hwResponseRepo
-                .findById(response.getId())
-                .orElseThrow(() -> new NoSuchElementException("Response with id " + response.getId() + " not found"))
-                .getId();
-
-        //checking if teacher has permissions to check homework
-        courseRightsGrpcClient.
-                validateTeacherAllowedToCheckHomework(
-                        //getting courseId by hwId
-                        courseClient.getTaskCourseId(hwClient.getTaskId(response.getHomeworkId())),
-                        response.getTeacherId()
-                );
-
-        // deleting previous response
-        hwResponseRepo.deleteById(id);
-
-        // saving new response
+        //creating new response
+        response.setId(UUID.randomUUID().toString()); // Retain the same ID
+        response.setUpdatedAt(new Date());
+        response.setCreatedAt(previousResponse.getCreatedAt());
         hwResponseRepo.save(response);
 
         return true;
+    }
+
+    @Override
+    public Boolean softDeleteResponse(String responseId) {
+        log.info("[SERVICE] Soft deleting response");
+        log.debug("[SERVICE] Soft deleting response with id: {}", responseId);
+
+        HwResponse response = hwResponseRepo.findById(responseId)
+                .orElseThrow(() -> new NoSuchElementException("Response with id " + responseId + " not found"));
+        response.setDeletedAt(new Date());
+        hwResponseRepo.save(response);
+
+        return true;
+    }
+
+    @Override
+    public Boolean hardDeleteResponse(String responseId) {
+        return hwResponseRepo
+                .findById(responseId)
+                .map(response -> {
+                    log.info("[SERVICE] Hard deleting response");
+                    log.debug("[SERVICE] Hard deleting response with id: {}", responseId);
+                    hwResponseRepo.delete(response);
+                    return true;
+                })
+                .orElseThrow(() -> new NoSuchElementException("Response with id " + responseId + " not found"));
     }
 }

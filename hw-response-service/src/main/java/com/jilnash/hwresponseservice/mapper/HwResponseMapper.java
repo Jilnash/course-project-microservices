@@ -17,7 +17,7 @@ public class HwResponseMapper {
                 .homeworkId(dto.getHomeworkId())
                 .isCorrect(dto.getIsCorrect())
                 .comments(dto.getComments())
-                .createdAt(new Date())
+                .createdAt(dto.getCreatedAt() == null ? new Date() : dto.getCreatedAt())
                 .build();
     }
 }

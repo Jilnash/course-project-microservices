@@ -30,4 +30,8 @@ public class HwResponse {
     private List<FileCommentDTO> comments;
 
     private Date createdAt;
+
+    private Date updatedAt;
+
+    private Date deletedAt;
 }

@@ -43,7 +43,7 @@ public class HwResponseController {
         );
     }
 
-    @PutMapping
+    @PostMapping
     public ResponseEntity<?> createResponse(@Validated @RequestBody HwResponseDTO responseDto,
                                             @RequestHeader("X-User-Sub") String teacherId) {
 
@@ -77,7 +77,7 @@ public class HwResponseController {
         );
     }
 
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> updateResponse(@PathVariable String id,
                                             @Validated @RequestBody HwResponseDTO responseDto,
                                             @RequestHeader("X-User-Sub") String teacherId) {
@@ -93,6 +93,36 @@ public class HwResponseController {
                         200,
                         "Response updated successfully",
                         responseService.updateResponse(responseMapper.toEntity(responseDto))
+                )
+        );
+    }
+
+    @DeleteMapping("/{id}/soft")
+    public ResponseEntity<?> softDeleteResponse(@PathVariable String id) {
+
+        log.info("[CONTROLLER] Soft deleting response");
+        log.debug("[CONTROLLER] Soft deleting response with id: {}", id);
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Response soft deleted successfully",
+                        responseService.softDeleteResponse(id)
+                )
+        );
+    }
+
+    @DeleteMapping("/{id}/hard")
+    public ResponseEntity<?> hardDeleteResponse(@PathVariable String id) {
+
+        log.info("[CONTROLLER] Hard deleting response");
+        log.debug("[CONTROLLER] Hard deleting response with id: {}", id);
+
+        return ResponseEntity.ok(
+                new AppResponse(
+                        200,
+                        "Response hard deleted successfully",
+                        responseService.hardDeleteResponse(id)
                 )
         );
     }
