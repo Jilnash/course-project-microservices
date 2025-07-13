@@ -1,36 +1,32 @@
 package com.jilnash.progressservice.controller.v1;
 
-import com.jilnash.progressservice.service.StudentTaskCompleteService;
-import org.springframework.http.ResponseEntity;
+import com.jilnash.progressservice.service.StudentProgressService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/{studentId}/completed")
+@RequestMapping("/api/v1/{studentId}/completed-tasks")
 public class ProgressController {
 
-    private final StudentTaskCompleteService studentTaskCompleteService;
+    private final StudentProgressService studentProgressService;
 
-    public ProgressController(StudentTaskCompleteService studentTaskCompleteService) {
-        this.studentTaskCompleteService = studentTaskCompleteService;
+    public ProgressController(StudentProgressService studentProgressService) {
+        this.studentProgressService = studentProgressService;
     }
 
     @GetMapping
     public List<String> getCompletedTasks(@PathVariable String studentId) {
-        return studentTaskCompleteService.getCompletedTaskIds(studentId);
+        return studentProgressService.getStudentCompletedTaskIds(studentId);
+    }
+
+    @GetMapping("/check")
+    public Boolean checkIfCompletedTasks(@PathVariable String studentId, @RequestBody List<String> taskIds) {
+        return studentProgressService.getIfStudentCompletedTasks(studentId, taskIds);
     }
 
     @PostMapping
-    public ResponseEntity<?> completeTask(@PathVariable String studentId, @RequestParam String taskId) {
-
-        return ResponseEntity.ok(
-                studentTaskCompleteService.completeTask(studentId, taskId)
-        );
-    }
-
-    @GetMapping("/{taskId}")
-    public Boolean isTaskComplete(@PathVariable String studentId, @PathVariable String taskId) {
-        return studentTaskCompleteService.isTaskComplete(studentId, taskId);
+    public Boolean completeTask(@PathVariable String studentId, @RequestBody String taskId) {
+        return studentProgressService.addStudentTaskComplete(studentId, taskId);
     }
 }

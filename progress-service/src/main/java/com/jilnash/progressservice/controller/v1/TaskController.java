@@ -1,6 +1,6 @@
 package com.jilnash.progressservice.controller.v1;
 
-import com.jilnash.progressservice.service.StudentTaskCompleteService;
+import com.jilnash.progressservice.service.TaskCompleteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,30 +10,25 @@ import java.util.List;
 @RequestMapping("/api/v1/tasks")
 public class TaskController {
 
-    private final StudentTaskCompleteService studentTaskCompleteService;
+    private final TaskCompleteService taskCompleteService;
 
-    public TaskController(StudentTaskCompleteService studentTaskCompleteService) {
-        this.studentTaskCompleteService = studentTaskCompleteService;
+    public TaskController(TaskCompleteService taskCompleteService) {
+        this.taskCompleteService = taskCompleteService;
     }
 
     @PostMapping
     public ResponseEntity<?> createTask(@RequestParam String newTaskId,
                                         @RequestParam List<String> completedTaskIds) {
-        return ResponseEntity.ok(studentTaskCompleteService.addTask(newTaskId, completedTaskIds));
+        return ResponseEntity.ok(taskCompleteService.insertTask(newTaskId, completedTaskIds));
     }
 
-    @DeleteMapping
-    public ResponseEntity<?> deleteTask(@RequestParam List<String> taskIds) {
-        return ResponseEntity.ok(studentTaskCompleteService.deleteTasks(taskIds));
+    @DeleteMapping("/soft")
+    public ResponseEntity<?> softDeleteTask(@RequestParam List<String> taskIds) {
+        return ResponseEntity.ok(taskCompleteService.softDeleteTasks(taskIds));
     }
 
-    @PutMapping("/{taskId}")
-    public ResponseEntity<?> substituteTask(@PathVariable String taskId, @RequestParam List<String> taskIds) {
-        return ResponseEntity.ok(studentTaskCompleteService.substituteTask(taskId, taskIds));
-    }
-
-    @DeleteMapping("/{taskId}")
-    public ResponseEntity<?> deleteTask(@PathVariable String taskId) {
-        return ResponseEntity.ok(studentTaskCompleteService.deleteTask(taskId));
+    @DeleteMapping("/hard")
+    public ResponseEntity<?> hardDeleteTask(@RequestParam List<String> taskIds) {
+        return ResponseEntity.ok(taskCompleteService.hardDeleteTasks(taskIds));
     }
 }

@@ -26,4 +26,6 @@ public class StudentTaskComplete {
     private String taskId;
 
     private Date completeDate;
+
+    private Date deletedAt;
 }

@@ -1,10 +1,6 @@
 server:
     port: 8093
 
-grpc:
-    server:
-        port: 6571
-
 spring:
     application:
         name: progress-service

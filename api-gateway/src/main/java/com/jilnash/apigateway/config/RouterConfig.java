@@ -98,7 +98,7 @@ public class RouterConfig {
 
     @Bean
     public RouterFunction<ServerResponse> progressService() {
-        return route(path("/progress-service/**"), http("http://localhost:8092"))
+        return route(path("/progress-service/**"), http("http://localhost:8093"))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setIdHeader()))
                 .filter(HandlerFilterFunction.ofRequestProcessor(setTraceIdHeader()))
                 .filter(rewritePath("/progress-service/(?<remaining>.*)", "/${remaining}"));
