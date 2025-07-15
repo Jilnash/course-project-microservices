@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.sql.Date;
 
@@ -28,4 +29,7 @@ public class StudentCourseAccess {
     private Date startDate;
 
     private Date endDate;
+
+    @CreationTimestamp
+    private Date createdAt;
 }
