@@ -3,6 +3,8 @@ package com.jilnash.courserightsservice.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Date;
+
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -25,4 +27,6 @@ public class TeacherRights {
 
     @ManyToOne
     private Right right;
+
+    private Date deletedAt;
 }

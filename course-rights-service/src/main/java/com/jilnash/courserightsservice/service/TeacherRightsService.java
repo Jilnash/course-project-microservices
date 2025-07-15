@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.Set;
 
 /**
@@ -69,7 +70,7 @@ public class TeacherRightsService {
         log.info("[SERVICE] Setting course rights for teacher");
         log.debug("[SERVICE] Setting rights: {}, for teacher: {}, in course: {}", rights, teacherId, courseId);
 
-        teacherRightsRepo.deleteAllByCourseIdAndTeacherId(courseId, teacherId);
+        teacherRightsRepo.updateDeletedAtByCourseIdAndTeacherId(courseId, teacherId, new Date());
         teacherRightsRepo.saveAll(
                 rightRepo.findAllByNameIn(rights)
                         .orElseThrow(() -> new EntityNotFoundException("Rights not found"))
