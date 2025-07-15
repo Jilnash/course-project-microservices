@@ -33,4 +33,6 @@ public class TaskFileRequirement {
 
     @UpdateTimestamp
     private Date updatedAt;
+
+    private Date deletedAt;
 }

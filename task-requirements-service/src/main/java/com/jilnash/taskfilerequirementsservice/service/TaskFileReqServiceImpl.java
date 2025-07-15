@@ -9,16 +9,18 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class TaskFileRequirementsService {
+public class TaskFileReqServiceImpl implements TaskFileReqService {
 
     private final TaskFileRequirementRepo taskFileRequirementRepo;
 
     private final FileRequirementsRepo fileRequirementsRepo;
 
+    @Override
     public List<TaskFileReqDTO> getTaskRequirements(String taskId) {
         return taskFileRequirementRepo.findAllByTaskId(taskId)
                 .stream()
@@ -26,10 +28,11 @@ public class TaskFileRequirementsService {
                 .toList();
     }
 
+    @Override
     @Transactional
     public Boolean setTaskRequirements(String taskId, List<TaskFileReqDTO> requirements) {
 
-        taskFileRequirementRepo.deleteAllByTaskId(taskId);
+        taskFileRequirementRepo.updateDeleteAtByTaskId(taskId, new Date());
         taskFileRequirementRepo.saveAll(
                 requirements.stream().map(requirement ->
                         TaskFileRequirement.builder()
