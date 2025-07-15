@@ -30,4 +30,6 @@ public interface StudentTaskCompleteRepository extends JpaRepository<StudentTask
     @Modifying
     @Query("UPDATE student_task_complete stc SET stc.deletedAt = :date WHERE stc.taskId IN :taskIds")
     void updateDeletedAtByTaskIdIn(Date date, List<String> taskIds);
+
+    void deleteByStudentIdAndTaskId(String studentId, String taskId);
 }
