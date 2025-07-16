@@ -6,6 +6,7 @@ import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -26,6 +27,9 @@ public interface ModuleRepo extends Neo4jRepository<Module, String> {
 
     @Query("MATCH (m:Module {id: $id}) SET m.description = $description RETURN m")
     void updateModuleDescription(@Param("id") String id, @Param("description") String description);
+
+    @Query("MATCH (m:Module {id: $id}) SET m.deletedAt = $deletedAt")
+    void updateModuleDeletedAt(@Param("id") String id, @Param("deletedAt") Date deletedAt);
 
     @Query("MATCH (m:Module)-[:CONTAINS]->(t:Task) WHERE m.id = $id RETURN count(t) > 0")
     Optional<Boolean> hasAtLeastOneTask(@Param("id") String id);

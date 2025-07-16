@@ -67,7 +67,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public String getCourseAuthor(String courseId) {
-        return "";
+        return getCourse(courseId).getCreatedBy();
     }
 
     @Override
