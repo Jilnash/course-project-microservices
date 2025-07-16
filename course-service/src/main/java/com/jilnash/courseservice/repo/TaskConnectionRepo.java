@@ -34,6 +34,13 @@ public interface TaskConnectionRepo extends Neo4jRepository<Task, String> {
     void softDeleteTaskConnections(@Param("taskConnections") Set<TaskLinkDTO> taskConnections);
 
     @Query("UNWIND $taskConnections AS link " +
+            "MATCH (f:Task {id: link.fromTaskId})-[r:IS_PREREQUISITE_DELETED]->(t:Task {id: link.toTaskId}) " +
+            "WITH f, r, t " +
+            "CREATE (f)-[:IS_PREREQUISITE]-> (t) " +
+            "DELETE r")
+    void softDeleteTaskConnectionsRollback(@Param("taskConnections") Set<TaskLinkDTO> taskConnections);
+
+    @Query("UNWIND $taskConnections AS link " +
             "MATCH (f:Task {id: link.fromTaskId})-[r:IS_PREREQUISITE]->(t:Task {id: link.toTaskId}) " +
             "WITH f, r, t " +
             "DELETE r")
