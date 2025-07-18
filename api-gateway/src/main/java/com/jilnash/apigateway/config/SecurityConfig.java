@@ -3,8 +3,8 @@ package com.jilnash.apigateway.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
+import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
@@ -12,14 +12,15 @@ import org.springframework.security.oauth2.core.oidc.user.OidcUserAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2UserAuthority;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.oauth2.server.resource.authentication.ReactiveJwtAuthenticationConverterAdapter;
+import org.springframework.security.web.server.SecurityWebFilterChain;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Configuration
-@EnableWebSecurity
+@EnableWebFluxSecurity
 public class SecurityConfig {
 
     private static final String GROUPS = "groups";
@@ -27,29 +28,31 @@ public class SecurityConfig {
     private static final String ROLES_CLAIM = "roles";
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityWebFilterChain securityFilterChain(ServerHttpSecurity http) throws Exception {
 
         return http
                 .oauth2ResourceServer(oauth2ResourceServer ->
-                        oauth2ResourceServer.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter()))
+                        oauth2ResourceServer.jwt(jwt ->
+                                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())
+                        )
                 )
                 .oauth2Login(Customizer.withDefaults())
-                .authorizeHttpRequests(auth -> {
-                            auth.requestMatchers("/user-service/**").authenticated();
+                .authorizeExchange(auth -> {
+                    auth.pathMatchers("/user-service/**").authenticated();
 
-                            auth.requestMatchers("/course-service/**").authenticated();
+                    auth.pathMatchers("/course-service/**").authenticated();
 
-                            auth.requestMatchers("/hw-service/**").authenticated();
+                    auth.pathMatchers("/hw-service/**").authenticated();
 
-                            auth.requestMatchers("/hw-response-service/**").authenticated();
+                    auth.pathMatchers("/hw-response-service/**").authenticated();
 
-                            auth.requestMatchers("/admin-service/**").authenticated();
+                    auth.pathMatchers("/admin-service/**").authenticated();
 
-                            auth.requestMatchers("/student-service/**").authenticated();
+                    auth.pathMatchers("/student-service/**").authenticated();
 
-                            auth.requestMatchers("/teacher-service/**").authenticated();
+                    auth.pathMatchers("/teacher-service/**").authenticated();
 
-                            auth.anyRequest().permitAll();
+                    auth.anyExchange().permitAll();
                         }
                 )
                 .build();
@@ -97,7 +100,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+    public ReactiveJwtAuthenticationConverterAdapter jwtAuthenticationConverter() {
 
         var converter = new JwtAuthenticationConverter();
         var jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
@@ -117,6 +120,6 @@ public class SecurityConfig {
                     .toList();
         });
 
-        return converter;
+        return new ReactiveJwtAuthenticationConverterAdapter(converter);
     }
 }
