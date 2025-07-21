@@ -1,28 +1,19 @@
 package com.jilnash.courseservice.dto.module;
 
-import com.jilnash.courseservice.model.Course;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Getter
+@Setter
 public class ModuleCreateDTO {
 
-    private String authorId;
-
-    @NotNull(message = "Module name is mandatory")
-    @NotBlank(message = "Module name is mandatory")
-    private String name;
-
-    @NotNull(message = "Module description is mandatory")
-    @NotBlank(message = "Module description is mandatory")
-    private String description;
+    private String id;
 
     private String courseId;
 
-    private Course course;
+    private String authorId;
+
+    private String name;
+
+    private String description;
 }

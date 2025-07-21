@@ -24,7 +24,6 @@ public class ModuleMapper {
         return Module.builder()
                 .name(moduleCreateDTO.getName())
                 .description(moduleCreateDTO.getDescription())
-                .course(moduleCreateDTO.getCourse())
                 .createdAt(new Date())
                 .createdBy(moduleCreateDTO.getAuthorId())
                 .build();

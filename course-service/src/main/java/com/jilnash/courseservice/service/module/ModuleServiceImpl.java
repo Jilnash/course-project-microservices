@@ -77,9 +77,12 @@ public class ModuleServiceImpl implements ModuleService {
     public Module createModule(ModuleCreateDTO moduleDTO) {
 
         // check if course exists by calling `getCourse` then set it to moduleDTO
-        moduleDTO.setCourse(courseService.getCourse(moduleDTO.getCourseId()));
+//        moduleDTO.setCourse(courseService.getCourse(moduleDTO.getCourseId()));
 
-        return moduleRepo.save(moduleMapper.toNode(moduleDTO));
+        Module newModule = moduleMapper.toNode(moduleDTO);
+        newModule.setCourse(courseService.getCourse(moduleDTO.getCourseId()));
+
+        return moduleRepo.save(newModule);
     }
 
     @Override

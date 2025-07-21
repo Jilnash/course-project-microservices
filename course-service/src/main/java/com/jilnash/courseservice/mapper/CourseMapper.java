@@ -1,7 +1,6 @@
 package com.jilnash.courseservice.mapper;
 
 import com.jilnash.courseservice.dto.course.CourseCreateDTO;
-import com.jilnash.courseservice.dto.course.CourseUpdateDTO;
 import com.jilnash.courseservice.model.Course;
 import org.springframework.stereotype.Component;
 
@@ -28,22 +27,6 @@ public class CourseMapper {
                 .description(courseCreateDTO.getDescription())
                 .duration(courseCreateDTO.getDuration())
                 .createdAt(new Date())
-                .build();
-    }
-
-    /**
-     * Converts a CourseUpdateDTO object to a Course entity.
-     *
-     * @param courseUpdateDTO the CourseUpdateDTO object containing the updated details for the course
-     * @return a Course entity constructed based on the provided CourseUpdateDTO
-     */
-    public Course toNode(CourseUpdateDTO courseUpdateDTO) {
-        return Course.builder()
-                .id(courseUpdateDTO.getId())
-                .name(courseUpdateDTO.getName())
-                .description(courseUpdateDTO.getDescription())
-                .duration(courseUpdateDTO.getDuration())
-                .updatedAt(new Date())
                 .build();
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 /**
  * Implementation of the CourseService interface.
@@ -104,8 +103,6 @@ public class CourseServiceImpl implements CourseService {
 
         log.info("[SERVICE] Creating course with name: {}", courseDTO.getName());
 
-        courseDTO.setId(UUID.randomUUID().toString());
-
         return courseRepo.save(courseMapper.toNode(courseDTO));
     }
 
@@ -161,7 +158,7 @@ public class CourseServiceImpl implements CourseService {
 
         log.info("[SERVICE] Hard deleting course with id: {}", id);
 
-//        courseRepo.deleteById(id);
+        courseRepo.deleteById(id);
 
         return true;
     }

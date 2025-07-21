@@ -16,9 +16,8 @@ spring:
         multipart:
             max-file-size: 100MB
             max-request-size: 100MB
-    cache:
-        redis:
-            time-to-live: 3600000
+    kafka:
+        bootstrap-servers: localhost:9092
 
 management:
     endpoints:
@@ -27,17 +26,17 @@ management:
                 include: "metrics, prometheus"
         health:
             show-details: always
-    metrics:
-        export:
-            prometheus:
-                enabled: true
-    tracing:
-        enabled: true
-        sampling:
-            probability: 1.0
-    otlp:
-        tracing:
-            endpoint: http://localhost:4318/v1/traces
+#    metrics:
+#        export:
+#            prometheus:
+#                enabled: true
+#    tracing:
+#        enabled: true
+#        sampling:
+#            probability: 1.0
+#    otlp:
+#        tracing:
+#            endpoint: http://localhost:4318/v1/traces
 
 eureka:
     client:
