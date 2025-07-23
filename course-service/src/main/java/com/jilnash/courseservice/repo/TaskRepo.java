@@ -1,7 +1,7 @@
 package com.jilnash.courseservice.repo;
 
-import com.jilnash.courseservice.dto.task.TaskCreateDTO;
 import com.jilnash.courseservice.model.Task;
+import com.jilnash.courseservicedto.dto.task.TaskCreateDTO;
 import org.springframework.data.neo4j.repository.Neo4jRepository;
 import org.springframework.data.neo4j.repository.query.Query;
 import org.springframework.stereotype.Repository;

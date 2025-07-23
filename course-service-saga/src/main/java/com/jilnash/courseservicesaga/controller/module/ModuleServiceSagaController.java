@@ -1,6 +1,6 @@
 package com.jilnash.courseservicesaga.controller.module;
 
-import com.jilnash.courseservicesaga.dto.module.ModuleCreateDTO;
+import com.jilnash.courseservicedto.dto.module.ModuleCreateDTO;
 import com.jilnash.courseservicesaga.service.module.ModuleServiceSaga;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;

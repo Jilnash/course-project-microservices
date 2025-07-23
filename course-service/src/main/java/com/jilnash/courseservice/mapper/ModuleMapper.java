@@ -1,8 +1,7 @@
 package com.jilnash.courseservice.mapper;
 
-import com.jilnash.courseservice.dto.module.ModuleCreateDTO;
-import com.jilnash.courseservice.dto.module.ModuleResponseDTO;
 import com.jilnash.courseservice.model.Module;
+import com.jilnash.courseservicedto.dto.module.ModuleCreateDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -26,20 +25,6 @@ public class ModuleMapper {
                 .description(moduleCreateDTO.getDescription())
                 .createdAt(new Date())
                 .createdBy(moduleCreateDTO.getAuthorId())
-                .build();
-    }
-
-    /**
-     * Converts a Module entity into a ModuleResponseDTO.
-     *
-     * @param module the Module entity to be converted
-     * @return the ModuleResponseDTO constructed based on the provided Module entity
-     */
-    public ModuleResponseDTO toResponse(Module module) {
-        return ModuleResponseDTO.builder()
-                .id(module.getId())
-                .name(module.getName())
-                .description(module.getDescription())
                 .build();
     }
 }

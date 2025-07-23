@@ -1,6 +1,6 @@
 package com.jilnash.courseservicesaga.service.course;
 
-import com.jilnash.courseservicesaga.dto.course.CourseCreateDTO;
+import com.jilnash.courseservicedto.dto.course.CourseCreateDTO;
 import org.springframework.stereotype.Service;
 
 @Service

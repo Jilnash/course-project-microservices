@@ -1,6 +1,6 @@
 package com.jilnash.courseservice.converter.neo4j;
 
-import com.jilnash.courseservice.dto.task.TaskCreateDTO;
+import com.jilnash.courseservicedto.dto.task.TaskCreateDTO;
 import org.neo4j.driver.Value;
 import org.neo4j.driver.Values;
 import org.springframework.core.convert.converter.Converter;

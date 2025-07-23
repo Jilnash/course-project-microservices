@@ -26,6 +26,7 @@
         <option value="$PROJECT_DIR$/task-requirements-service/pom.xml" />
         <option value="$PROJECT_DIR$/config-server/pom.xml" />
         <option value="$PROJECT_DIR$/course-service-saga/pom.xml" />
+        <option value="$PROJECT_DIR$/course-service-dto/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

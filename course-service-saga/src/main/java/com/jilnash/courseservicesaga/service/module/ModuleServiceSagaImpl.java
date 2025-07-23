@@ -1,8 +1,8 @@
 package com.jilnash.courseservicesaga.service.module;
 
-import com.jilnash.courseservicesaga.dto.module.ModuleCreateDTO;
-import com.jilnash.courseservicesaga.dto.module.ModuleUpdateDescriptionDTO;
-import com.jilnash.courseservicesaga.dto.module.ModuleUpdateNameDTO;
+import com.jilnash.courseservicedto.dto.module.ModuleCreateDTO;
+import com.jilnash.courseservicedto.dto.module.ModuleUpdateDescriptionDTO;
+import com.jilnash.courseservicedto.dto.module.ModuleUpdateNameDTO;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 

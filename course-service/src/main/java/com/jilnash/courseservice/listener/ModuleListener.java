@@ -1,9 +1,9 @@
 package com.jilnash.courseservice.listener;
 
-import com.jilnash.courseservice.dto.module.ModuleCreateDTO;
-import com.jilnash.courseservice.dto.module.ModuleUpdateDescriptionDTO;
-import com.jilnash.courseservice.dto.module.ModuleUpdateNameDTO;
 import com.jilnash.courseservice.service.module.ModuleService;
+import com.jilnash.courseservicedto.dto.module.ModuleCreateDTO;
+import com.jilnash.courseservicedto.dto.module.ModuleUpdateDescriptionDTO;
+import com.jilnash.courseservicedto.dto.module.ModuleUpdateNameDTO;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -27,7 +27,6 @@ public class ModuleListener {
 
     @KafkaListener(topics = "module-update-name-topic", groupId = "course-service-group")
     public void updateModuleNameListener(ModuleUpdateNameDTO dto) {
-        System.out.println(dto);
         try {
             moduleService.updateModuleName(dto.courseId(), dto.id(), dto.name());
         } catch (Exception e) {

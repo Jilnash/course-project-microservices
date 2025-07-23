@@ -1,9 +1,9 @@
 package com.jilnash.courseservice.service.course;
 
-import com.jilnash.courseservice.dto.course.CourseCreateDTO;
 import com.jilnash.courseservice.mapper.CourseMapper;
 import com.jilnash.courseservice.model.Course;
 import com.jilnash.courseservice.repo.CourseRepo;
+import com.jilnash.courseservicedto.dto.course.CourseCreateDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -153,7 +153,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-
     public Boolean hardDelete(String id) {
 
         log.info("[SERVICE] Hard deleting course with id: {}", id);

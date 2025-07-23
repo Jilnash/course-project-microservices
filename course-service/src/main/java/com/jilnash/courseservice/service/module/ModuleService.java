@@ -1,7 +1,7 @@
 package com.jilnash.courseservice.service.module;
 
-import com.jilnash.courseservice.dto.module.ModuleCreateDTO;
 import com.jilnash.courseservice.model.Module;
+import com.jilnash.courseservicedto.dto.module.ModuleCreateDTO;
 
 import java.util.List;
 import java.util.Set;

@@ -1,10 +1,10 @@
 package com.jilnash.courseservice.listener;
 
-import com.jilnash.courseservice.dto.course.CourseCreateDTO;
-import com.jilnash.courseservice.dto.course.CourseUpdateDescriptionDTO;
-import com.jilnash.courseservice.dto.course.CourseUpdateDurationDTO;
-import com.jilnash.courseservice.dto.course.CourseUpdateNameDTO;
 import com.jilnash.courseservice.service.course.CourseService;
+import com.jilnash.courseservicedto.dto.course.CourseCreateDTO;
+import com.jilnash.courseservicedto.dto.course.CourseUpdateDescriptionDTO;
+import com.jilnash.courseservicedto.dto.course.CourseUpdateDurationDTO;
+import com.jilnash.courseservicedto.dto.course.CourseUpdateNameDTO;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 

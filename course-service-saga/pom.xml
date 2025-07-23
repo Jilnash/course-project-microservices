@@ -70,6 +70,12 @@
       <scope>provided</scope>
     </dependency>
 
+    <dependency>
+      <groupId>com.jilnash</groupId>
+      <artifactId>course-service-dto</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+
   </dependencies>
 
   <dependencyManagement>

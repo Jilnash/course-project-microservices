@@ -1,9 +1,9 @@
 package com.jilnash.courseservicesaga.service.course;
 
-import com.jilnash.courseservicesaga.dto.course.CourseCreateDTO;
-import com.jilnash.courseservicesaga.dto.course.CourseUpdateDescriptionDTO;
-import com.jilnash.courseservicesaga.dto.course.CourseUpdateDurationDTO;
-import com.jilnash.courseservicesaga.dto.course.CourseUpdateNameDTO;
+import com.jilnash.courseservicedto.dto.course.CourseCreateDTO;
+import com.jilnash.courseservicedto.dto.course.CourseUpdateDescriptionDTO;
+import com.jilnash.courseservicedto.dto.course.CourseUpdateDurationDTO;
+import com.jilnash.courseservicedto.dto.course.CourseUpdateNameDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;

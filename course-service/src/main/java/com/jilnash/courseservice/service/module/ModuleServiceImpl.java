@@ -1,10 +1,10 @@
 package com.jilnash.courseservice.service.module;
 
-import com.jilnash.courseservice.dto.module.ModuleCreateDTO;
 import com.jilnash.courseservice.mapper.ModuleMapper;
 import com.jilnash.courseservice.model.Module;
 import com.jilnash.courseservice.repo.ModuleRepo;
 import com.jilnash.courseservice.service.course.CourseServiceImpl;
+import com.jilnash.courseservicedto.dto.module.ModuleCreateDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;

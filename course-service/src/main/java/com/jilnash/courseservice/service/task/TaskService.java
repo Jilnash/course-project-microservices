@@ -1,17 +1,19 @@
 package com.jilnash.courseservice.service.task;
 
-import com.jilnash.courseservice.dto.task.TaskCreateDTO;
-import com.jilnash.courseservice.dto.task.TaskGraphDTO;
 import com.jilnash.courseservice.model.Task;
+import com.jilnash.courseservicedto.dto.task.TaskCreateDTO;
+import com.jilnash.courseservicedto.dto.task.TaskGraph;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Set;
 
+@Service
 public interface TaskService {
 
     List<Task> getTasks(String courseId, String moduleId, String name);
 
-    TaskGraphDTO getTasksAsGraph(String courseId, String moduleId);
+    TaskGraph getTasksAsGraph(String courseId, String moduleId);
 
     Task getTask(String id);
 

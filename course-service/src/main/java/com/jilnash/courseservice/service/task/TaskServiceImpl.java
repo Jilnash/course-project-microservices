@@ -1,11 +1,11 @@
 package com.jilnash.courseservice.service.task;
 
-import com.jilnash.courseservice.dto.task.TaskCreateDTO;
-import com.jilnash.courseservice.dto.task.TaskGraphDTO;
-import com.jilnash.courseservice.dto.task.TaskGraphEdgeDTO;
 import com.jilnash.courseservice.model.Task;
 import com.jilnash.courseservice.repo.TaskRepo;
 import com.jilnash.courseservice.service.module.ModuleServiceImpl;
+import com.jilnash.courseservicedto.dto.task.TaskCreateDTO;
+import com.jilnash.courseservicedto.dto.task.TaskGraph;
+import com.jilnash.courseservicedto.dto.task.TaskGraphEdge;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,17 +33,16 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskGraphDTO getTasksAsGraph(String courseId, String moduleId) {
+    public TaskGraph getTasksAsGraph(String courseId, String moduleId) {
 
         var tasks = taskRepo.findAllByModule_IdAndModule_Course_Id(moduleId, courseId);
 
-        return TaskGraphDTO.builder()
-                .nodes(tasks.stream().map(Task::getId).toList())
-                .edges(tasks.stream()
+        return new TaskGraph(
+                tasks.stream().map(Task::getId).toList(),
+                tasks.stream()
                         .flatMap(task -> task.getSuccessors().stream()
-                                .map(successor -> new TaskGraphEdgeDTO(task.getId(), successor.getId())))
-                        .toList())
-                .build();
+                                .map(successor -> new TaskGraphEdge(successor.getId(), task.getId()))
+                        ).toList());
     }
 
     @Override
@@ -246,7 +245,7 @@ public class TaskServiceImpl implements TaskService {
         return taskRepo
                 .findByIdAndModule_IdAndModule_Course_Id(taskId, moduleId, courseId)
                 .map(task -> {
-//                    taskRepo.softDeleteModule(task);
+                    taskRepo.delete(task);
                     return true;
                 })
                 .orElseThrow(() -> new NoSuchElementException("Task not found for hard softDeleteModule: " + taskId));
