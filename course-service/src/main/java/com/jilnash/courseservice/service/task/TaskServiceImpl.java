@@ -41,7 +41,7 @@ public class TaskServiceImpl implements TaskService {
                 tasks.stream().map(Task::getId).toList(),
                 tasks.stream()
                         .flatMap(task -> task.getSuccessors().stream()
-                                .map(successor -> new TaskGraphEdge(successor.getId(), task.getId()))
+                                .map(successor -> new TaskGraphEdge(task.getId(), successor.getId()))
                         ).toList());
     }
 

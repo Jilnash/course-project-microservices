@@ -8,6 +8,8 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class TaskListener {
 
@@ -111,18 +113,23 @@ public class TaskListener {
     }
 
     @KafkaListener(topics = "task-get-tasks-topic", groupId = "course-saga-group")
-    public void getTasksListener(TasksRequestDTO dto) {
+    public List<Task> getTasksListener(TasksRequestDTO dto) {
         try {
-            taskService.getTasks(dto.courseId(), dto.moduleId(), dto.name());
+            return taskService.getTasks(dto.courseId(), dto.moduleId(), dto.name());
         } catch (Exception e) {
             throw new RuntimeException("Error retrieving tasks.", e);
         }
     }
 
-    @KafkaListener(topics = "task-get-tasks-as-graph-topic", groupId = "course-saga-group")
-    public void getTasksAsGraphListener(TaskGraphRequestDTO dto) {
+    @KafkaListener(
+            topics = "task-get-tasks-as-graph-topic",
+            groupId = "course-saga-group",
+            containerFactory = "courseListenerContainerFactory"
+    )
+    @SendTo("task-graph-reply-topic")
+    public TaskGraph getTasksAsGraphListener(TaskGraphRequestDTO dto) {
         try {
-            taskService.getTasksAsGraph(dto.courseId(), dto.moduleId());
+            return taskService.getTasksAsGraph(dto.courseId(), dto.moduleId());
         } catch (Exception e) {
             throw new RuntimeException("Error retrieving tasks as graph.", e);
         }

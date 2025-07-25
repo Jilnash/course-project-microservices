@@ -10,11 +10,13 @@ public class TaskCreateDTOConverter implements Converter<TaskCreateDTO, Value> {
     @Override
     public Value convert(TaskCreateDTO source) {
         return Values.parameters(
+                "authorId", source.getAuthorId(),
                 "taskId", source.getTaskId(),
                 "title", source.getTitle(),
                 "description", source.getDescription(),
                 "videoFileName", source.getVideoFileName(),
                 "isPublic", source.getIsPublic(),
+                "hwPostingInterval", source.getHwPostingInterval(),
                 "courseId", source.getCourseId(),
                 "moduleId", source.getModuleId(),
                 "prerequisiteTasksIds", source.getPrerequisiteTasksIds(),

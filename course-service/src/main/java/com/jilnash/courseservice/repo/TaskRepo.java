@@ -34,6 +34,7 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
     @Query("MATCH (m:Module {id: $taskDTO.moduleId}) " +
             "CREATE (t:Task {" +
             "id: $taskDTO.taskId, title: $taskDTO.title, description: $taskDTO.description, " +
+            "authorId: $taskDTO.authorId, hwPostingInterval: $taskDTO.hwPostingInterval, " +
             "videoFileName: $taskDTO.videoFileName, isPublic: $taskDTO.isPublic}) " +
             "CREATE (m)-[:CONTAINS]->(t) " +
             "RETURN t")
@@ -70,7 +71,7 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
     void updateTaskIsPublic(String courseId, String moduleId, String taskId, Boolean isPublic);
 
     @Query("MATCH (c:Course) -[:CONTAINS]-> (m:Module) -[:CONTAINS]-> (t:Task) " +
-            "WHERE c.id = $courseId and m.id = $moduleId and t.id = $taskId " +
+            "WHERE c.id = $courseId and m.id = $moduleId and t.id = $id " +
             "SET t.hwPostingInterval = $hwPostingInterval")
     void updateTaskHwPostingInterval(String courseId, String moduleId, String id, Integer hwPostingInterval);
 }

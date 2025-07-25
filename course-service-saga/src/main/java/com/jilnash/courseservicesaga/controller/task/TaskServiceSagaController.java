@@ -1,6 +1,6 @@
 package com.jilnash.courseservicesaga.controller.task;
 
-import com.jilnash.courseservicedto.dto.task.TaskCreateDTO;
+import com.jilnash.courseservicesaga.dto.TaskSagaCreateDTO;
 import com.jilnash.courseservicesaga.service.task.TaskServiceSaga;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/modules/{moduleId}/tasks")
@@ -22,21 +21,21 @@ public class TaskServiceSagaController {
         this.taskServiceSaga = taskServiceSaga;
     }
 
-
     @GetMapping
     public ResponseEntity<?> getTasks(@PathVariable String courseId,
                                       @PathVariable String moduleId,
+                                      @RequestHeader("X-User-Sub") String userId,
                                       @RequestParam(required = false, defaultValue = "") String name) {
 
         log.info("[CONTROLLER] Fetching tasks in course {} module {} with name {}", courseId, moduleId, name);
 
-        taskServiceSaga.getTasks(courseId, moduleId, name);
+        taskServiceSaga.getTasks(userId, courseId, moduleId, name);
         return ResponseEntity.ok("Tasks fetched successfully");
     }
 
     @GetMapping("/graph")
     public ResponseEntity<?> getTasks(@PathVariable String courseId,
-                                      @PathVariable String moduleId) throws ExecutionException, InterruptedException {
+                                      @PathVariable String moduleId) {
 
         log.info("[CONTROLLER] Fetching task graph in course {} module {}", courseId, moduleId);
 
@@ -47,7 +46,7 @@ public class TaskServiceSagaController {
     public ResponseEntity<?> createTask(@PathVariable String courseId,
                                         @PathVariable String moduleId,
                                         @RequestHeader("X-User-Sub") String teacherId,
-                                        @RequestBody @Validated TaskCreateDTO taskDto) {
+                                        @ModelAttribute @Validated TaskSagaCreateDTO taskDto) {
 
         log.info("[CONTROLLER] Creating task in course {} module {}", courseId, moduleId);
 
@@ -62,22 +61,24 @@ public class TaskServiceSagaController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getTask(@PathVariable String courseId,
                                      @PathVariable String moduleId,
+                                     @RequestHeader("X-User-Sub") String userId,
                                      @PathVariable String id) {
 
         log.info("[CONTROLLER] Fetching task in course {} module {} with id {}", courseId, moduleId, id);
 
-        return ResponseEntity.ok(taskServiceSaga.getTask(courseId, moduleId, id));
+        return ResponseEntity.ok(taskServiceSaga.getTask(userId, courseId, moduleId, id));
     }
 
     @PatchMapping("/{id}/title")
     public ResponseEntity<?> updateTaskTitle(@PathVariable String courseId,
                                              @PathVariable String moduleId,
                                              @PathVariable String id,
+                                             @RequestHeader("X-User-Sub") String userId,
                                              @RequestBody String title) {
 
         log.info("[CONTROLLER] Updating task title in course {} module {} with id {}", courseId, moduleId, id);
 
-        taskServiceSaga.updateTaskTitle(courseId, moduleId, id, title);
+        taskServiceSaga.updateTaskTitle(userId, courseId, moduleId, id, title);
         return ResponseEntity.ok("Task title updated successfully");
     }
 
@@ -85,11 +86,12 @@ public class TaskServiceSagaController {
     public ResponseEntity<?> updateTaskDescription(@PathVariable String courseId,
                                                    @PathVariable String moduleId,
                                                    @PathVariable String id,
+                                                   @RequestHeader("X-User-Sub") String userId,
                                                    @RequestBody String description) {
 
         log.info("[CONTROLLER] Updating task description in course {} module {} with id {}", courseId, moduleId, id);
 
-        taskServiceSaga.updateTaskDescription(courseId, moduleId, id, description);
+        taskServiceSaga.updateTaskDescription(userId, courseId, moduleId, id, description);
         return ResponseEntity.ok("Task description updated successfully");
     }
 
@@ -97,11 +99,12 @@ public class TaskServiceSagaController {
     public ResponseEntity<?> updateTaskVideo(@PathVariable String courseId,
                                              @PathVariable String moduleId,
                                              @PathVariable String id,
+                                             @RequestHeader("X-User-Sub") String userId,
                                              @RequestBody MultipartFile videoFile) {
 
         log.info("[CONTROLLER] Updating task video in course {} module {} with id {}", courseId, moduleId, id);
 
-        taskServiceSaga.updateTaskVideoFile(courseId, moduleId, id, videoFile);
+        taskServiceSaga.updateTaskVideoFile(userId, courseId, moduleId, id, videoFile);
         return ResponseEntity.ok("Task video updated successfully");
     }
 
@@ -109,11 +112,12 @@ public class TaskServiceSagaController {
     public ResponseEntity<?> updateTaskIsPublic(@PathVariable String courseId,
                                                 @PathVariable String moduleId,
                                                 @PathVariable String id,
+                                                @RequestHeader("X-User-Sub") String userId,
                                                 @RequestBody Boolean isPublic) {
 
         log.info("[CONTROLLER] Updating task isPublic in course {} module {} with id {}", courseId, moduleId, id);
 
-        taskServiceSaga.updateTaskIsPublic(courseId, moduleId, id, isPublic);
+        taskServiceSaga.updateTaskIsPublic(userId, courseId, moduleId, id, isPublic);
         return ResponseEntity.ok("Task isPublic updated successfully");
     }
 
@@ -121,11 +125,12 @@ public class TaskServiceSagaController {
     public ResponseEntity<?> updateTaskPrerequisite(@PathVariable String courseId,
                                                     @PathVariable String moduleId,
                                                     @PathVariable String id,
+                                                    @RequestHeader("X-User-Sub") String userId,
                                                     @RequestBody Set<String> prerequisiteIds) {
 
         log.info("[CONTROLLER] Updating task prereqs in course {} module {} with id {}", courseId, moduleId, id);
 
-        taskServiceSaga.updateTaskPrerequisites(courseId, moduleId, id, prerequisiteIds);
+        taskServiceSaga.updateTaskPrerequisites(userId, courseId, moduleId, id, prerequisiteIds);
         return ResponseEntity.ok("Task prereqs updated successfully");
     }
 
@@ -133,11 +138,12 @@ public class TaskServiceSagaController {
     public ResponseEntity<?> updateTaskHwPostingInterval(@PathVariable String courseId,
                                                          @PathVariable String moduleId,
                                                          @PathVariable String id,
+                                                         @RequestHeader("X-User-Sub") String userId,
                                                          @RequestBody Integer hwPostingInterval) {
 
         log.info("[CONTROLLER] Updating task hwPostingInterval in course {} module {} with id {}", courseId, moduleId, id);
 
-        taskServiceSaga.updateTaskHwPostingInterval(courseId, moduleId, id, hwPostingInterval);
+        taskServiceSaga.updateTaskHwPostingInterval(userId, courseId, moduleId, id, hwPostingInterval);
         return ResponseEntity.ok("Task hwPostingInterval updated successfully");
     }
 
@@ -145,33 +151,36 @@ public class TaskServiceSagaController {
     public ResponseEntity<?> updateTaskSuccessor(@PathVariable String courseId,
                                                  @PathVariable String moduleId,
                                                  @PathVariable String id,
+                                                 @RequestHeader("X-User-Sub") String userId,
                                                  @RequestBody Set<String> successorIds) {
 
         log.info("[CONTROLLER] Updating task successors in course {} module {} with id {}", courseId, moduleId, id);
 
-        taskServiceSaga.updateTaskSuccessors(courseId, moduleId, id, successorIds);
+        taskServiceSaga.updateTaskSuccessors(userId, courseId, moduleId, id, successorIds);
         return ResponseEntity.ok("Task successors updated successfully");
     }
 
     @DeleteMapping("/{id}/soft")
     public ResponseEntity<?> softDeleteTask(@PathVariable String courseId,
                                             @PathVariable String moduleId,
+                                            @RequestHeader("X-User-Sub") String userId,
                                             @PathVariable String id) {
 
         log.info("[CONTROLLER] Soft deleting task in course {} module {} with id {}", courseId, moduleId, id);
 
-        taskServiceSaga.softDeleteTask(courseId, moduleId, id);
+        taskServiceSaga.softDeleteTask(userId, courseId, moduleId, id);
         return ResponseEntity.ok("Task soft deleted successfully");
     }
 
     @DeleteMapping("/{id}/hard")
     public ResponseEntity<?> hardDeleteTask(@PathVariable String courseId,
                                             @PathVariable String moduleId,
+                                            @RequestHeader("X-User-Sub") String userId,
                                             @PathVariable String id) {
 
         log.info("[CONTROLLER] Hard deleting task in course {} module {} with id {}", courseId, moduleId, id);
 
-        taskServiceSaga.hardDeleteTask(courseId, moduleId, id);
+        taskServiceSaga.hardDeleteTask(userId, courseId, moduleId, id);
         return ResponseEntity.ok("Task hard deleted successfully");
     }
 }

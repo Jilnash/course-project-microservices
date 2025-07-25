@@ -12,6 +12,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import java.util.Collections;
+
 public class SetUserIdHeaderFilter implements GlobalFilter, Ordered {
 
     private static Mono<String> getIdFromTokenReactive() {
@@ -27,15 +29,15 @@ public class SetUserIdHeaderFilter implements GlobalFilter, Ordered {
         return getIdFromTokenReactive()
                 .defaultIfEmpty("anonymous") // Optional fallback
                 .flatMap(userId -> {
-                    // Create new headers
-                    HttpHeaders headers = new HttpHeaders();
-                    headers.putAll(exchange.getRequest().getHeaders());
-                    headers.add("X-User-Sub", userId);
+
+                    HttpHeaders mutableHeaders = new HttpHeaders();
+                    mutableHeaders.putAll(exchange.getRequest().getHeaders());
+                    mutableHeaders.put("X-User-Sub", Collections.singletonList(userId));
 
                     // Mutate the request
                     ServerHttpRequest mutatedRequest = exchange.getRequest()
                             .mutate()
-                            .headers(httpHeaders -> httpHeaders.putAll(headers))
+                            .headers(httpHeaders -> httpHeaders.putAll(mutableHeaders))
                             .build();
 
                     // Mutate the exchange

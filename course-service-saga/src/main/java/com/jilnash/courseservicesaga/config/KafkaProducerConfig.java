@@ -57,7 +57,10 @@ public class KafkaProducerConfig {
     @Bean
     public KafkaMessageListenerContainer<String, Object> replyContainer(
             ConsumerFactory<String, Object> cf) {
-        ContainerProperties containerProperties = new ContainerProperties("task-reply-topic");
+        ContainerProperties containerProperties = new ContainerProperties(
+                "task-reply-topic", "task-graph-reply-topic", "task-title-reply-topic",
+                "task-get-description-topic", "task-get-video-url-topic", "task-get-is-public-topic"
+        );
         return new KafkaMessageListenerContainer<>(cf, containerProperties);
     }
 
