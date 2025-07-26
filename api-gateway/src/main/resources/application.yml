@@ -78,6 +78,12 @@ spring:
                         - Path=/hw-service/**
                     filters:
                         - RewritePath=/hw-service/(?<remaining>.*), /$\{remaining}
+                -   id: hw-service-saga
+                    uri: lb://hw-service-saga
+                    predicates:
+                        - Path=/hw-service-saga/**
+                    filters:
+                        - RewritePath=/hw-service-saga/(?<remaining>.*), /$\{remaining}
 
                 -   id: response-service
                     uri: http://localhost:8089

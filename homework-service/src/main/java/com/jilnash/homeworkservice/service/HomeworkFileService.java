@@ -1,7 +1,6 @@
 package com.jilnash.homeworkservice.service;
 
 import com.jilnash.homeworkservice.model.Homework;
-import com.jilnash.homeworkservice.model.HomeworkFile;
 import com.jilnash.homeworkservice.repo.HomeworkFileRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -17,12 +16,8 @@ public class HomeworkFileService {
     void createdHomeworkFiles(Homework homework) {
 
         homeworkFileRepository.saveAll(
-                homework.getFiles().stream().map(file ->
-                        HomeworkFile.builder()
-                                .fileName(file.getOriginalFilename())
-                                .homeworkId(homework)
-                                .build()
-                ).toList()
-        );
+                homework.getHwFiles().stream()
+                        .peek(file -> file.setHomeworkId(homework))
+                        .toList());
     }
 }

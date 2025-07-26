@@ -1,0 +1,13 @@
+server:
+    port: 8096
+
+spring:
+    application:
+        name: hw-service-saga
+    kafka:
+        bootstrap-servers: localhost:9092
+
+eureka:
+    client:
+        serviceUrl:
+            defaultZone: http://localhost:8081/eureka/

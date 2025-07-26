@@ -1,20 +1,6 @@
 server:
     port: 8088
 
-grpc:
-    server:
-        port: 6567
-    client:
-        progress-client:
-            address: static://localhost:6571
-            negotiation-type: plaintext
-        course-access-client:
-            address: static://localhost:6569
-            negotiation-type: plaintext
-        task-requirements-client:
-            address: static://localhost:6565
-            negotiation-type: plaintext
-
 spring:
     application:
         name: homework-service
@@ -27,10 +13,8 @@ spring:
         hibernate:
             ddl-auto: update
         show-sql: true
-    servlet:
-        multipart:
-            max-file-size: 1GB
-            max-request-size: 1GB
+    kafka:
+        bootstrap-servers: localhost:9092
 
 eureka:
     client:

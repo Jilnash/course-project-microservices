@@ -1,12 +1,10 @@
 package com.jilnash.homeworkservice.mapper;
 
-import com.jilnash.homeworkservice.dto.HomeworkCreateDTO;
 import com.jilnash.homeworkservice.dto.HomeworkResponseDTO;
 import com.jilnash.homeworkservice.model.Homework;
 import com.jilnash.homeworkservice.model.HomeworkFile;
+import com.jilnash.hwservicedto.dto.HomeworkCreateDTO;
 import org.springframework.stereotype.Component;
-
-import java.sql.Date;
 
 @Component
 public class HomeworkMapper {
@@ -14,11 +12,14 @@ public class HomeworkMapper {
     public Homework toEntity(HomeworkCreateDTO homeworkDTO) {
 
         return Homework.builder()
-                .studentId(homeworkDTO.getStudentId())
-                .taskId(homeworkDTO.getTaskId())
-                .checked(homeworkDTO.getChecked())
-                .files(homeworkDTO.getFiles())
-                .deletedAt(new Date(System.currentTimeMillis()))
+                .studentId(homeworkDTO.studentId())
+                .taskId(homeworkDTO.taskId())
+                .checked(false)
+                .hwFiles(
+                        homeworkDTO.fileNames().stream().map(fileName -> HomeworkFile.builder()
+                                .fileName(fileName)
+                                .build()).toList()
+                )
                 .build();
     }
 

@@ -1,13 +1,11 @@
 package com.jilnash.homeworkservice.controller.v1;
 
 import com.jilnash.homeworkservice.dto.AppResponse;
-import com.jilnash.homeworkservice.dto.HomeworkCreateDTO;
 import com.jilnash.homeworkservice.mapper.HomeworkMapper;
 import com.jilnash.homeworkservice.service.HomeworkServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Date;
@@ -54,35 +52,6 @@ public class HomeworkController {
                         200,
                         "Homeworks fetched successfully",
                         homeworkService.getHomeworks(taskId, studentId, checked, createdAfter)
-                )
-        );
-    }
-
-    /**
-     * Creates a new homework submission based on the provided data.
-     * This includes setting the student ID from the request header and saving the homework entity.
-     *
-     * @param homeworkDTO a data transfer object containing the details of the homework to be created;
-     *                    includes task ID, checked status, and associated files.
-     * @param studentId   the unique identifier of the student, provided via the "X-User-Sub" request header.
-     * @return a ResponseEntity containing an AppResponse object with the status,
-     * message, and details of the created homework record.
-     */
-    @PostMapping
-    public ResponseEntity<?> createHomework(
-            @ModelAttribute @Validated HomeworkCreateDTO homeworkDTO,
-            @RequestHeader("X-User-Sub") String studentId) {
-
-        homeworkDTO.setStudentId(studentId);
-
-        log.info("[CONTROLLER] Creating homework");
-        log.debug("[CONTROLLER] Creating homework to taskId {} by studentId: {}", homeworkDTO.getTaskId(), studentId);
-
-        return ResponseEntity.ok(
-                new AppResponse(
-                        200,
-                        "Homework created successfully",
-                        homeworkService.createHomework(homeworkMapper.toEntity(homeworkDTO))
                 )
         );
     }
@@ -198,72 +167,6 @@ public class HomeworkController {
         log.debug("[CONTROLLER] Fetching homework file names with id: {}", hwId);
 
         return homeworkService.getHomeworkFileNames(hwId);
-    }
-
-    /**
-     * Marks the homework associated with the given ID as checked.
-     *
-     * @param hwId the unique identifier of the homework to be marked as checked
-     * @return a ResponseEntity containing an AppResponse object with the status,
-     * message, and details of the updated homework
-     */
-    @PatchMapping("{hwId}/checked")
-    public ResponseEntity<?> setChecked(@PathVariable UUID hwId) {
-
-        log.info("[CONTROLLER] Checking homework");
-        log.debug("[CONTROLLER] Checking homework with id: {}", hwId);
-
-        return ResponseEntity.ok(
-                new AppResponse(
-                        200,
-                        "Homework checked successfully",
-                        homeworkService.setHomeworkChecked(hwId)
-                )
-        );
-    }
-
-    /**
-     * Soft deletes the homework associated with the given ID.
-     * This method performs a soft delete, marking the homework as deleted without removing it from the database.
-     *
-     * @param id the unique identifier of the homework to be deleted
-     * @return a ResponseEntity containing an AppResponse object with the status and message of the deletion operation
-     */
-    @DeleteMapping("/{id}/soft")
-    public ResponseEntity<?> deleteHomework(@PathVariable UUID id) {
-
-        log.info("[CONTROLLER] Deleting homework");
-        log.debug("[CONTROLLER] Deleting homework with id: {}", id);
-
-        return ResponseEntity.ok(
-                new AppResponse(
-                        200,
-                        "Homework deleted successfully",
-                        homeworkService.softDeleteHomework(id)
-                )
-        );
-    }
-
-    /**
-     * Hard deletes the homework associated with the given ID.
-     * This method performs a hard delete, removing the homework from the database permanently.
-     *
-     * @param id the unique identifier of the homework to be deleted
-     * @return a ResponseEntity containing an AppResponse object with the status and message of the deletion operation
-     */
-    @DeleteMapping("/{id}/hard")
-    public ResponseEntity<?> hardDeleteHomework(@PathVariable UUID id) {
-
-        log.info("[CONTROLLER] Hard deleting homework");
-        log.debug("[CONTROLLER] Hard deleting homework with id: {}", id);
-
-        return ResponseEntity.ok(
-                new AppResponse(
-                        200,
-                        "Homework hard deleted successfully",
-                        homeworkService.hardDeleteHomework(id)
-                )
-        );
     }
 }
 

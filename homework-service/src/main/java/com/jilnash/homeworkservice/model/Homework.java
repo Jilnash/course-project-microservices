@@ -1,10 +1,8 @@
 package com.jilnash.homeworkservice.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
 import java.util.List;
@@ -47,8 +45,4 @@ public class Homework {
     @OneToMany(mappedBy = "homeworkId", fetch = FetchType.LAZY, cascade = CascadeType.REMOVE)
     @ToString.Exclude
     private List<HomeworkFile> hwFiles;
-
-    @Transient
-    @JsonIgnore
-    private List<MultipartFile> files;
 }
