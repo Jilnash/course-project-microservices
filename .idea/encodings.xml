@@ -15,6 +15,8 @@
     <file url="file://$PROJECT_DIR$/file-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/homework-service/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/hw-response-service-dto/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/hw-response-service-saga/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/hw-response-service/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/hw-service-dto/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/hw-service-saga/src/main/java" charset="UTF-8" />

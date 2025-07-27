@@ -1,17 +1,6 @@
 server:
     port: 8089
 
-grpc:
-    server:
-        port: 6572
-    client:
-        progress-grpc-client:
-            address: static://localhost:6571
-            negotiation-type: plaintext
-        course-rights-grpc-client:
-            address: static://localhost:6566
-            negotiation-type: plaintext
-
 spring:
     application:
         name: hw-response-service
@@ -22,6 +11,8 @@ spring:
     data:
         mongodb:
             uri: mongodb://localhost:27017/course_project_hw_responses
+    kafka:
+        bootstrap-servers: localhost:9092
 
 eureka:
     client:

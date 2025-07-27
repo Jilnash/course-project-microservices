@@ -59,12 +59,14 @@ spring:
                         - Path=/course-service/**
                     filters:
                         - RewritePath=/course-service/(?<remaining>.*), /$\{remaining}
+
                 -   id: course-service-saga
                     uri: http://localhost:8095
                     predicates:
                         - Path=/course-service-saga/**
                     filters:
                         - RewritePath=/course-service-saga/(?<remaining>.*), /$\{remaining}
+
                 -   id: file-service
                     uri: http://localhost:8087
                     predicates:
@@ -78,6 +80,7 @@ spring:
                         - Path=/hw-service/**
                     filters:
                         - RewritePath=/hw-service/(?<remaining>.*), /$\{remaining}
+
                 -   id: hw-service-saga
                     uri: lb://hw-service-saga
                     predicates:
@@ -91,6 +94,13 @@ spring:
                         - Path=/response-service/**
                     filters:
                         - RewritePath=/response-service/(?<remaining>.*), /$\{remaining}
+
+                -   id: response-service-saga
+                    uri: lb://hw-response-service-saga
+                    predicates:
+                        - Path=/response-service-saga/**
+                    filters:
+                        - RewritePath=/response-service-saga/(?<remaining>.*), /$\{remaining}
 
                 -   id: course-access-service
                     uri: http://localhost:8090

@@ -1,0 +1,5 @@
+spring:
+    application:
+        name: hw-response-service-saga
+    config:
+        import: configserver:http://localhost:8092

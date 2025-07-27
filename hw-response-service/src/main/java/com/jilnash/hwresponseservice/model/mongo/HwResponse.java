@@ -1,6 +1,6 @@
 package com.jilnash.hwresponseservice.model.mongo;
 
-import com.jilnash.hwresponseservice.dto.response.comment.FileCommentDTO;
+import com.jilnash.hwresponseservicedto.dto.Comments;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,7 +27,7 @@ public class HwResponse {
 
     private Boolean isCorrect;
 
-    private List<FileCommentDTO> comments;
+    private List<Comments> comments;
 
     private Date createdAt;
 
