@@ -47,6 +47,7 @@ public class CourseServiceRollbackImpl implements CourseServiceRollback {
         return courseRepo.findById(id).
                 map(course -> {
                     course.setDeletedAt(null);
+                    courseRepo.save(course);
                     return true;
                 })
                 .orElseThrow(() -> new NoSuchElementException("Course not found with id: " + id));
