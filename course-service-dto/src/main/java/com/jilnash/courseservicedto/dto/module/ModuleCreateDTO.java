@@ -8,6 +8,9 @@ public class ModuleCreateDTO {
     private String description;
     private String authorId;
 
+    public ModuleCreateDTO() {
+    }
+
     public ModuleCreateDTO(String courseId, String name, String description) {
         this.courseId = courseId;
         this.name = name;
