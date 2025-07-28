@@ -1,11 +1,12 @@
-package com.jilnash.courseservice.service.task;
+package com.jilnash.courseservicesaga.service.task;
 
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
 @Component
-public interface TaskServiceRollback {
+public interface TaskServiceRollbackSaga {
 
     void rollbackTaskCreate(String courseId, String moduleId, String taskId);
 
@@ -13,7 +14,7 @@ public interface TaskServiceRollback {
 
     void rollbackTaskDescriptionUpdate(String courseId, String moduleId, String taskId, String oldDescription);
 
-    void rollbackTaskVideoFileNameUpdate(String courseId, String moduleId, String taskId, String oldVideoFileName);
+    void rollbackTaskVideoFileUpdate(String courseId, String moduleId, String taskId, MultipartFile oldVideoFile);
 
     void rollbackTaskIsPublicUpdate(String courseId, String moduleId, String taskId, boolean oldIsPublic);
 

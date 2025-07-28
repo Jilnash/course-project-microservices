@@ -74,4 +74,9 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
             "WHERE c.id = $courseId and m.id = $moduleId and t.id = $id " +
             "SET t.hwPostingInterval = $hwPostingInterval")
     void updateTaskHwPostingInterval(String courseId, String moduleId, String id, Integer hwPostingInterval);
+
+    @Query("MATCH (c:Course) -[:CONTAINS]-> (m:Module) -[:CONTAINS]-> (t:Task) " +
+            "WHERE c.id = $courseId and m.id = $moduleId and t.id = $taskId " +
+            "DETACH DELETE t")
+    void detachDeleteTask(String courseId, String moduleId, String taskId);
 }

@@ -1,7 +1,7 @@
 package com.jilnash.courseservice.service.task;
 
 import com.jilnash.courseservice.repo.TaskRepo;
-import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
@@ -11,39 +11,33 @@ import java.util.Set;
  * rollbacks for task creation, updates, deletion, and attributes changes to ensure
  * data consistency in case of errors or unexpected failures.
  */
-@RequiredArgsConstructor
+@Component
 public class TaskServiceRollbackImpl implements TaskServiceRollback {
 
     private final TaskRepo taskRepo;
 
+    public TaskServiceRollbackImpl(TaskRepo taskRepo) {
+        this.taskRepo = taskRepo;
+    }
+
     @Override
     public void rollbackTaskCreate(String courseId, String moduleId, String taskId) {
-
+        taskRepo.detachDeleteTask(courseId, moduleId, taskId);
     }
 
     @Override
     public void rollbackTaskTitleUpdate(String courseId, String moduleId, String taskId, String oldTitle) {
-        taskRepo.findById(taskId).ifPresent(task -> {
-            task.setTitle(oldTitle);
-            taskRepo.save(task);
-        });
+        taskRepo.updateTaskTitle(courseId, moduleId, taskId, oldTitle);
     }
 
     @Override
     public void rollbackTaskDescriptionUpdate(String courseId, String moduleId, String taskId, String oldDescription) {
-        taskRepo.findById(taskId).ifPresent(task -> {
-            task.setDescription(oldDescription);
-            taskRepo.save(task);
-        });
+        taskRepo.updateTaskDescription(courseId, moduleId, taskId, oldDescription);
     }
 
     @Override
     public void rollbackTaskVideoFileNameUpdate(String courseId, String moduleId, String taskId, String oldVideoFileName) {
-        taskRepo.findByIdAndModule_IdAndModule_Course_Id(taskId, moduleId, courseId)
-                .ifPresent(task -> {
-                    task.setVideoFileName(oldVideoFileName);
-                    taskRepo.save(task);
-                });
+        taskRepo.updateTaskVideoLink(courseId, moduleId, taskId, oldVideoFileName);
     }
 
     @Override
@@ -60,11 +54,7 @@ public class TaskServiceRollbackImpl implements TaskServiceRollback {
 
     @Override
     public void rollbackTaskIsPublicUpdate(String courseId, String moduleId, String taskId, boolean oldIsPublic) {
-        taskRepo.findByIdAndModule_IdAndModule_Course_Id(taskId, moduleId, courseId)
-                .ifPresent(task -> {
-                    task.setIsPublic(oldIsPublic);
-                    taskRepo.save(task);
-                });
+        taskRepo.updateTaskIsPublic(courseId, moduleId, taskId, oldIsPublic);
     }
 
     @Override
@@ -76,10 +66,5 @@ public class TaskServiceRollbackImpl implements TaskServiceRollback {
                     throw new IllegalArgumentException("Task not found for rollback soft softDeleteModule: " + taskId);
                 }
         );
-    }
-
-    @Override
-    public void rollbackTaskHardDelete(String courseId, String moduleId, String taskId) {
-
     }
 }

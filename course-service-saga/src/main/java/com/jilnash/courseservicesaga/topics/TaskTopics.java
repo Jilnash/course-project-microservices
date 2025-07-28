@@ -107,4 +107,48 @@ public class TaskTopics {
     public NewTopic taskDeleteHardTopic() {
         return new NewTopic("task-hard-delete-topic", 1, (short) 1);
     }
+
+
+    /**
+     * Rollback topics for task operations.
+     */
+    @Bean
+    public NewTopic taskCreateRollbackTopic() {
+        return new NewTopic("task-create-rollback-topic", 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic taskUpdateTitleRollbackTopic() {
+        return new NewTopic("task-update-title-rollback-topic", 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic taskUpdateDescriptionRollbackTopic() {
+        return new NewTopic("task-update-description-rollback-topic", 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic taskUpdateVideoFileNameRollbackTopic() {
+        return new NewTopic("task-update-video-file-name-rollback-topic", 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic taskUpdateIsPublicRollbackTopic() {
+        return new NewTopic("task-update-is-public-rollback-topic", 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic taskUpdatePrerequisitesRollbackTopic() {
+        return new NewTopic("task-update-prerequisites-rollback-topic", 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic taskUpdateSuccessorsRollbackTopic() {
+        return new NewTopic("task-update-successors-rollback-topic", 1, (short) 1);
+    }
+
+    @Bean
+    public NewTopic taskSoftDeleteRollbackTopic() {
+        return new NewTopic("task-soft-delete-rollback-topic", 1, (short) 1);
+    }
 }
