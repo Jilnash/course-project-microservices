@@ -18,7 +18,11 @@ public class TaskServiceRollbackSagaImpl implements TaskServiceRollbackSaga {
 
     @Override
     public void rollbackTaskCreate(String courseId, String moduleId, String taskId) {
-        kafkaTemplate.send("task-create-rollback-topic", taskId);
+        TaskCreateDTO dto = new TaskCreateDTO();
+        dto.setCourseId(courseId);
+        dto.setCourseId(moduleId);
+        dto.setTaskId(taskId);
+        kafkaTemplate.send("task-create-rollback-topic", dto);
     }
 
     @Override

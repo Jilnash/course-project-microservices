@@ -15,8 +15,8 @@ public class TaskRollbackListener {
     }
 
     @KafkaListener(topics = "task-create-rollback-topic", groupId = "course-service-group")
-    public void rollbackTaskCreate(String courseId, String moduleId, String taskId) {
-        taskServiceRollback.rollbackTaskCreate(courseId, moduleId, taskId);
+    public void rollbackTaskCreate(TaskCreateDTO dto) {
+        taskServiceRollback.rollbackTaskCreate(dto.getCourseId(), dto.getModuleId(), dto.getTaskId());
     }
 
     @KafkaListener(topics = "task-update-title-rollback-topic", groupId = "course-service-group")
