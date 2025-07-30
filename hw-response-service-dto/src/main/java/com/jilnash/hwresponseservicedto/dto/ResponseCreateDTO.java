@@ -11,6 +11,7 @@ import java.util.List;
 public class ResponseCreateDTO {
     private String id;
     private String teacherId;
+    private String courseId;
     private String hwId;
     private List<@Valid Comments> comments;
     private Boolean isCorrect;
