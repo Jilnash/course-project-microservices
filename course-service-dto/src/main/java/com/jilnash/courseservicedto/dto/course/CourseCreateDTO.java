@@ -2,11 +2,20 @@ package com.jilnash.courseservicedto.dto.course;
 
 public class CourseCreateDTO {
 
+    private String transactionId;
     private String id;
     private String authorId;
     private String name;
     private String description;
     private String duration;
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
+    }
 
     public String getId() {
         return id;

@@ -29,43 +29,48 @@ public class CourseServiceSagaController {
 
     @PatchMapping("/{courseId}/name")
     public ResponseEntity<?> updateCourseName(@PathVariable String courseId,
-                                              @RequestBody String newName) {
+                                              @RequestBody String newName,
+                                              @RequestHeader("X-User-Sub") String teacherId) {
 
-        courseServiceSaga.updateCourseName(courseId, newName);
+        courseServiceSaga.updateCourseName(teacherId, courseId, newName);
 
         return ResponseEntity.ok("Course name updated successfully");
     }
 
     @PatchMapping("/{courseId}/description")
     public ResponseEntity<?> updateCourseDescription(@PathVariable String courseId,
-                                                     @RequestBody String newDescription) {
+                                                     @RequestBody String newDescription,
+                                                     @RequestHeader("X-User-Sub") String teacherId) {
 
-        courseServiceSaga.updateCourseDescription(courseId, newDescription);
+        courseServiceSaga.updateCourseDescription(teacherId, courseId, newDescription);
 
         return ResponseEntity.ok("Course description updated successfully");
     }
 
     @PatchMapping("/{courseId}/duration")
     public ResponseEntity<?> updateCourseDuration(@PathVariable String courseId,
-                                                  @RequestBody String newDuration) {
+                                                  @RequestBody String newDuration,
+                                                  @RequestHeader("X-User-Sub") String teacherId) {
 
-        courseServiceSaga.updateCourseDuration(courseId, newDuration);
+        courseServiceSaga.updateCourseDuration(teacherId, courseId, newDuration);
 
         return ResponseEntity.ok("Course duration updated successfully");
     }
 
     @DeleteMapping("/{courseId}/soft")
-    public ResponseEntity<?> deleteCourse(@PathVariable String courseId) {
+    public ResponseEntity<?> deleteCourse(@PathVariable String courseId,
+                                          @RequestHeader("X-User-Sub") String teacherId) {
 
-        courseServiceSaga.softDeleteCourse(courseId);
+        courseServiceSaga.softDeleteCourse(teacherId, courseId);
 
         return ResponseEntity.ok("Course with ID " + courseId + " deleted successfully");
     }
 
     @DeleteMapping("/{courseId}/hard")
-    public ResponseEntity<?> hardDeleteCourse(@PathVariable String courseId) {
+    public ResponseEntity<?> hardDeleteCourse(@PathVariable String courseId,
+                                              @RequestHeader("X-User-Sub") String teacherId) {
 
-        courseServiceSaga.hardDeleteCourse(courseId);
+        courseServiceSaga.hardDeleteCourse(teacherId, courseId);
 
         return ResponseEntity.ok("Course with ID " + courseId + " hard deleted successfully");
     }

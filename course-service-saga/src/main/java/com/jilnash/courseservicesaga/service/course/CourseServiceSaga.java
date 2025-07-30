@@ -8,13 +8,13 @@ interface CourseServiceSaga {
 
     void createCourse(CourseCreateDTO courseCreateDTO);
 
-    void updateCourseName(String courseId, String name);
+    void updateCourseName(String teacherId, String courseId, String name);
 
-    void updateCourseDescription(String courseId, String description);
+    void updateCourseDescription(String teacherId, String courseId, String description);
 
-    void updateCourseDuration(String courseId, String duration);
+    void updateCourseDuration(String teacherId, String courseId, String duration);
 
-    void softDeleteCourse(String courseId);
+    void softDeleteCourse(String teacherId, String courseId);
 
-    void hardDeleteCourse(String courseId);
+    void hardDeleteCourse(String teacherId, String courseId);
 }
