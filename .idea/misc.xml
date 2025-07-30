@@ -31,6 +31,7 @@
         <option value="$PROJECT_DIR$/hw-service-dto/pom.xml" />
         <option value="$PROJECT_DIR$/hw-response-service-saga/pom.xml" />
         <option value="$PROJECT_DIR$/hw-response-service-dto/pom.xml" />
+        <option value="$PROJECT_DIR$/course-rights-service-dto/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

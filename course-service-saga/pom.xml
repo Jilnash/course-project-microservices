@@ -76,6 +76,12 @@
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.jilnash</groupId>
+      <artifactId>course-rights-service-dto</artifactId>
+      <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+
   </dependencies>
 
   <dependencyManagement>

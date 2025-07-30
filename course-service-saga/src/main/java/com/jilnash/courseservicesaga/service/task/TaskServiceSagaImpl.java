@@ -1,5 +1,6 @@
 package com.jilnash.courseservicesaga.service.task;
 
+import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.courseservicedto.dto.task.*;
 import com.jilnash.courseservicesaga.dto.TaskSagaCreateDTO;
 import com.jilnash.courseservicesaga.mapper.TaskMapper;
@@ -38,6 +39,7 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
 
     @Override
     public List<TaskResponse> getTasks(String userId, String courseId, String moduleId, String name) {
+
         kafkaTemplate.send("task-get-tasks-topic", new TasksRequestDTO(courseId, moduleId, name));
         return List.of();
     }
@@ -53,7 +55,7 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
         record.headers().add(new RecordHeader(KafkaHeaders.CORRELATION_ID, UUID.randomUUID().toString().getBytes()));
 
         RequestReplyFuture<String, Object, Object> future = replyingKafkaTemplate.sendAndReceive(record);
-        replyingKafkaTemplate.setDefaultReplyTimeout(Duration.ofSeconds(10L));
+        replyingKafkaTemplate.setDefaultReplyTimeout(Duration.ofMinutes(1L));
 
         try {
             return (TaskGraph) future.get().value();
@@ -167,58 +169,111 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
     }
 
     @Override
-    public void createTask(TaskSagaCreateDTO taskCreateDTO) {
+    public void createTask(TaskSagaCreateDTO dto) {
+        String transactionId = UUID.randomUUID().toString();
         String taskId = UUID.randomUUID().toString();
-        taskCreateDTO.setTaskId(taskId);
-        System.out.println(taskCreateDTO.getPrerequisiteTasksIds());
-        System.out.println(taskCreateDTO.getSuccessorTasksIds());
-        //todo: check teacher permissions
+        dto.setTaskId(taskId);
+
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, dto.getCourseId(), dto.getAuthorId(), Set.of()));
         //todo: upload file to file-service
-        kafkaTemplate.send("task-create-topic", taskMapper.toTaskCreateDTO(taskCreateDTO));
+        //todo: update progress
+        //todo: create task file requirements
+
+        kafkaTemplate.send("task-create-topic", taskMapper.toTaskCreateDTO(dto));
     }
 
     @Override
     public void updateTaskTitle(String teacherId, String courseId, String moduleId, String taskId, String title) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
         kafkaTemplate.send("task-update-title-topic", new TaskUpdateTitleDTO(courseId, moduleId, taskId, title));
     }
 
     @Override
     public void updateTaskDescription(String teacherId, String courseId, String moduleId, String taskId, String description) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
         kafkaTemplate.send("task-update-description-topic", new TaskUpdateDescriptionDTO(courseId, moduleId, taskId, description));
     }
 
     @Override
     public void updateTaskVideoFile(String teacherId, String courseId, String moduleId, String id, MultipartFile videoFile) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
         kafkaTemplate.send("task-update-video-file-topic", new TaskUpdateVideoFileDTO(courseId, moduleId, id, videoFile.getOriginalFilename()));
     }
 
     @Override
     public void updateTaskIsPublic(String teacherId, String courseId, String moduleId, String id, Boolean isPublic) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
         kafkaTemplate.send("task-update-is-public-topic", new TaskUpdateIsPublicDTO(courseId, moduleId, id, isPublic));
     }
 
     @Override
     public void updateTaskHwPostingInterval(String teacherId, String courseId, String moduleId, String id, Integer hwPostingInterval) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
         kafkaTemplate.send("task-update-hw-posting-interval-topic", new TaskUpdateHwIntervalDTO(courseId, moduleId, id, hwPostingInterval));
     }
 
     @Override
     public void updateTaskPrerequisites(String teacherId, String courseId, String moduleId, String taskId, Set<String> prerequisiteTasksIds) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
         kafkaTemplate.send("task-update-prerequisites-topic", new TaskUpdatePrereqsDTO(courseId, moduleId, taskId, prerequisiteTasksIds));
+        //todo: update progress
     }
 
     @Override
     public void updateTaskSuccessors(String teacherId, String courseId, String moduleId, String taskId, Set<String> successorTasksIds) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
         kafkaTemplate.send("task-update-successors-topic", new TaskUpdateSuccessorsDTO(courseId, moduleId, taskId, successorTasksIds));
+        //todo: update progress
     }
 
     @Override
     public void softDeleteTask(String teacherId, String courseId, String moduleId, String taskId) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
         kafkaTemplate.send("task-soft-delete-topic", new TaskDeleteDTO(courseId, moduleId, taskId));
+        //todo: update progress
     }
 
     @Override
     public void hardDeleteTask(String teacherId, String courseId, String moduleId, String taskId) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
         kafkaTemplate.send("task-hard-delete-topic", new TaskDeleteDTO(courseId, moduleId, taskId));
+        //todo: update progress
     }
 }
