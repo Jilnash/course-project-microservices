@@ -31,9 +31,10 @@ public class ModuleServiceSagaController {
     @PatchMapping("/{moduleId}/name")
     public ResponseEntity<?> updateModuleName(@PathVariable String courseId,
                                               @PathVariable String moduleId,
+                                              @RequestHeader("X-User-Sub") String authorId,
                                               @RequestBody String newName) {
 
-        moduleServiceSaga.updateModuleName(courseId, moduleId, newName);
+        moduleServiceSaga.updateModuleName(authorId, courseId, moduleId, newName);
 
         return ResponseEntity.ok("Module name updated successfully");
     }
@@ -41,27 +42,30 @@ public class ModuleServiceSagaController {
     @PatchMapping("/{moduleId}/description")
     public ResponseEntity<?> updateModuleDescription(@PathVariable String courseId,
                                                      @PathVariable String moduleId,
+                                                     @RequestHeader("X-User-Sub") String authorId,
                                                      @RequestBody String newDescription) {
 
-        moduleServiceSaga.updateModuleDescription(courseId, moduleId, newDescription);
+        moduleServiceSaga.updateModuleDescription(authorId, courseId, moduleId, newDescription);
 
         return ResponseEntity.ok("Module description updated successfully");
     }
 
     @DeleteMapping("/{moduleId}/soft")
     public ResponseEntity<?> deleteModule(@PathVariable String courseId,
-                                          @PathVariable String moduleId) {
+                                          @PathVariable String moduleId,
+                                          @RequestHeader("X-User-Sub") String authorId) {
 
-        moduleServiceSaga.softDeleteModule(courseId, moduleId);
+        moduleServiceSaga.softDeleteModule(authorId, courseId, moduleId);
 
         return ResponseEntity.ok("Module soft deleted successfully");
     }
 
     @DeleteMapping("/{moduleId}/hard")
     public ResponseEntity<?> hardDeleteModule(@PathVariable String courseId,
-                                              @PathVariable String moduleId) {
+                                              @PathVariable String moduleId,
+                                              @RequestHeader("X-User-Sub") String authorId) {
 
-        moduleServiceSaga.hardDeleteModule(courseId, moduleId);
+        moduleServiceSaga.hardDeleteModule(authorId, courseId, moduleId);
 
         return ResponseEntity.ok("Module hard deleted successfully");
     }

@@ -1,11 +1,13 @@
 package com.jilnash.courseservicesaga.service.module;
 
+import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.courseservicedto.dto.module.ModuleCreateDTO;
 import com.jilnash.courseservicedto.dto.module.ModuleUpdateDescriptionDTO;
 import com.jilnash.courseservicedto.dto.module.ModuleUpdateNameDTO;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -23,51 +25,54 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
         String id = UUID.randomUUID().toString();
         module.setId(id);
 
-        try {
-            //todo: check teacher permissions
-            kafkaTemplate.send("module-create-topic", module);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, module.getCourseId(), module.getAuthorId(), Set.of()));
+        kafkaTemplate.send("module-create-topic", module);
+
     }
 
     @Override
-    public void updateModuleName(String courseId, String id, String name) {
-        try {
-            //todo: check teacher permissions
-            kafkaTemplate.send("module-update-name-topic", new ModuleUpdateNameDTO(courseId, id, name));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public void updateModuleName(String teacherId, String courseId, String id, String name) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
+        kafkaTemplate.send("module-update-name-topic", new ModuleUpdateNameDTO(courseId, id, name));
+
     }
 
     @Override
-    public void updateModuleDescription(String courseId, String id, String description) {
-        try {
-            //todo: check teacher permissions
-            kafkaTemplate.send("module-update-description-topic", new ModuleUpdateDescriptionDTO(courseId, id, description));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public void updateModuleDescription(String teacherId, String courseId, String id, String description) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
+        kafkaTemplate.send("module-update-description-topic", new ModuleUpdateDescriptionDTO(courseId, id, description));
+
     }
 
     @Override
-    public void softDeleteModule(String courseId, String id) {
-        try {
-            //todo: check teacher permissions
-            kafkaTemplate.send("module-soft-delete-topic", id);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public void softDeleteModule(String teacherId, String courseId, String id) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
+        kafkaTemplate.send("module-soft-delete-topic", id);
+
     }
 
     @Override
-    public void hardDeleteModule(String courseId, String id) {
-        try {
-            //todo: check teacher permissions
-            kafkaTemplate.send("module-hard-delete-topic", id);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+    public void hardDeleteModule(String teacherId, String courseId, String id) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
+        kafkaTemplate.send("module-hard-delete-topic", id);
+
     }
 }

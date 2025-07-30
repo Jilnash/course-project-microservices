@@ -8,11 +8,11 @@ public interface ModuleServiceSaga {
 
     void createModule(ModuleCreateDTO module);
 
-    void updateModuleName(String courseId, String id, String name);
+    void updateModuleName(String teacherId, String courseId, String id, String name);
 
-    void updateModuleDescription(String courseId, String id, String description);
+    void updateModuleDescription(String teacherId, String courseId, String id, String description);
 
-    void softDeleteModule(String courseId, String moduleId);
+    void softDeleteModule(String teacherId, String courseId, String moduleId);
 
-    void hardDeleteModule(String courseId, String moduleId);
+    void hardDeleteModule(String teacherId, String courseId, String moduleId);
 }
