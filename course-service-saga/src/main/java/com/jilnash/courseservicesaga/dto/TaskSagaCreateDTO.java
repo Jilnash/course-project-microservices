@@ -1,5 +1,6 @@
 package com.jilnash.courseservicesaga.dto;
 
+import com.jilnash.taskrequirementsservicedto.dto.FileReqirement;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -8,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Set;
 
 @Getter
@@ -41,4 +43,8 @@ public class TaskSagaCreateDTO {
     private Set<String> prerequisiteTasksIds;
 
     private Set<String> successorTasksIds;
+
+    @NotNull(message = "Requirements cannot be null")
+    @NotEmpty(message = "Requirements cannot be empty")
+    private List<FileReqirement> reqirements;
 }

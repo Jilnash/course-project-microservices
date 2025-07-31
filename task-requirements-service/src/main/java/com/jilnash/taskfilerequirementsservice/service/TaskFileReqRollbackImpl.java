@@ -1,7 +1,7 @@
 package com.jilnash.taskfilerequirementsservice.service;
 
-import com.jilnash.taskfilerequirementsservice.dto.TaskFileReqDTO;
 import com.jilnash.taskfilerequirementsservice.repo.TaskFileRequirementRepo;
+import com.jilnash.taskrequirementsservicedto.dto.FileReqirement;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,7 +16,7 @@ public class TaskFileReqRollbackImpl implements TaskFileReqServiceRollback {
     }
 
     @Override
-    public Boolean setTaskRequirementsRollback(String taskId, List<TaskFileReqDTO> requirements) {
+    public Boolean setTaskRequirementsRollback(String taskId, List<FileReqirement> requirements) {
 
         try {
             taskFileRequirementRepo.deleteAllByTaskIdAndDeletedAtIsNotNull(taskId);

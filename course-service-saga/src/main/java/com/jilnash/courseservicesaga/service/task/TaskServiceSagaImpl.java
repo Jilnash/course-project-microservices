@@ -4,6 +4,7 @@ import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.courseservicedto.dto.task.*;
 import com.jilnash.courseservicesaga.dto.TaskSagaCreateDTO;
 import com.jilnash.courseservicesaga.mapper.TaskMapper;
+import com.jilnash.taskrequirementsservicedto.dto.SetRequirements;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -178,7 +179,9 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
                 new CheckRightsDTO(transactionId, dto.getCourseId(), dto.getAuthorId(), Set.of()));
         //todo: upload file to file-service
         //todo: update progress
-        //todo: create task file requirements
+
+        kafkaTemplate.send("set-task-requirements-topic",
+                new SetRequirements(transactionId, taskId, dto.getReqirements()));
 
         kafkaTemplate.send("task-create-topic", taskMapper.toTaskCreateDTO(dto));
     }
