@@ -1,5 +1,6 @@
 package com.jilnash.hwservicesaga.service;
 
+import com.jilnash.courseaccessservicedto.dto.CheckAccessDTO;
 import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.hwservicedto.dto.HomeworkResponse;
 import com.jilnash.hwservicesaga.dto.HomeworkCreateSagaDTO;
@@ -37,16 +38,20 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
 
     @Override
     public void setHomeworkChecked(String courseId, String teacherId, UUID id) {
-        //todo: check user permissions
+
         String transactionId = UUID.randomUUID().toString();
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
         kafkaTemplate.send("homework-checked-topic", id);
     }
 
     @Override
     public void createHomework(HomeworkCreateSagaDTO homework) {
-        //todo: check user permissions
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-access-topic",
+                new CheckAccessDTO(transactionId, homework.getCourseId(), homework.getStudentId()));
         //todo: upload files to storage
         kafkaTemplate.send("homework-create-topic", homeworkMapper.homeworkCreateDTO(homework));
     }
