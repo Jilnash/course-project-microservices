@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/v1/homeworks")
+@RequestMapping("/api/v1/courses/{courseId}/homeworks")
 @RequiredArgsConstructor
 public class HomeworkController {
 
@@ -56,9 +56,11 @@ public class HomeworkController {
     @PostMapping
     public ResponseEntity<?> createHomework(
             @ModelAttribute @Validated HomeworkCreateSagaDTO homeworkDTO,
+            @PathVariable String courseId,
             @RequestHeader("X-User-Sub") String studentId) {
 
         homeworkDTO.setStudentId(studentId);
+        homeworkDTO.setCourseId(courseId);
 
         log.info("[CONTROLLER] Creating homework");
         log.debug("[CONTROLLER] Creating homework to taskId {} by studentId: {}", homeworkDTO.getTaskId(), studentId);
@@ -92,11 +94,13 @@ public class HomeworkController {
      * message, and details of the updated homework
      */
     @PatchMapping("{hwId}/checked")
-    public ResponseEntity<?> setChecked(@PathVariable UUID hwId) {
+    public ResponseEntity<?> setChecked(@PathVariable UUID hwId,
+                                        @PathVariable String courseId,
+                                        @RequestHeader("X-User-Sub") String teacherId) {
 
         log.info("[CONTROLLER] Checking homework");
         log.debug("[CONTROLLER] Checking homework with id: {}", hwId);
-        homeworkService.setHomeworkChecked(hwId);
+        homeworkService.setHomeworkChecked(courseId, teacherId, hwId);
 
         return ResponseEntity.ok("Homework checked successfully");
     }
@@ -109,11 +113,13 @@ public class HomeworkController {
      * @return a ResponseEntity containing an AppResponse object with the status and message of the deletion operation
      */
     @DeleteMapping("/{id}/soft")
-    public ResponseEntity<?> deleteHomework(@PathVariable UUID id) {
+    public ResponseEntity<?> deleteHomework(@PathVariable UUID id,
+                                            @PathVariable String courseId,
+                                            @RequestHeader("X-User-Sub") String teacherId) {
 
         log.info("[CONTROLLER] Deleting homework");
         log.debug("[CONTROLLER] Deleting homework with id: {}", id);
-        homeworkService.softDeleteHomework(id);
+        homeworkService.softDeleteHomework(courseId, teacherId, id);
 
         return ResponseEntity.ok("Homework deleted successfully");
     }
@@ -126,11 +132,13 @@ public class HomeworkController {
      * @return a ResponseEntity containing an AppResponse object with the status and message of the deletion operation
      */
     @DeleteMapping("/{id}/hard")
-    public ResponseEntity<?> hardDeleteHomework(@PathVariable UUID id) {
+    public ResponseEntity<?> hardDeleteHomework(@PathVariable UUID id,
+                                                @PathVariable String courseId,
+                                                @RequestHeader("X-User-Sub") String teacherId) {
 
         log.info("[CONTROLLER] Hard deleting homework");
         log.debug("[CONTROLLER] Hard deleting homework with id: {}", id);
-        homeworkService.hardDeleteHomework(id);
+        homeworkService.hardDeleteHomework(courseId, teacherId, id);
 
         return ResponseEntity.ok("Homework hard deleted successfully");
     }

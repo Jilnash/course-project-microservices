@@ -1,5 +1,6 @@
 package com.jilnash.hwservicesaga.service;
 
+import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.hwservicedto.dto.HomeworkResponse;
 import com.jilnash.hwservicesaga.dto.HomeworkCreateSagaDTO;
 import com.jilnash.hwservicesaga.mapper.HomeworkMapper;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -30,31 +32,42 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
 
     @Override
     public HomeworkResponse getHomework(UUID id) {
-        //todo: check user permissions
         return null;
     }
 
     @Override
-    public void setHomeworkChecked(UUID id) {
+    public void setHomeworkChecked(String courseId, String teacherId, UUID id) {
         //todo: check user permissions
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
         kafkaTemplate.send("homework-checked-topic", id);
     }
 
     @Override
     public void createHomework(HomeworkCreateSagaDTO homework) {
         //todo: check user permissions
+        //todo: upload files to storage
         kafkaTemplate.send("homework-create-topic", homeworkMapper.homeworkCreateDTO(homework));
     }
 
     @Override
-    public void softDeleteHomework(UUID id) {
-        //todo: check user permissions
+    public void softDeleteHomework(String courseId, String teacherId, UUID id) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
         kafkaTemplate.send("homework-soft-delete-topic", id);
     }
 
     @Override
-    public void hardDeleteHomework(UUID id) {
-        //todo: check user permissions
+    public void hardDeleteHomework(String courseId, String teacherId, UUID id) {
+
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("check-course-rights-topic",
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+
         kafkaTemplate.send("homework-hard-delete-topic", id);
     }
 }

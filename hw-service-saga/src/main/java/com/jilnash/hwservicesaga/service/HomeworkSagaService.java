@@ -13,11 +13,11 @@ public interface HomeworkSagaService {
 
     HomeworkResponse getHomework(UUID id);
 
-    void setHomeworkChecked(UUID id);
+    void setHomeworkChecked(String courseId, String teacherId, UUID id);
 
     void createHomework(HomeworkCreateSagaDTO homework);
 
-    void softDeleteHomework(UUID id);
+    void softDeleteHomework(String courseId, String teacherId, UUID id);
 
-    void hardDeleteHomework(UUID id);
+    void hardDeleteHomework(String courseId, String teacherId, UUID id);
 }
