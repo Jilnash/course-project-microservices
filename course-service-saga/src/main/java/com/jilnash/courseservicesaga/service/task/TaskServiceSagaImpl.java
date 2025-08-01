@@ -4,6 +4,8 @@ import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.courseservicedto.dto.task.*;
 import com.jilnash.courseservicesaga.dto.TaskSagaCreateDTO;
 import com.jilnash.courseservicesaga.mapper.TaskMapper;
+import com.jilnash.progressservicedto.dto.InsertTaskToProgressDTO;
+import com.jilnash.progressservicedto.dto.RemoveTasksFromProgressDTO;
 import com.jilnash.taskrequirementsservicedto.dto.SetRequirements;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
@@ -178,7 +180,8 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, dto.getCourseId(), dto.getAuthorId(), Set.of()));
         //todo: upload file to file-service
-        //todo: update progress
+        kafkaTemplate.send("insert-task-progress-topic",
+                new InsertTaskToProgressDTO(transactionId, taskId, dto.getPrerequisiteTasksIds().stream().toList()));
 
         kafkaTemplate.send("set-task-requirements-topic",
                 new SetRequirements(transactionId, taskId, dto.getReqirements()));
@@ -264,9 +267,9 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
         String transactionId = UUID.randomUUID().toString();
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
-
+        kafkaTemplate.send("soft-delete-progress-topic",
+                new RemoveTasksFromProgressDTO(transactionId, List.of(taskId)));
         kafkaTemplate.send("task-soft-delete-topic", new TaskDeleteDTO(courseId, moduleId, taskId));
-        //todo: update progress
     }
 
     @Override
@@ -275,8 +278,8 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
         String transactionId = UUID.randomUUID().toString();
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
-
+        kafkaTemplate.send("soft-delete-progress-topic",
+                new RemoveTasksFromProgressDTO(transactionId, List.of(taskId)));
         kafkaTemplate.send("task-hard-delete-topic", new TaskDeleteDTO(courseId, moduleId, taskId));
-        //todo: update progress
     }
 }

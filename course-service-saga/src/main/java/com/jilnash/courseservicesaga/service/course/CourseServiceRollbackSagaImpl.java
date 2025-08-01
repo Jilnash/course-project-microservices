@@ -6,6 +6,8 @@ import com.jilnash.courseservicedto.dto.course.CourseUpdateNameDTO;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class CourseServiceRollbackSagaImpl implements CourseServiceRollbackSaga {
 
@@ -22,17 +24,20 @@ public class CourseServiceRollbackSagaImpl implements CourseServiceRollbackSaga 
 
     @Override
     public void updateCourseNameRollback(String courseId, String prevName) {
-        kafkaTemplate.send("course-name-update-rollback-topic", new CourseUpdateNameDTO(courseId, prevName));
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("course-name-update-rollback-topic", new CourseUpdateNameDTO(transactionId, courseId, prevName));
     }
 
     @Override
     public void updateCourseDescriptionRollback(String courseId, String prevDescription) {
-        kafkaTemplate.send("course-description-update-rollback-topic", new CourseUpdateDescriptionDTO(courseId, prevDescription));
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("course-description-update-rollback-topic", new CourseUpdateDescriptionDTO(transactionId, courseId, prevDescription));
     }
 
     @Override
     public void updateCourseDurationRollback(String courseId, String prevDuration) {
-        kafkaTemplate.send("course-duration-update-rollback-topic", new CourseUpdateDurationDTO(courseId, prevDuration));
+        String transactionId = UUID.randomUUID().toString();
+        kafkaTemplate.send("course-duration-update-rollback-topic", new CourseUpdateDurationDTO(transactionId, courseId, prevDuration));
     }
 
     @Override
