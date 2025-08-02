@@ -5,30 +5,35 @@ import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.courserightsservicedto.dto.CreateOwnerDTO;
 import com.jilnash.courserightsservicedto.dto.SetRightsDTO;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RightsListener {
 
     private final TeacherRightsService teacherRightsService;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
-    public RightsListener(TeacherRightsService teacherRightsService) {
+    public RightsListener(TeacherRightsService teacherRightsService,
+                          KafkaTemplate<String, String> kafkaTemplate) {
         this.teacherRightsService = teacherRightsService;
+        this.kafkaTemplate = kafkaTemplate;
     }
 
     @KafkaListener(topics = "check-course-rights-topic", groupId = "course-rights-group")
     public void checkRights(CheckRightsDTO dto) {
         System.out.println(dto.toString());
-        if (!teacherRightsService.hasRights(dto.courseId(), dto.teacherId(), dto.rights())) {
-            System.out.println("Teacher does not have rights for this course");
-        }
+        if (!teacherRightsService.hasRights(dto.courseId(), dto.teacherId(), dto.rights()))
+            kafkaTemplate.send("rollback-topic", dto.transactionId());
     }
 
     @KafkaListener(topics = "set-course-rights-topic", groupId = "course-rights-group")
     public void setRights(SetRightsDTO dto) {
         System.out.println(dto.toString());
-        if (!teacherRightsService.setRights(dto.courseId(), dto.teacherId(), dto.rights())) {
-            System.out.println("Failed to set rights for the teacher on the course");
+        try {
+            teacherRightsService.setRights(dto.courseId(), dto.teacherId(), dto.rights());
+        } catch (Exception e) {
+            kafkaTemplate.send("rollback-topic", dto.transactionId());
         }
     }
 

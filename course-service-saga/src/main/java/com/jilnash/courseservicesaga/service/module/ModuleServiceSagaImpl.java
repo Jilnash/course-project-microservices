@@ -15,8 +15,12 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public ModuleServiceSagaImpl(KafkaTemplate<String, Object> kafkaTemplate) {
+    private final Set<String> transactionIds;
+
+    public ModuleServiceSagaImpl(KafkaTemplate<String, Object> kafkaTemplate,
+                                 Set<String> transactionIds) {
         this.kafkaTemplate = kafkaTemplate;
+        this.transactionIds = transactionIds;
     }
 
     @Override
@@ -26,6 +30,8 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
         module.setId(id);
 
         String transactionId = UUID.randomUUID().toString();
+        transactionIds.add(transactionId);
+
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, module.getCourseId(), module.getAuthorId(), Set.of()));
         kafkaTemplate.send("module-create-topic", module);
@@ -36,8 +42,10 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
     public void updateModuleName(String teacherId, String courseId, String id, String name) {
 
         String transactionId = UUID.randomUUID().toString();
+        transactionIds.add(transactionId);
+
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
 
         kafkaTemplate.send("module-update-name-topic", new ModuleUpdateNameDTO(courseId, id, name));
 
@@ -47,6 +55,8 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
     public void updateModuleDescription(String teacherId, String courseId, String id, String description) {
 
         String transactionId = UUID.randomUUID().toString();
+        transactionIds.add(transactionId);
+
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
 
@@ -58,6 +68,8 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
     public void softDeleteModule(String teacherId, String courseId, String id) {
 
         String transactionId = UUID.randomUUID().toString();
+        transactionIds.add(transactionId);
+
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
 
@@ -69,6 +81,8 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
     public void hardDeleteModule(String teacherId, String courseId, String id) {
 
         String transactionId = UUID.randomUUID().toString();
+        transactionIds.add(transactionId);
+
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
 
