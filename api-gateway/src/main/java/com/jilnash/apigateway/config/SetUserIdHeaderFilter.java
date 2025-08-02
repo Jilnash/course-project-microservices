@@ -13,6 +13,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
+import java.util.UUID;
 
 public class SetUserIdHeaderFilter implements GlobalFilter, Ordered {
 
@@ -33,6 +34,7 @@ public class SetUserIdHeaderFilter implements GlobalFilter, Ordered {
                     HttpHeaders mutableHeaders = new HttpHeaders();
                     mutableHeaders.putAll(exchange.getRequest().getHeaders());
                     mutableHeaders.put("X-User-Sub", Collections.singletonList(userId));
+                    mutableHeaders.put("X-Transaction-Id", Collections.singletonList(UUID.randomUUID().toString()));
 
                     // Mutate the request
                     ServerHttpRequest mutatedRequest = exchange.getRequest()
