@@ -9,7 +9,6 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 public class ModuleServiceSagaImpl implements ModuleServiceSaga {
@@ -27,13 +26,10 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
     @Override
     public void createModule(ModuleCreateDTO module) {
 
-        String id = UUID.randomUUID().toString();
-        module.setId(id);
-
         String transactionId = request.getHeader("X-Transaction-Id");
 
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, module.getCourseId(), module.getAuthorId(), Set.of()));
+                new CheckRightsDTO(transactionId, module.getCourseId(), module.getAuthorId(), Set.of("CREATE")));
         kafkaTemplate.send("module-create-topic", module);
 
     }
@@ -56,7 +52,7 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
         String transactionId = request.getHeader("X-Transaction-Id");
 
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
 
         kafkaTemplate.send("module-update-description-topic", new ModuleUpdateDescriptionDTO(courseId, id, description));
 
@@ -68,7 +64,7 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
         String transactionId = request.getHeader("X-Transaction-Id");
 
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("DELETE")));
 
         kafkaTemplate.send("module-soft-delete-topic", id);
 
@@ -80,7 +76,7 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
         String transactionId = request.getHeader("X-Transaction-Id");
 
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("DELETE")));
 
         kafkaTemplate.send("module-hard-delete-topic", id);
 

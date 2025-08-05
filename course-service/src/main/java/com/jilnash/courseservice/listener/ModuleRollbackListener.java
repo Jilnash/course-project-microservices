@@ -17,8 +17,8 @@ public class ModuleRollbackListener {
     }
 
     @KafkaListener(topics = "module-create-rollback-topic", groupId = "course-service-group")
-    public void handleModuleCreateRollback(String courseId) {
-        moduleServiceRollback.createModuleRollback(courseId);
+    public void handleModuleCreateRollback(String moduleId) {
+        moduleServiceRollback.createModuleRollback(moduleId);
     }
 
     @KafkaListener(topics = "module-update-name-rollback-topic", groupId = "course-service-group")

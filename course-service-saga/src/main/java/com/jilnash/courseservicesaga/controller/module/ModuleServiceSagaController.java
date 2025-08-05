@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/modules")
 public class ModuleServiceSagaController {
@@ -23,6 +25,8 @@ public class ModuleServiceSagaController {
 
         moduleCreateDTO.setCourseId(courseId);
         moduleCreateDTO.setAuthorId(authorId);
+        moduleCreateDTO.setId(UUID.randomUUID().toString());
+
         moduleServiceSaga.createModule(moduleCreateDTO);
 
         return ResponseEntity.ok("Module created successfully");

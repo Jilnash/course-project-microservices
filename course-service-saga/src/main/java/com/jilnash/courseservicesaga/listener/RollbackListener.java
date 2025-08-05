@@ -14,15 +14,16 @@ public class RollbackListener {
     private final Map<String, Transaction> transactions;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public RollbackListener(Map<String, Transaction> transactions, KafkaTemplate<String, Object> kafkaTemplate) {
+    public RollbackListener(Map<String, Transaction> transactions,
+                            KafkaTemplate<String, Object> kafkaTemplate) {
         this.transactions = transactions;
         this.kafkaTemplate = kafkaTemplate;
     }
 
     @KafkaListener(topics = "rollback-topic", groupId = "course-service-saga-group")
     public void rollbackCourse(String transactionId) {
-        for (RollbackStage stage : transactions.get(transactionId).getRollbackStages()) {
+
+        for (RollbackStage stage : transactions.get(transactionId).getRollbackStages())
             kafkaTemplate.send(stage.getTopic(), stage.getPayload());
-        }
     }
 }
