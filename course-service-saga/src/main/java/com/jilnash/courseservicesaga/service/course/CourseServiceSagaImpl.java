@@ -6,12 +6,12 @@ import com.jilnash.courseservicedto.dto.course.CourseCreateDTO;
 import com.jilnash.courseservicedto.dto.course.CourseUpdateDescriptionDTO;
 import com.jilnash.courseservicedto.dto.course.CourseUpdateDurationDTO;
 import com.jilnash.courseservicedto.dto.course.CourseUpdateNameDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Set;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -19,27 +19,27 @@ public class CourseServiceSagaImpl implements CourseServiceSaga {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
+    private final HttpServletRequest request;
+
     @Override
     public void createCourse(CourseCreateDTO dto) {
 
-        String transactionId = UUID.randomUUID().toString();
-        String uuid = UUID.randomUUID().toString();
-        dto.setId(uuid);
+        String transactionId = request.getHeader("X-Transaction-Id");
+
         dto.setTransactionId(transactionId);
 
-        kafkaTemplate.send("check-course-rights-topic",
-                new CreateOwnerDTO(transactionId, uuid, dto.getAuthorId()));
+        kafkaTemplate.send("create-course-owner-topic",
+                new CreateOwnerDTO(transactionId, dto.getId(), dto.getAuthorId()));
         kafkaTemplate.send("course-create-topic", dto);
-//            kafkaTemplate.send("course-owner-created-topic", dto.getAuthorId());
-
     }
 
     @Override
     public void updateCourseName(String teacherId, String courseId, String name) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
+
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
         kafkaTemplate.send("course-update-name-topic",
                 new CourseUpdateNameDTO(transactionId, courseId, name));
     }
@@ -47,9 +47,10 @@ public class CourseServiceSagaImpl implements CourseServiceSaga {
     @Override
     public void updateCourseDescription(String teacherId, String courseId, String description) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
+
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
         kafkaTemplate.send("course-update-description-topic",
                 new CourseUpdateDescriptionDTO(transactionId, courseId, description));
     }
@@ -57,9 +58,10 @@ public class CourseServiceSagaImpl implements CourseServiceSaga {
     @Override
     public void updateCourseDuration(String teacherId, String courseId, String duration) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
+
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
         kafkaTemplate.send("course-update-duration-topic",
                 new CourseUpdateDurationDTO(transactionId, courseId, duration));
     }
@@ -67,18 +69,20 @@ public class CourseServiceSagaImpl implements CourseServiceSaga {
     @Override
     public void softDeleteCourse(String teacherId, String courseId) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
+
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("DELETE")));
         kafkaTemplate.send("course-soft-delete-topic", courseId);
     }
 
     @Override
     public void hardDeleteCourse(String teacherId, String courseId) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
+
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("DELETE")));
         kafkaTemplate.send("course-hard-delete-topic", courseId);
     }
 }

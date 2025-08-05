@@ -6,6 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/courses")
 public class CourseServiceSagaController {
@@ -22,6 +24,8 @@ public class CourseServiceSagaController {
             @RequestBody @Validated CourseCreateDTO courseCreateDTO) {
 
         courseCreateDTO.setAuthorId(authorId);
+        courseCreateDTO.setId(UUID.randomUUID().toString());
+
         courseServiceSaga.createCourse(courseCreateDTO);
 
         return ResponseEntity.ok("Course created successfully");

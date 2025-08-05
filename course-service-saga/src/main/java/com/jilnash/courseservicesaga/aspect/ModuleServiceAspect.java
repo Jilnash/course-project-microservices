@@ -87,7 +87,6 @@ public class ModuleServiceAspect {
     public void beforeModuleSoftDelete(String teacherId, String courseId, String id) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
-        System.out.println(transactionId);
         List<RollbackStage> rollbackStages = List.of(
                 new RollbackStage(
                         "module-soft-delete-rollback-topic",
