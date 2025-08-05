@@ -12,6 +12,7 @@
         <set>
           <option value="X-User-Email" />
           <option value="X-User-Sub" />
+          <option value="X-Transaction-Id" />
         </set>
       </option>
     </inspection_tool>

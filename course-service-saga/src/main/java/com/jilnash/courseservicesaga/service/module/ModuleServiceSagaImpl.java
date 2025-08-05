@@ -4,6 +4,7 @@ import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.courseservicedto.dto.module.ModuleCreateDTO;
 import com.jilnash.courseservicedto.dto.module.ModuleUpdateDescriptionDTO;
 import com.jilnash.courseservicedto.dto.module.ModuleUpdateNameDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -15,12 +16,12 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    private final Set<String> transactionIds;
+    private final HttpServletRequest request;
 
     public ModuleServiceSagaImpl(KafkaTemplate<String, Object> kafkaTemplate,
-                                 Set<String> transactionIds) {
+                                 HttpServletRequest request) {
         this.kafkaTemplate = kafkaTemplate;
-        this.transactionIds = transactionIds;
+        this.request = request;
     }
 
     @Override
@@ -29,8 +30,7 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
         String id = UUID.randomUUID().toString();
         module.setId(id);
 
-        String transactionId = UUID.randomUUID().toString();
-        transactionIds.add(transactionId);
+        String transactionId = request.getHeader("X-Transaction-Id");
 
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, module.getCourseId(), module.getAuthorId(), Set.of()));
@@ -41,8 +41,7 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
     @Override
     public void updateModuleName(String teacherId, String courseId, String id, String name) {
 
-        String transactionId = UUID.randomUUID().toString();
-        transactionIds.add(transactionId);
+        String transactionId = request.getHeader("X-Transaction-Id");
 
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
@@ -54,8 +53,7 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
     @Override
     public void updateModuleDescription(String teacherId, String courseId, String id, String description) {
 
-        String transactionId = UUID.randomUUID().toString();
-        transactionIds.add(transactionId);
+        String transactionId = request.getHeader("X-Transaction-Id");
 
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
@@ -67,8 +65,7 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
     @Override
     public void softDeleteModule(String teacherId, String courseId, String id) {
 
-        String transactionId = UUID.randomUUID().toString();
-        transactionIds.add(transactionId);
+        String transactionId = request.getHeader("X-Transaction-Id");
 
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
@@ -80,8 +77,7 @@ public class ModuleServiceSagaImpl implements ModuleServiceSaga {
     @Override
     public void hardDeleteModule(String teacherId, String courseId, String id) {
 
-        String transactionId = UUID.randomUUID().toString();
-        transactionIds.add(transactionId);
+        String transactionId = request.getHeader("X-Transaction-Id");
 
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
