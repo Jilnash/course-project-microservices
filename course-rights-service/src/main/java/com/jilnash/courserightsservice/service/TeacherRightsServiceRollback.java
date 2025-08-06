@@ -14,21 +14,17 @@ public class TeacherRightsServiceRollback {
         this.teacherRightsRepo = teacherRightsRepo;
     }
 
-    public Boolean createCourseOwnerRollback(String courseId, String teacherId) {
+    public void createCourseOwnerRollback(String courseId, String teacherId) {
 
         teacherRightsRepo.deleteAllByCourseIdAndTeacherId(courseId, teacherId);
-
-        return false;
     }
 
-    public Boolean setRightsRollback(String courseId, String teacherId, Set<String> rights) {
+    public void setRightsRollback(String courseId, String teacherId, Set<String> rights) {
         try {
             teacherRightsRepo.deleteAllByTeacherIdAndCourseIdAndDeletedAtIsNotNull(teacherId, courseId);
             teacherRightsRepo.updateDeletedAtByCourseIdAndTeacherId(courseId, teacherId, null);
-            return true;
         } catch (Exception e) {
             // Log the exception if necessary
-            return false;
         }
     }
 }
