@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/courses/{courseId}/modules/{moduleId}/tasks")
@@ -50,6 +51,7 @@ public class TaskServiceSagaController {
 
         log.info("[CONTROLLER] Creating task in course {} module {}", courseId, moduleId);
 
+        taskDto.setTaskId(UUID.randomUUID().toString());
         taskDto.setCourseId(courseId);
         taskDto.setModuleId(moduleId);
         taskDto.setAuthorId(teacherId);

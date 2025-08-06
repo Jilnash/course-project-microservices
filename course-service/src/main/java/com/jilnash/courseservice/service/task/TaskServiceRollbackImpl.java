@@ -42,13 +42,13 @@ public class TaskServiceRollbackImpl implements TaskServiceRollback {
 
     @Override
     public void rollbackTaskPrerequisitesUpdate(String courseId, String moduleId, String taskId, Set<String> oldPrerequisites) {
-        //todo: disconnect task from current prerequisites
+        taskRepo.disconnectTaskFromPrerequisites(taskId);//todo: fix
         taskRepo.connectTaskToPrerequisites(taskId, oldPrerequisites);
     }
 
     @Override
     public void rollbackTaskSuccessorsUpdate(String courseId, String moduleId, String taskId, Set<String> oldSuccessors) {
-        //todo: disconnect task from current successors
+        taskRepo.disconnectTaskFromSuccessors(taskId);//todo: fix
         taskRepo.connectTaskToSuccessors(taskId, oldSuccessors);
     }
 
@@ -66,5 +66,10 @@ public class TaskServiceRollbackImpl implements TaskServiceRollback {
                     throw new IllegalArgumentException("Task not found for rollback soft softDeleteModule: " + taskId);
                 }
         );
+    }
+
+    @Override
+    public void rollbackTaskPostingIntervalUpdate(String courseId, String moduleId, String taskId, int interval) {
+        taskRepo.updateTaskHwPostingInterval(courseId, moduleId, taskId, interval);
     }
 }

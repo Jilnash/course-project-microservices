@@ -34,6 +34,11 @@ public class TaskRollbackListener {
         taskServiceRollback.rollbackTaskVideoFileNameUpdate(dto.courseId(), dto.moduleId(), dto.id(), dto.videoFileName());
     }
 
+    @KafkaListener(topics = "task-update-hw-posting-interval-rollback-topic", groupId = "course-service-group")
+    public void rollbackTaskHwPostingIntervalUpdate(TaskUpdateHwIntervalDTO dto) {
+        taskServiceRollback.rollbackTaskPostingIntervalUpdate(dto.courseId(), dto.moduleId(), dto.taskId(), dto.hwPostingInterval());
+    }
+
     @KafkaListener(topics = "task-update-is-public-rollback-topic", groupId = "course-service-group")
     public void rollbackTaskIsPublicUpdate(TaskUpdateIsPublicDTO dto) {
         taskServiceRollback.rollbackTaskIsPublicUpdate(dto.courseId(), dto.moduleId(), dto.id(), dto.isPublic());
@@ -46,6 +51,7 @@ public class TaskRollbackListener {
 
     @KafkaListener(topics = "task-update-successors-rollback-topic", groupId = "course-service-group")
     public void rollbackTaskSuccessorsUpdate(TaskUpdateSuccessorsDTO dto) {
+        System.out.println(dto.successorTasksIds());
         taskServiceRollback.rollbackTaskSuccessorsUpdate(dto.courseId(), dto.moduleId(), dto.taskId(), dto.successorTasksIds());
     }
 

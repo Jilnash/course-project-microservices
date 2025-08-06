@@ -22,4 +22,6 @@ public interface TaskServiceRollback {
     void rollbackTaskSuccessorsUpdate(String courseId, String moduleId, String taskId, Set<String> oldSuccessors);
 
     void rollbackTaskSoftDelete(String courseId, String moduleId, String taskId);
+
+    void rollbackTaskPostingIntervalUpdate(String courseId, String moduleI, String taskId, int interval);
 }

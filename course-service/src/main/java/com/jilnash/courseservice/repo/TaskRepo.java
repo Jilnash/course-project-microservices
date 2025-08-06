@@ -40,6 +40,12 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
             "RETURN t")
     Optional<Task> createTaskWithoutRelationships(TaskCreateDTO taskDTO);
 
+    @Query("MATCH (t:Task {id: $taskId}) -[r:IS_PREREQUISITE]-> () DELETE r")
+    void disconnectTaskFromSuccessors(String taskId);
+
+    @Query("MATCH () -[r:IS_PREREQUISITE]-> (t:Task {id: $taskId}) DELETE r")
+    void disconnectTaskFromPrerequisites(String taskId);
+
     @Query("UNWIND $prerequisiteTaskIds AS prereq " +
             "MATCH (from:Task {id: prereq}), (to:Task {id: $taskId}) " +
             "CREATE (from)-[:IS_PREREQUISITE]->(to)")

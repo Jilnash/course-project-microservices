@@ -7,6 +7,8 @@ import com.jilnash.courseservicesaga.mapper.TaskMapper;
 import com.jilnash.progressservicedto.dto.InsertTaskToProgressDTO;
 import com.jilnash.progressservicedto.dto.RemoveTasksFromProgressDTO;
 import com.jilnash.taskrequirementsservicedto.dto.SetRequirements;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -23,22 +25,16 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 
 @Service
+@RequiredArgsConstructor
 public class TaskServiceSagaImpl implements TaskServiceSaga {
 
     private final TaskMapper taskMapper;
 
+    private final HttpServletRequest request;
+
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     private final ReplyingKafkaTemplate<String, Object, Object> replyingKafkaTemplate;
-
-    public TaskServiceSagaImpl(
-            TaskMapper taskMapper,
-            KafkaTemplate<String, Object> kafkaTemplate,
-            ReplyingKafkaTemplate<String, Object, Object> replyingKafkaTemplate) {
-        this.taskMapper = taskMapper;
-        this.kafkaTemplate = kafkaTemplate;
-        this.replyingKafkaTemplate = replyingKafkaTemplate;
-    }
 
     @Override
     public List<TaskResponse> getTasks(String userId, String courseId, String moduleId, String name) {
@@ -173,18 +169,16 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
 
     @Override
     public void createTask(TaskSagaCreateDTO dto) {
-        String transactionId = UUID.randomUUID().toString();
-        String taskId = UUID.randomUUID().toString();
-        dto.setTaskId(taskId);
+        String transactionId = request.getHeader("X-Transaction-Id");
 
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, dto.getCourseId(), dto.getAuthorId(), Set.of()));
+                new CheckRightsDTO(transactionId, dto.getCourseId(), dto.getAuthorId(), Set.of("CREATE")));
         //todo: upload file to file-service
         kafkaTemplate.send("insert-task-progress-topic",
-                new InsertTaskToProgressDTO(transactionId, taskId, dto.getPrerequisiteTasksIds().stream().toList()));
+                new InsertTaskToProgressDTO(transactionId, dto.getTaskId(), dto.getPrerequisiteTasksIds().stream().toList()));
 
         kafkaTemplate.send("set-task-requirements-topic",
-                new SetRequirements(transactionId, taskId, dto.getReqirements()));
+                new SetRequirements(transactionId, dto.getTaskId(), dto.getReqirements()));
 
         kafkaTemplate.send("task-create-topic", taskMapper.toTaskCreateDTO(dto));
     }
@@ -192,9 +186,11 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
     @Override
     public void updateTaskTitle(String teacherId, String courseId, String moduleId, String taskId, String title) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
+//        String teacherId = request.getHeader("X-User-Sub");
+
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
 
         kafkaTemplate.send("task-update-title-topic", new TaskUpdateTitleDTO(courseId, moduleId, taskId, title));
     }
@@ -202,9 +198,9 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
     @Override
     public void updateTaskDescription(String teacherId, String courseId, String moduleId, String taskId, String description) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
 
         kafkaTemplate.send("task-update-description-topic", new TaskUpdateDescriptionDTO(courseId, moduleId, taskId, description));
     }
@@ -212,19 +208,20 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
     @Override
     public void updateTaskVideoFile(String teacherId, String courseId, String moduleId, String id, MultipartFile videoFile) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
 
-        kafkaTemplate.send("task-update-video-file-topic", new TaskUpdateVideoFileDTO(courseId, moduleId, id, videoFile.getOriginalFilename()));
+        kafkaTemplate.send("task-update-video-file-topic",
+                new TaskUpdateVideoFileDTO(courseId, moduleId, id, videoFile.getOriginalFilename()));
     }
 
     @Override
     public void updateTaskIsPublic(String teacherId, String courseId, String moduleId, String id, Boolean isPublic) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
 
         kafkaTemplate.send("task-update-is-public-topic", new TaskUpdateIsPublicDTO(courseId, moduleId, id, isPublic));
     }
@@ -232,9 +229,9 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
     @Override
     public void updateTaskHwPostingInterval(String teacherId, String courseId, String moduleId, String id, Integer hwPostingInterval) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
 
         kafkaTemplate.send("task-update-hw-posting-interval-topic", new TaskUpdateHwIntervalDTO(courseId, moduleId, id, hwPostingInterval));
     }
@@ -242,9 +239,9 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
     @Override
     public void updateTaskPrerequisites(String teacherId, String courseId, String moduleId, String taskId, Set<String> prerequisiteTasksIds) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
 
         kafkaTemplate.send("task-update-prerequisites-topic", new TaskUpdatePrereqsDTO(courseId, moduleId, taskId, prerequisiteTasksIds));
         //todo: update progress
@@ -253,20 +250,21 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
     @Override
     public void updateTaskSuccessors(String teacherId, String courseId, String moduleId, String taskId, Set<String> successorTasksIds) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("UPDATE")));
 
-        kafkaTemplate.send("task-update-successors-topic", new TaskUpdateSuccessorsDTO(courseId, moduleId, taskId, successorTasksIds));
+        kafkaTemplate.send("task-update-successors-topic",
+                new TaskUpdateSuccessorsDTO(courseId, moduleId, taskId, successorTasksIds));
         //todo: update progress
     }
 
     @Override
     public void softDeleteTask(String teacherId, String courseId, String moduleId, String taskId) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("DELETE")));
         kafkaTemplate.send("soft-delete-progress-topic",
                 new RemoveTasksFromProgressDTO(transactionId, List.of(taskId)));
         kafkaTemplate.send("task-soft-delete-topic", new TaskDeleteDTO(courseId, moduleId, taskId));
@@ -275,9 +273,9 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
     @Override
     public void hardDeleteTask(String teacherId, String courseId, String moduleId, String taskId) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("DELETE")));
         kafkaTemplate.send("soft-delete-progress-topic",
                 new RemoveTasksFromProgressDTO(transactionId, List.of(taskId)));
         kafkaTemplate.send("task-hard-delete-topic", new TaskDeleteDTO(courseId, moduleId, taskId));
