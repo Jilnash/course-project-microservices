@@ -23,6 +23,9 @@ public class RollbackListener {
     @KafkaListener(topics = "rollback-topic", groupId = "course-service-saga-group")
     public void rollbackCourse(String transactionId) {
 
+        if (!transactions.containsKey(transactionId))
+            return;
+
         for (RollbackStage stage : transactions.get(transactionId).getRollbackStages())
             kafkaTemplate.send(stage.getTopic(), stage.getPayload());
     }
