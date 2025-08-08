@@ -5,6 +5,8 @@ import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.hwservicedto.dto.HomeworkResponse;
 import com.jilnash.hwservicesaga.dto.HomeworkCreateSagaDTO;
 import com.jilnash.hwservicesaga.mapper.HomeworkMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +16,14 @@ import java.util.Set;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class HomeworkSagaServiceImpl implements HomeworkSagaService {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
     private final HomeworkMapper homeworkMapper;
 
-    public HomeworkSagaServiceImpl(KafkaTemplate<String, Object> kafkaTemplate, HomeworkMapper homeworkMapper) {
-        this.kafkaTemplate = kafkaTemplate;
-        this.homeworkMapper = homeworkMapper;
-    }
+    private final HttpServletRequest request;
 
     @Override
     public List<HomeworkResponse> getHomeworks(String taskId, String studentId, Boolean checked, Date createdAfter) {
@@ -39,9 +39,9 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
     @Override
     public void setHomeworkChecked(String courseId, String teacherId, UUID id) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("RESPOND")));
 
         kafkaTemplate.send("homework-checked-topic", id);
     }
@@ -49,7 +49,9 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
     @Override
     public void createHomework(HomeworkCreateSagaDTO homework) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
+        //todo: check progress
+        //todo: check task requirements
         kafkaTemplate.send("check-course-access-topic",
                 new CheckAccessDTO(transactionId, homework.getCourseId(), homework.getStudentId()));
         //todo: upload files to storage
@@ -59,9 +61,9 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
     @Override
     public void softDeleteHomework(String courseId, String teacherId, UUID id) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("DELETE")));
 
         kafkaTemplate.send("homework-soft-delete-topic", id);
     }
@@ -69,9 +71,9 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
     @Override
     public void hardDeleteHomework(String courseId, String teacherId, UUID id) {
 
-        String transactionId = UUID.randomUUID().toString();
+        String transactionId = request.getHeader("X-Transaction-Id");
         kafkaTemplate.send("check-course-rights-topic",
-                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of()));
+                new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("DELETE")));
 
         kafkaTemplate.send("homework-hard-delete-topic", id);
     }

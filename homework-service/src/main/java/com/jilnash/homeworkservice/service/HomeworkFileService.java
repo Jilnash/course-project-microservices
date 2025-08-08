@@ -14,7 +14,7 @@ public class HomeworkFileService {
 
     @Async
     void createdHomeworkFiles(Homework homework) {
-
+//todo: fix - file name is not set
         homeworkFileRepository.saveAll(
                 homework.getHwFiles().stream()
                         .peek(file -> file.setHomeworkId(homework))

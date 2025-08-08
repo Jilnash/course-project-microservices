@@ -12,6 +12,8 @@ import java.util.List;
 @Setter
 public class HomeworkCreateSagaDTO {
 
+    private String homeworkId;
+
     private String courseId;
 
     @NotNull(message = "Task ID cannot be null")

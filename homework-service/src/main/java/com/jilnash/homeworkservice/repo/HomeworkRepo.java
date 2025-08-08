@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -31,6 +32,6 @@ public interface HomeworkRepo extends JpaRepository<Homework, UUID>, JpaSpecific
     void updateIsChecked(UUID id, boolean b);
 
     @Modifying
-    @Query("DELETE FROM Homework h WHERE h.studentId = :studentId AND h.taskId = :taskId AND h.attempt = :attempt")
-    void deleteHomework(String studentId, String taskId, Integer attempt);
+    @Query("UPDATE Homework h SET h.deletedAt = :date WHERE h.id = :id")
+    void updateIsDeleted(UUID id, Date date);
 }

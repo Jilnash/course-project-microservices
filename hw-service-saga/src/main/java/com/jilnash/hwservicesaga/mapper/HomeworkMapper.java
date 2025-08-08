@@ -10,6 +10,7 @@ public class HomeworkMapper {
 
     public HomeworkCreateDTO homeworkCreateDTO(HomeworkCreateSagaDTO homeworkCreateDTO) {
         return new HomeworkCreateDTO(
+                homeworkCreateDTO.getHomeworkId(),
                 homeworkCreateDTO.getTaskId(),
                 homeworkCreateDTO.getStudentId(),
                 homeworkCreateDTO.getFiles().stream().map(MultipartFile::getOriginalFilename).toList()

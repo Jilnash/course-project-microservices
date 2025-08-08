@@ -9,8 +9,11 @@ import java.util.UUID;
 public interface HomeworkServiceRollback {
 
     @Transactional
-    Boolean homeworkCreateRollback(String studentId, String taskId, Integer attempt);
+    Boolean homeworkCreateRollback(UUID id);
 
     @Transactional
     Boolean homeworkCheckedRollback(UUID hwId);
+
+    @Transactional
+    void softDeleteHomeworkRollack(UUID id);
 }

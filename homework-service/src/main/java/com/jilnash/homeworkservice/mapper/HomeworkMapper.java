@@ -6,12 +6,15 @@ import com.jilnash.homeworkservice.model.HomeworkFile;
 import com.jilnash.hwservicedto.dto.HomeworkCreateDTO;
 import org.springframework.stereotype.Component;
 
+import java.util.UUID;
+
 @Component
 public class HomeworkMapper {
 
     public Homework toEntity(HomeworkCreateDTO homeworkDTO) {
 
         return Homework.builder()
+                .id(UUID.fromString(homeworkDTO.homeworkid()))
                 .studentId(homeworkDTO.studentId())
                 .taskId(homeworkDTO.taskId())
                 .checked(false)

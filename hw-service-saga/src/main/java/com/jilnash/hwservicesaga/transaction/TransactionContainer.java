@@ -1,4 +1,4 @@
-package com.jilnash.hwresponseservicesaga.transaction;
+package com.jilnash.hwservicesaga.transaction;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Scope;

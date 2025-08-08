@@ -15,10 +15,10 @@ public class HomeworkServiceRollbackImpl implements HomeworkServiceRollback {
     private final HomeworkRepo homeworkRepo;
 
     @Override
-    public Boolean homeworkCreateRollback(String studentId, String taskId, Integer attempt) {
+    public Boolean homeworkCreateRollback(UUID homeworkId) {
 
-        log.info("Rollback homework creation for studentId: {}, taskId: {}, attempt: {}", studentId, taskId, attempt);
-        homeworkRepo.deleteHomework(studentId, taskId, attempt);
+        log.info("Rollback homework creation for homeworkId: {}", homeworkId);
+        homeworkRepo.deleteById(homeworkId);
 
         return true;
     }
@@ -30,5 +30,12 @@ public class HomeworkServiceRollbackImpl implements HomeworkServiceRollback {
         homeworkRepo.updateIsChecked(hwId, false);
 
         return false;
+    }
+
+    @Override
+    public void softDeleteHomeworkRollack(UUID id) {
+
+        log.info("Rollback soft delete for homeworkId: {}", id);
+        homeworkRepo.updateIsDeleted(id, null);
     }
 }

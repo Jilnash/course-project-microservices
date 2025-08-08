@@ -61,6 +61,7 @@ public class HomeworkController {
 
         homeworkDTO.setStudentId(studentId);
         homeworkDTO.setCourseId(courseId);
+        homeworkDTO.setHomeworkId(UUID.randomUUID().toString());
 
         log.info("[CONTROLLER] Creating homework");
         log.debug("[CONTROLLER] Creating homework to taskId {} by studentId: {}", homeworkDTO.getTaskId(), studentId);
