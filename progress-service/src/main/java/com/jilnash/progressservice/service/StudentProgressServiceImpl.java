@@ -27,7 +27,7 @@ public class StudentProgressServiceImpl implements StudentProgressService {
     }
 
     @Override
-    public Boolean addStudentTaskComplete(String studentId, String taskId) {
+    public void addStudentTaskComplete(String studentId, String taskId) {
         studentTaskCompleteRepo.save(
                 StudentTaskComplete.builder()
                         .studentId(studentId)
@@ -36,6 +36,5 @@ public class StudentProgressServiceImpl implements StudentProgressService {
                         .deletedAt(null)
                         .build()
         );
-        return null;
     }
 }

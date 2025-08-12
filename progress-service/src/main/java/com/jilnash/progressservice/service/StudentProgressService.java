@@ -8,5 +8,5 @@ public interface StudentProgressService {
 
     Boolean getIfStudentCompletedTasks(String studentId, List<String> taskIds);
 
-    Boolean addStudentTaskComplete(String studentId, String taskId);
+    void addStudentTaskComplete(String studentId, String taskId);
 }

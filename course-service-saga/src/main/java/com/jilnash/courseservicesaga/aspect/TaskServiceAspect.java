@@ -1,9 +1,10 @@
 package com.jilnash.courseservicesaga.aspect;
 
-import com.jilnash.courseservicedto.dto.course.CourseCreateDTO;
 import com.jilnash.courseservicedto.dto.task.*;
+import com.jilnash.courseservicesaga.dto.TaskSagaCreateDTO;
 import com.jilnash.courseservicesaga.transaction.RollbackStage;
 import com.jilnash.courseservicesaga.transaction.Transaction;
+import com.jilnash.taskrequirementsservicedto.dto.SetRequirements;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -32,14 +33,15 @@ public class TaskServiceAspect {
                     "&& args(dto)",
             argNames = "dto"
     )
-    public void beforeCreateTask(CourseCreateDTO dto) {
+    public void beforeCreateTask(TaskSagaCreateDTO dto) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
 
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("task-create-rollback-topic", dto)
-                //todo: rollback progress insert
-                //todo: rollback file req creation
+                new RollbackStage("task-create-rollback-topic", dto),
+                new RollbackStage("insert-task-progress-rollback-topic", dto.getTaskId()),
+                new RollbackStage("set-task-requirements-rollback-topic",
+                        new SetRequirements(transactionId, dto.getTaskId(), dto.getReqirements()))
                 //todo: file upload rollback
         );
 
@@ -177,8 +179,8 @@ public class TaskServiceAspect {
 
         List<RollbackStage> rollbackStages = List.of(
                 new RollbackStage("task-soft-delete-rollback-topic",
-                        new TaskDeleteDTO(courseId, moduleId, taskId))
-                //todo: rollback progress remove
+                        new TaskDeleteDTO(courseId, moduleId, taskId)),
+                new RollbackStage("soft-delete-progress-rollback-topic", List.of(taskId))
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));

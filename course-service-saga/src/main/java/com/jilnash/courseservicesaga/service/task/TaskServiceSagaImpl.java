@@ -171,6 +171,8 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
     public void createTask(TaskSagaCreateDTO dto) {
         String transactionId = request.getHeader("X-Transaction-Id");
 
+        System.out.println(dto.getPrerequisiteTasksIds());
+        System.out.println(dto.getSuccessorTasksIds());
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, dto.getCourseId(), dto.getAuthorId(), Set.of("CREATE")));
         //todo: upload file to file-service
@@ -276,7 +278,7 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
         String transactionId = request.getHeader("X-Transaction-Id");
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("DELETE")));
-        kafkaTemplate.send("soft-delete-progress-topic",
+        kafkaTemplate.send("hard-delete-progress-topic",
                 new RemoveTasksFromProgressDTO(transactionId, List.of(taskId)));
         kafkaTemplate.send("task-hard-delete-topic", new TaskDeleteDTO(courseId, moduleId, taskId));
     }

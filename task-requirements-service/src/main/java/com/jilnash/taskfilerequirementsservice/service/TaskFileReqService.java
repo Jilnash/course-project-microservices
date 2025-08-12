@@ -22,4 +22,6 @@ public interface TaskFileReqService {
      * @return true if the operation was successful, false otherwise
      */
     Boolean setTaskRequirements(String taskId, List<FileReqirement> requirements);
+
+    Boolean checkOfRequirements(String taskId, List<String> contentTypes);
 }

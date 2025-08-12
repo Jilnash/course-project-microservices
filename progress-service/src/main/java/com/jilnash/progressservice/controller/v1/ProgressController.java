@@ -24,9 +24,4 @@ public class ProgressController {
     public Boolean checkIfCompletedTasks(@PathVariable String studentId, @RequestBody List<String> taskIds) {
         return studentProgressService.getIfStudentCompletedTasks(studentId, taskIds);
     }
-
-    @PostMapping
-    public Boolean completeTask(@PathVariable String studentId, @RequestBody String taskId) {
-        return studentProgressService.addStudentTaskComplete(studentId, taskId);
-    }
 }

@@ -9,10 +9,16 @@ import java.util.List;
 @Getter
 @Setter
 public class ResponseCreateDTO {
+
+    private String transactionId;
+
     private String id;
     private String teacherId;
-    private String courseId;
     private String hwId;
     private List<@Valid Comments> comments;
     private Boolean isCorrect;
+
+    private String courseId;
+    private String taskId;
+    private String studentId;
 }

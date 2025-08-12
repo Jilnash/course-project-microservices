@@ -3,6 +3,7 @@ package com.jilnash.hwresponseservicesaga.aspect;
 import com.jilnash.hwresponseservicedto.dto.ResponseCreateDTO;
 import com.jilnash.hwresponseservicesaga.transaction.RollbackStage;
 import com.jilnash.hwresponseservicesaga.transaction.Transaction;
+import com.jilnash.progressservicedto.dto.AddStudentTaskCompleteDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Aspect
 @Component
@@ -35,8 +37,10 @@ public class ResponseServiceAspect {
 
         String transactionId = request.getHeader("X-Transaction-Id");
         List<RollbackStage> stages = List.of(
-                new RollbackStage("response-create-rollback-topic", response.getId())
-                //todo: rollback progress
+                new RollbackStage("homework-checked-roolback-topic", UUID.fromString(response.getHwId())),
+                new RollbackStage("response-create-rollback-topic", response.getId()),
+                new RollbackStage("add-student-task-complete-rollback-topic",
+                        new AddStudentTaskCompleteDTO(transactionId, response.getStudentId(), response.getTaskId()))
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, stages));
@@ -52,7 +56,6 @@ public class ResponseServiceAspect {
         String transactionId = request.getHeader("X-Transaction-Id");
         List<RollbackStage> stages = List.of(
                 new RollbackStage("response-update-rollback-topic", response.getId())
-                //todo: rollback progress
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, stages));
@@ -67,8 +70,8 @@ public class ResponseServiceAspect {
 
         String transactionId = request.getHeader("X-Transaction-Id");
         List<RollbackStage> stages = List.of(
-                new RollbackStage("response-soft-delete-rollback-topic", responseId)
-                //todo: rollback progress
+                new RollbackStage("response-soft-delete-rollback-topic", responseId),
+                new RollbackStage("soft-delete-progress-rollback-topic", List.of())
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, stages));

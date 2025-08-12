@@ -55,7 +55,6 @@ public class HomeworkServiceAspect {
 
         List<RollbackStage> rollbackStages = List.of(
                 new RollbackStage("homework-checked-rollback-topic", id)
-                //todo: check
         );
 
         transactionMap.put(transactionId, new Transaction(transactionId, rollbackStages));

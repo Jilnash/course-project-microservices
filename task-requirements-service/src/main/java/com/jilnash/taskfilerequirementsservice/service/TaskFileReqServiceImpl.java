@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -46,5 +47,19 @@ public class TaskFileReqServiceImpl implements TaskFileReqService {
         );
 
         return true;
+    }
+
+    @Override
+    public Boolean checkOfRequirements(String taskId, List<String> contentTypes) {
+        List<String> requiredTypes = taskFileRequirementRepo.findAllByTaskId(taskId)
+                .stream()
+                .flatMap(req ->
+                        Stream.of(req.getFileRequirement().getContentType()).limit(req.getCount()))
+                .toList();
+        System.out.println(contentTypes);
+        System.out.println(requiredTypes);
+        boolean res = requiredTypes.containsAll(contentTypes) && contentTypes.containsAll(requiredTypes);
+        System.out.println(res);
+        return res;
     }
 }
