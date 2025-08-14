@@ -66,7 +66,7 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
                 new CheckAccessDTO(transactionId, homework.getCourseId(), homework.getStudentId()));
 
         // commit transaction
-        fileServiceClient.uploadFileAsync(homework.getTaskId(), homework.getFiles());
+        fileServiceClient.uploadFileAsync(homework.getHomeworkId(), homework.getFiles());
         kafkaTemplate.send("homework-create-topic", homeworkMapper.homeworkCreateDTO(homework));
     }
 

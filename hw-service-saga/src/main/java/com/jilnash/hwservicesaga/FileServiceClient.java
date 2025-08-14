@@ -22,11 +22,11 @@ public class FileServiceClient {
     private final String fileServiceUrl = "http://localhost:8087/api/v1/files";
 
     //    @Async
-    public void uploadFileAsync(String taskId, List<MultipartFile> videoFiles) {
+    public void uploadFileAsync(String hwId, List<MultipartFile> videoFiles) {
         MultipartBodyBuilder builder = new MultipartBodyBuilder();
 
         builder.part("bucket", "course-project-homeworks");
-        builder.part("fileName", "homework-" + taskId);
+        builder.part("fileName", "homework-" + hwId);
         for (MultipartFile videoFile : videoFiles)
             builder.part("files", videoFile.getResource());
 
