@@ -29,5 +29,7 @@ public class RollbackListener {
 
         for (RollbackStage stage : transactionMap.get(transactionId).getRollbackStages())
             kafkaTemplate.send(stage.getTopic(), stage.getPayload());
+
+        transactionMap.remove(transactionId);
     }
 }

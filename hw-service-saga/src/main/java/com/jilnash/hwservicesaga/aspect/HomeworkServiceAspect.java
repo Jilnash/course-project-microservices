@@ -1,5 +1,6 @@
 package com.jilnash.hwservicesaga.aspect;
 
+import com.jilnash.fileservicedto.dto.FileUploadRollbackDTO;
 import com.jilnash.hwservicesaga.dto.HomeworkCreateSagaDTO;
 import com.jilnash.hwservicesaga.transaction.RollbackStage;
 import com.jilnash.hwservicesaga.transaction.Transaction;
@@ -34,12 +35,15 @@ public class HomeworkServiceAspect {
     public void beforeCreateHomework(HomeworkCreateSagaDTO homework) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
+        List<String> fileNames = homework.getFiles().stream()
+                .map(file -> "homework-" + homework.getHomeworkId() + "/" + file.getOriginalFilename())
+                .toList();
 
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("homework-create-rollback-topic", homework.getHomeworkId())
-                //todo: rollback file upload
+                new RollbackStage("homework-create-rollback-topic", homework.getHomeworkId()),
+                new RollbackStage("file-upload-rollback-topic",
+                        new FileUploadRollbackDTO(transactionId, "course-project-homeworks", fileNames))
         );
-        System.out.println("Transaction ID: " + transactionId);
 
         transactionMap.put(transactionId, new Transaction(transactionId, rollbackStages));
     }

@@ -3,6 +3,7 @@ package com.jilnash.hwservicesaga.service;
 import com.jilnash.courseaccessservicedto.dto.CheckAccessDTO;
 import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.hwservicedto.dto.HomeworkResponse;
+import com.jilnash.hwservicesaga.FileServiceClient;
 import com.jilnash.hwservicesaga.dto.HomeworkCreateSagaDTO;
 import com.jilnash.hwservicesaga.mapper.HomeworkMapper;
 import com.jilnash.progressservicedto.dto.CheckStudentCompletedTasks;
@@ -23,6 +24,8 @@ import java.util.UUID;
 public class HomeworkSagaServiceImpl implements HomeworkSagaService {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
+
+    private final FileServiceClient fileServiceClient;
 
     private final HomeworkMapper homeworkMapper;
 
@@ -53,6 +56,7 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
     public void createHomework(HomeworkCreateSagaDTO homework) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
+        // validate request
         kafkaTemplate.send("check-student-already-completed-tasks-topic",
                 new CheckStudentCompletedTasks(transactionId, homework.getStudentId(), List.of(homework.getTaskId())));
         kafkaTemplate.send("check-hw-requirements-topic",
@@ -60,7 +64,9 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
                         homework.getFiles().stream().map(MultipartFile::getContentType).toList()));
         kafkaTemplate.send("check-course-access-topic",
                 new CheckAccessDTO(transactionId, homework.getCourseId(), homework.getStudentId()));
-        //todo: upload files to storage
+
+        // commit transaction
+        fileServiceClient.uploadFileAsync(homework.getTaskId(), homework.getFiles());
         kafkaTemplate.send("homework-create-topic", homeworkMapper.homeworkCreateDTO(homework));
     }
 
