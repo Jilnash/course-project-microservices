@@ -4,6 +4,8 @@ import io.minio.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class MinIOServiceRollback implements StorageServiceRollback {
@@ -11,14 +13,18 @@ public class MinIOServiceRollback implements StorageServiceRollback {
     private final MinioClient minioClient;
 
     @Override
-    public void rollbackFileUpload(String bucket, String fileName) throws Exception {
+    public void rollbackFileUpload(String bucket, List<String> fileNames) throws Exception {
 
         if (minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
-            try {
-                minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to rollback file upload for " + fileName + " in bucket " + bucket, e);
-            }
+            fileNames.parallelStream().forEach(fileName -> {
+                        try {
+                            minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());
+                        } catch (Exception e) {
+                            throw new RuntimeException("Failed to rollback file upload for " +
+                                    fileName + " in bucket " + bucket, e);
+                        }
+                    }
+            );
         }
     }
 

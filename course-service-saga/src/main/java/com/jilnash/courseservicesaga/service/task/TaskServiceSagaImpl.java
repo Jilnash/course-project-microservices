@@ -2,6 +2,7 @@ package com.jilnash.courseservicesaga.service.task;
 
 import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.courseservicedto.dto.task.*;
+import com.jilnash.courseservicesaga.client.FileServiceClient;
 import com.jilnash.courseservicesaga.dto.TaskSagaCreateDTO;
 import com.jilnash.courseservicesaga.mapper.TaskMapper;
 import com.jilnash.progressservicedto.dto.InsertTaskToProgressDTO;
@@ -31,6 +32,8 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
     private final TaskMapper taskMapper;
 
     private final HttpServletRequest request;
+
+    private final FileServiceClient fileServiceClient;
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
@@ -171,11 +174,9 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
     public void createTask(TaskSagaCreateDTO dto) {
         String transactionId = request.getHeader("X-Transaction-Id");
 
-        System.out.println(dto.getPrerequisiteTasksIds());
-        System.out.println(dto.getSuccessorTasksIds());
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, dto.getCourseId(), dto.getAuthorId(), Set.of("CREATE")));
-        //todo: upload file to file-service
+
         kafkaTemplate.send("insert-task-progress-topic",
                 new InsertTaskToProgressDTO(transactionId, dto.getTaskId(), dto.getPrerequisiteTasksIds().stream().toList()));
 
@@ -183,6 +184,8 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
                 new SetRequirements(transactionId, dto.getTaskId(), dto.getReqirements()));
 
         kafkaTemplate.send("task-create-topic", taskMapper.toTaskCreateDTO(dto));
+
+        fileServiceClient.uploadFileAsync(dto.getTaskId(), dto.getVideoFile());
     }
 
     @Override

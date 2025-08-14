@@ -1,5 +1,7 @@
 package com.jilnash.progressservice.service.rollback;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 public interface TaskCompleteServiceRollback {
@@ -10,6 +12,7 @@ public interface TaskCompleteServiceRollback {
      * @param taskId The ID of the task to rollback.
      * @return true if the rollback was successful, false otherwise.
      */
+    @Transactional
     Boolean insertTaskRollback(String taskId);
 
     /**

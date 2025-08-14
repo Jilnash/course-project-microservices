@@ -2,10 +2,12 @@ package com.jilnash.courseservicesaga.aspect;
 
 import com.jilnash.courseservicedto.dto.task.*;
 import com.jilnash.courseservicesaga.dto.TaskSagaCreateDTO;
+import com.jilnash.courseservicesaga.mapper.TaskMapper;
 import com.jilnash.courseservicesaga.transaction.RollbackStage;
 import com.jilnash.courseservicesaga.transaction.Transaction;
-import com.jilnash.taskrequirementsservicedto.dto.SetRequirements;
+import com.jilnash.fileservicedto.dto.FileUploadRollbackDTO;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
@@ -17,16 +19,14 @@ import java.util.Set;
 
 @Aspect
 @Component
+@RequiredArgsConstructor
 public class TaskServiceAspect {
 
     private final Map<String, Transaction> transactionMap;
 
-    private final HttpServletRequest request;
+    private final TaskMapper taskMapper;
 
-    public TaskServiceAspect(Map<String, Transaction> transactionMap, HttpServletRequest request) {
-        this.transactionMap = transactionMap;
-        this.request = request;
-    }
+    private final HttpServletRequest request;
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.task.TaskServiceSagaImpl.createTask(..))" +
@@ -36,13 +36,14 @@ public class TaskServiceAspect {
     public void beforeCreateTask(TaskSagaCreateDTO dto) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
+        String fileName = "task-" + dto.getTaskId() + "/" + dto.getVideoFile().getOriginalFilename();
 
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("task-create-rollback-topic", dto),
+                new RollbackStage("task-create-rollback-topic", taskMapper.toTaskCreateDTO(dto)),
                 new RollbackStage("insert-task-progress-rollback-topic", dto.getTaskId()),
-                new RollbackStage("set-task-requirements-rollback-topic",
-                        new SetRequirements(transactionId, dto.getTaskId(), dto.getReqirements()))
-                //todo: file upload rollback
+                new RollbackStage("create-task-requirements-rollback-topic", dto.getTaskId()),
+                new RollbackStage("file-upload-rollback-topic",
+                        new FileUploadRollbackDTO(transactionId, "course-project-tasks", List.of(fileName)))
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));

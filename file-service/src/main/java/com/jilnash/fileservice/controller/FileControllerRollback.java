@@ -17,7 +17,7 @@ public class FileControllerRollback {
                                                 @RequestParam String fileName) throws Exception {
         System.out.println(bucket);
 
-        storageServiceRollback.rollbackFileUpload(bucket, fileName);
+//        storageServiceRollback.rollbackFileUpload(bucket, fileName);
 
         return ResponseEntity.ok("File upload rollback successful");
     }

@@ -27,4 +27,9 @@ public class TaskFileReqRollbackImpl implements TaskFileReqServiceRollback {
             return false;
         }
     }
+
+    @Override
+    public void createTaskRequirementsRollback(String taskId) {
+        taskFileRequirementRepo.deleteAllByTaskId(taskId);
+    }
 }

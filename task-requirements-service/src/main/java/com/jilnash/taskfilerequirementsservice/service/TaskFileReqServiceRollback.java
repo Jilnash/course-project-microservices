@@ -17,4 +17,7 @@ public interface TaskFileReqServiceRollback {
      */
     @Transactional
     Boolean setTaskRequirementsRollback(String taskId, List<FileReqirement> requirements);
+
+    @Transactional
+    void createTaskRequirementsRollback(String taskId);
 }

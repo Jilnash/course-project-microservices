@@ -1,7 +1,6 @@
 package com.jilnash.taskfilerequirementsservice.listener;
 
 import com.jilnash.taskfilerequirementsservice.service.TaskFileReqServiceRollback;
-import com.jilnash.taskrequirementsservicedto.dto.SetRequirements;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -14,9 +13,9 @@ public class RequirementsRollackListener {
         this.taskFileReqServiceRollback = taskFileReqServiceRollback;
     }
 
-    @KafkaListener(topics = "set-task-requirements-rollback-topic", groupId = "task-requirements-group")
-    public void rollbackRequirements(SetRequirements dto) {
+    @KafkaListener(topics = "create-task-requirements-rollback-topic", groupId = "task-requirements-group")
+    public void rollbackRequirements(String taskId) {
 
-        taskFileReqServiceRollback.setTaskRequirementsRollback(dto.taskId(), dto.requirements());
+        taskFileReqServiceRollback.createTaskRequirementsRollback(taskId);
     }
 }

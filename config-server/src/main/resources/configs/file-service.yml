@@ -8,6 +8,8 @@ spring:
         multipart:
             max-request-size: 100MB
             max-file-size: 100MB
+    kafka:
+        bootstrap-servers: localhost:9092
 
 eureka:
     client:
