@@ -11,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -51,15 +53,17 @@ public class TaskFileReqServiceImpl implements TaskFileReqService {
 
     @Override
     public Boolean checkOfRequirements(String taskId, List<String> contentTypes) {
-        List<String> requiredTypes = taskFileRequirementRepo.findAllByTaskId(taskId)
+        Map<String, Long> requiredCounts = taskFileRequirementRepo.findAllByTaskId(taskId)
                 .stream()
-                .flatMap(req ->
-                        Stream.of(req.getFileRequirement().getContentType()).limit(req.getCount()))
-                .toList();
-        System.out.println(contentTypes);
-        System.out.println(requiredTypes);
-        boolean res = requiredTypes.containsAll(contentTypes) && contentTypes.containsAll(requiredTypes);
-        System.out.println(res);
-        return res;
+                .collect(Collectors.groupingBy(
+                        req -> req.getFileRequirement().getContentType(),
+                        Collectors.summingLong(req -> (int) req.getCount())
+                ));
+
+        Map<String, Long> providedCounts = contentTypes.stream()
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        return requiredCounts.equals(providedCounts);
     }
+
 }
