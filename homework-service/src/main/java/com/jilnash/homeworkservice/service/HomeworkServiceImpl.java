@@ -159,7 +159,7 @@ public class HomeworkServiceImpl implements HomeworkService {
 
         homework.setAttempt(1 + homeworkRepo.countByStudentIdAndTaskId(homework.getStudentId(), homework.getTaskId()));
 
-        homeworkFileService.createdHomeworkFiles(homeworkRepo.save(homework));
+        homeworkFileService.createdHomeworkFiles(homeworkRepo.save(homework), homework.getHwFiles());
 
         return true;
     }

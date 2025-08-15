@@ -57,8 +57,8 @@ public class TaskFileReqServiceImpl implements TaskFileReqService {
                 .stream()
                 .collect(Collectors.groupingBy(
                         req -> req.getFileRequirement().getContentType(),
-                        Collectors.summingLong(req -> (int) req.getCount())
-                ));
+                        Collectors.summingLong(req -> (int) req.getCount()))
+                );
 
         Map<String, Long> providedCounts = contentTypes.stream()
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
