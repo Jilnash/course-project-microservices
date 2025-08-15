@@ -23,12 +23,11 @@ public class FileControllerRollback {
     }
 
     @PutMapping
-    public ResponseEntity<?> rollbackFileUpdate(@RequestParam String oldBucket,
-                                                @RequestParam String oldFileName,
-                                                @RequestParam String newBucket,
+    public ResponseEntity<?> rollbackFileUpdate(@RequestParam String binBucket,
+                                                @RequestParam String workingBucket,
                                                 @RequestParam String newFileName) throws Exception {
 
-        storageServiceRollback.rollbackFileUpdate(oldBucket, oldFileName, newBucket, newFileName);
+        storageServiceRollback.rollbackFileUpdate(binBucket, workingBucket, newFileName);
 
         return ResponseEntity.ok("File update rollback successful");
     }

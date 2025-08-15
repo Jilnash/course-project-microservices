@@ -1,6 +1,7 @@
 package com.jilnash.fileservice.listener;
 
 import com.jilnash.fileservice.service.StorageServiceRollback;
+import com.jilnash.fileservicedto.dto.FileUpdateRollbackDTO;
 import com.jilnash.fileservicedto.dto.FileUploadRollbackDTO;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,15 @@ public class RollbackListener {
             storageServiceRollback.rollbackFileUpload(dto.bucketName(), dto.fileNames());
         } catch (Exception e) {
             throw new RuntimeException("Failed to rollback file upload for bucket: " + dto.bucketName(), e);
+        }
+    }
+
+    @KafkaListener(topics = "file-update-rollback-topic", groupId = "file-service")
+    public void rollbackFileUpdate(FileUpdateRollbackDTO dto) {
+        try {
+            storageServiceRollback.rollbackFileUpdate(dto.binBucket(), dto.workingBucket(), dto.fileName());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to rollback file update for bucket: " + dto.binBucket(), e);
         }
     }
 }

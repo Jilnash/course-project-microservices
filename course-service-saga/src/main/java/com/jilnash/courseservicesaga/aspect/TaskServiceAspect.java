@@ -5,6 +5,7 @@ import com.jilnash.courseservicesaga.dto.TaskSagaCreateDTO;
 import com.jilnash.courseservicesaga.mapper.TaskMapper;
 import com.jilnash.courseservicesaga.transaction.RollbackStage;
 import com.jilnash.courseservicesaga.transaction.Transaction;
+import com.jilnash.fileservicedto.dto.FileUpdateRollbackDTO;
 import com.jilnash.fileservicedto.dto.FileUploadRollbackDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -94,8 +95,10 @@ public class TaskServiceAspect {
 
         List<RollbackStage> rollbackStages = List.of(
                 new RollbackStage("task-update-video-file-name-rollback-topic",
-                        new TaskUpdateVideoFileDTO(courseId, moduleId, taskId, "prev file"))
-                //todo: rollback file update
+                        new TaskUpdateVideoFileDTO(courseId, moduleId, taskId, "prev file")),
+                new RollbackStage("file-update-rollback-topic",
+                        new FileUpdateRollbackDTO(transactionId, "course-project-tasks-deleted",
+                                "course-project-tasks", "task-" + taskId))
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));

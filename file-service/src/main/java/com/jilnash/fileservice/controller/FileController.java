@@ -89,6 +89,16 @@ public class FileController {
         );
     }
 
+    @PutMapping
+    public ResponseEntity<?> updateFiles(@ModelAttribute @Validated FileUploadDTO fileUploadDTO) throws Exception {
+
+        log.info("[CONTROLLER] Updating files to bucket");
+
+        storageService.updateFiles(fileUploadDTO.bucket(), fileUploadDTO.fileName(), fileUploadDTO.files());
+
+        return ResponseEntity.ok("File updated successfully");
+    }
+
     @DeleteMapping("{bucketName}/soft")
     public ResponseEntity<?> deleteFile(@PathVariable String bucketName,
                                         @RequestParam String fileName) {

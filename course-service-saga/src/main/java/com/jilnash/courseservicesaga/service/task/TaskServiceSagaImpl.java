@@ -219,6 +219,8 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
 
         kafkaTemplate.send("task-update-video-file-topic",
                 new TaskUpdateVideoFileDTO(courseId, moduleId, id, videoFile.getOriginalFilename()));
+
+        fileServiceClient.updateFile(id, videoFile);
     }
 
     @Override

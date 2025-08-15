@@ -14,6 +14,7 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.List;
 
@@ -31,7 +32,7 @@ public class S3Service implements StorageService {
     private static final long EXPIRATION_MINUTES = 120;
 
     @Override
-    public Boolean uploadFiles(String bucketName, String fileName, List<MultipartFile> file) throws Exception {
+    public Boolean uploadFiles(String bucketName, String fileName, List<MultipartFile> files) throws Exception {
 
         log.info("[SERVICE] Uploading files to bucket");
         log.debug("[SERVICE] Uploading files to bucket: {}, with name: {}", bucketName, fileName);
@@ -44,17 +45,30 @@ public class S3Service implements StorageService {
             );
         }
 
-        for (MultipartFile multipartFile : file) {
-            s3Client.putObject(
-                    PutObjectRequest.builder()
-                            .bucket(bucketName)
-                            .key(fileName + "/" + multipartFile.getOriginalFilename())
-                            .build(),
-                    fromBytes(multipartFile.getBytes())
-            );
-        }
+        files.parallelStream().forEach(file -> {
+            try {
+                s3Client.putObject(
+                        PutObjectRequest.builder()
+                                .bucket(bucketName)
+                                .key(fileName + "/" + file.getOriginalFilename())
+                                .build(),
+                        fromBytes(file.getBytes())
+                );
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
         return true;
     }
+
+    @Override
+    public void updateFiles(String bucket, String filename, List<MultipartFile> fileContent) throws Exception {
+
+        softDeleteFile(bucket, filename);
+        uploadFiles(bucket, filename, fileContent);
+    }
+
 
     @Override
     public byte[] getFile(String bucketName, String fileName) throws Exception {

@@ -8,6 +8,8 @@ public interface StorageService {
 
     Boolean uploadFiles(String bucket, String filename, List<MultipartFile> fileContent) throws Exception;
 
+    void updateFiles(String bucket, String filename, List<MultipartFile> fileContent) throws Exception;
+
     byte[] getFile(String bucket, String fileName) throws Exception;
 
     String getPreSignedUrl(String bucket, String fileName) throws Exception;

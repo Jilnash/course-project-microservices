@@ -11,5 +11,5 @@ public interface StorageServiceRollback {
 
     void rollbackFileDeletion(String bucket, String fileName);
 
-    void rollbackFileUpdate(String oldBucket, String oldFileName, String newBucket, String newFileName) throws Exception;
+    void rollbackFileUpdate(String binBucket, String workingBucket, String fileName) throws Exception;
 }

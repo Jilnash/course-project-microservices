@@ -1,6 +1,7 @@
 package com.jilnash.fileservice.service;
 
 import io.minio.*;
+import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -50,25 +51,46 @@ public class MinIOServiceRollback implements StorageServiceRollback {
     }
 
     @Override
-    public void rollbackFileUpdate(String oldBucket, String oldFileName,
-                                   String newBucket, String newFileName) throws Exception {
+    public void rollbackFileUpdate(String binBucket, String workingBucket, String fileName) throws Exception {
 
-        if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(newBucket).build()))
-            throw new RuntimeException("Bucket does not exist: " + newBucket);
+        if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(workingBucket).build()))
+            throw new RuntimeException("Bucket does not exist: " + workingBucket);
 
         try {
-            minioClient.removeObject(RemoveObjectArgs.builder().bucket(newBucket).object(newFileName).build());
-            minioClient.putObject(
-                    PutObjectArgs.builder()
-                            .bucket(oldBucket)
-                            .object(oldFileName)
-                            .stream(minioClient.getObject(
-                                    GetObjectArgs.builder().bucket(oldBucket).object(oldFileName).build()
-                            ), -1, -1)
+            Iterable<Result<Item>> results = minioClient.listObjects(
+                    ListObjectsArgs.builder()
+                            .bucket(workingBucket)
+                            .prefix(fileName)
+                            .recursive(true)
                             .build()
             );
+
+            for (Result<Item> result : results) {
+                Item item = result.get();
+                String objectName = item.objectName();
+
+                // 2. Copy to target bucket
+                minioClient.copyObject(
+                        CopyObjectArgs.builder()
+                                .bucket(binBucket)
+                                .object(objectName)
+                                .source(CopySource.builder()
+                                        .bucket(workingBucket)
+                                        .object(objectName)
+                                        .build())
+                                .build()
+                );
+
+                // 3. Delete from source bucket
+                minioClient.removeObject(
+                        RemoveObjectArgs.builder()
+                                .bucket(workingBucket)
+                                .object(objectName)
+                                .build()
+                );
+            }
         } catch (Exception e) {
-            throw new RuntimeException("Failed to rollback file update from " + newFileName + " to " + oldFileName, e);
+            throw new RuntimeException("Failed to rollback file update " + fileName, e);
         }
 
     }

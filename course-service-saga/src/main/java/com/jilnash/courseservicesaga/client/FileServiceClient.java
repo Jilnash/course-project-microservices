@@ -35,4 +35,21 @@ public class FileServiceClient {
 
         restTemplate.exchange(fileServiceUrl, HttpMethod.POST, entity, String.class);
     }
+
+    @Async
+    public void updateFile(String taskId, MultipartFile videoFile) {
+
+        MultipartBodyBuilder builder = new MultipartBodyBuilder();
+
+        builder.part("bucket", "course-project-tasks");
+        builder.part("fileName", "task-" + taskId);
+        builder.part("files", videoFile.getResource());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        HttpEntity<?> entity = new HttpEntity<>(builder.build(), headers);
+
+        restTemplate.exchange(fileServiceUrl, HttpMethod.PUT, entity, String.class);
+    }
 }

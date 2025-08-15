@@ -2,6 +2,7 @@ package com.jilnash.fileservice.service;
 
 import io.minio.*;
 import io.minio.http.Method;
+import io.minio.messages.Item;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -23,28 +24,28 @@ public class MinIOService implements StorageService {
     /**
      * Uploads multiple files to the specified bucket in the MinIO storage. If the
      * specified bucket does not exist, it will be created. Files are uploaded and
-     * stored under a directory named by the provided filename prefix.
+     * stored under a directory named by the provided fileNamePrefix prefix.
      *
      * @param bucket      the name of the bucket where the files will be stored
-     * @param filename    the prefix/directory under which the files will be stored
-     * @param fileContent a list of {@link MultipartFile} objects containing the content of the files to be uploaded
+     * @param fileNamePrefix    the prefix/directory under which the files will be stored
+     * @param files a list of {@link MultipartFile} objects containing the content of the files to be uploaded
      * @return a {@code Boolean} indicating whether the files were successfully uploaded
      * @throws Exception if an error occurs during the operation, such as issues with bucket creation or file upload
      */
     @Override
-    public Boolean uploadFiles(String bucket, String filename, List<MultipartFile> fileContent) throws Exception {
+    public Boolean uploadFiles(String bucket, String fileNamePrefix, List<MultipartFile> files) throws Exception {
 
         // Check if the bucket exists
         if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build()))
             throw new RuntimeException("Bucket does not exist: " + bucket);
 
-        // Upload each file to the bucket, nested under the filename prefix
-        fileContent.parallelStream().forEach(file -> {
+        // Upload each file to the bucket, nested under the fileNamePrefix prefix
+        files.parallelStream().forEach(file -> {
             try {
                 minioClient.putObject(
                         PutObjectArgs.builder()
                                 .bucket(bucket)
-                                .object(filename + "/" + file.getOriginalFilename())
+                                .object(fileNamePrefix + "/" + file.getOriginalFilename())
                                 .stream(file.getInputStream(), file.getSize(), -1)
                                 .build()
                 );
@@ -54,6 +55,13 @@ public class MinIOService implements StorageService {
         });
 
         return true;
+    }
+
+    @Override
+    public void updateFiles(String bucket, String fileNamePrefix, List<MultipartFile> files) throws Exception {
+
+        softDeleteFile(bucket, fileNamePrefix);
+        uploadFiles(bucket, fileNamePrefix, files);
     }
 
     /**
@@ -99,34 +107,47 @@ public class MinIOService implements StorageService {
      * and then removed from the original bucket.
      *
      * @param bucketName the name of the bucket containing the file to be soft deleted
-     * @param fileName   the name of the file to be soft deleted
+     * @param fileNamePrefix   the name of the file to be soft deleted
      * @throws RuntimeException if an error occurs during the operation, such as issues with bucket creation, file copying, or file removal
      */
     @Override
-    public void softDeleteFile(String bucketName, String fileName) {
+    public void softDeleteFile(String bucketName, String fileNamePrefix) {
         try {
-            String deletedBucketName = bucketName + "-deleted";
+            String binBucket = bucketName + "-deleted";
 
-            if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(deletedBucketName).build()))
-                minioClient.makeBucket(MakeBucketArgs.builder().bucket(deletedBucketName).build());
+            if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(binBucket).build()))
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(binBucket).build());
 
-            minioClient.copyObject(
-                    CopyObjectArgs.builder()
-                            .source(CopySource.builder().bucket(bucketName).object(fileName).build())
-                            .bucket(deletedBucketName)
-                            .object(fileName)
-                            .build()
-            );
-
-            minioClient.removeObject(
-                    RemoveObjectArgs.builder()
+            Iterable<Result<Item>> results = minioClient.listObjects(
+                    ListObjectsArgs.builder()
                             .bucket(bucketName)
-                            .object(fileName)
+                            .prefix(fileNamePrefix)
+                            .recursive(true)
                             .build()
             );
+
+            for (Result<Item> result : results) {
+                Item item = result.get();
+                String objectName = item.objectName();
+
+                minioClient.copyObject(
+                        CopyObjectArgs.builder()
+                                .source(CopySource.builder().bucket(bucketName).object(objectName).build())
+                                .bucket(binBucket)
+                                .object(objectName)
+                                .build()
+                );
+
+                minioClient.removeObject(
+                        RemoveObjectArgs.builder()
+                                .bucket(bucketName)
+                                .object(objectName)
+                                .build()
+                );
+            }
 
         } catch (Exception e) {
-            throw new RuntimeException("Failed to soft delete file: " + fileName + " from bucket: " + bucketName, e);
+            throw new RuntimeException("Failed to soft delete file: " + fileNamePrefix + " from bucket: " + bucketName, e);
         }
     }
 }
