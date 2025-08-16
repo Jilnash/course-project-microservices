@@ -45,14 +45,13 @@ public class TaskRollbackListener {
     }
 
     @KafkaListener(topics = "task-update-prerequisites-rollback-topic", groupId = "course-service-group")
-    public void rollbackTaskPrerequisitesUpdate(TaskUpdatePrereqsDTO dto) {
-        taskServiceRollback.rollbackTaskPrerequisitesUpdate(dto.courseId(), dto.moduleId(), dto.taskId(), dto.prerequisiteTaskIds());
+    public void rollbackTaskPrerequisitesUpdate(String taskId) {
+        taskServiceRollback.rollbackTaskPrerequisitesUpdate(taskId);
     }
 
     @KafkaListener(topics = "task-update-successors-rollback-topic", groupId = "course-service-group")
-    public void rollbackTaskSuccessorsUpdate(TaskUpdateSuccessorsDTO dto) {
-        System.out.println(dto.successorTasksIds());
-        taskServiceRollback.rollbackTaskSuccessorsUpdate(dto.courseId(), dto.moduleId(), dto.taskId(), dto.successorTasksIds());
+    public void rollbackTaskSuccessorsUpdate(String taskId) {
+        taskServiceRollback.rollbackTaskSuccessorsUpdate(taskId);
     }
 
     @KafkaListener(topics = "task-soft-delete-rollback-topic", groupId = "course-service-group")

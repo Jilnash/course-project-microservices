@@ -46,13 +46,13 @@ public interface TaskRepo extends Neo4jRepository<Task, String> {
     @Query("MATCH () -[r:IS_PREREQUISITE]-> (t:Task {id: $taskId}) DELETE r")
     void disconnectTaskFromPrerequisites(String taskId);
 
-    @Query("UNWIND $prerequisiteTaskIds AS prereq " +
-            "MATCH (from:Task {id: prereq}), (to:Task {id: $taskId}) " +
+    @Query("UNWIND $prerequisiteTaskIds AS prereqId " +
+            "MATCH (from:Task {id: prereqId}), (to:Task {id: $taskId}) " +
             "CREATE (from)-[:IS_PREREQUISITE]->(to)")
     void connectTaskToPrerequisites(String taskId, Set<String> prerequisiteTaskIds);
 
-    @Query("UNWIND $successorTaskIds AS suc " +
-            "MATCH (from:Task {id: $taskId}), (to:Task {id: suc}) " +
+    @Query("UNWIND $successorTaskIds AS sucId " +
+            "MATCH (from:Task {id: $taskId}), (to:Task {id: sucId}) " +
             "CREATE (from)-[:IS_PREREQUISITE]->(to)")
     void connectTaskToSuccessors(String taskId, Set<String> successorTaskIds);
 

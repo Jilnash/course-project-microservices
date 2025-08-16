@@ -33,9 +33,9 @@ public interface TaskService {
 
     Integer getTaskHwPostingInterval(String id);
 
-    List<String> getTaskPrerequisites(String id);
+    Set<String> getTaskPrerequisites(String id);
 
-    List<String> getTaskSuccessors(String id);
+    Set<String> getTaskSuccessors(String id);
 
     Task createTask(TaskCreateDTO taskCreateDTO);
 

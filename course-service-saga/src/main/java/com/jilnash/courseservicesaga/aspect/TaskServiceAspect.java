@@ -16,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @Aspect
 @Component
@@ -139,16 +138,15 @@ public class TaskServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.task.TaskServiceSagaImpl.updateTaskPrerequisites(..))" +
-                    "&& args(teacherId, courseId, moduleId, taskId, prerequisiteTaskIds)",
-            argNames = "teacherId, courseId, moduleId, taskId, prerequisiteTaskIds"
+                    "&& args(*, *, *,  taskId, ..)",
+            argNames = "taskId"
     )
-    public void beforeUpdateTaskPrerequisites(String teacherId, String courseId, String moduleId, String taskId, Set<String> prerequisiteTaskIds) {
+    public void beforeUpdateTaskPrerequisites(String taskId) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
 
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("task-update-prerequisites-rollback-topic",
-                        new TaskUpdatePrereqsDTO(courseId, moduleId, taskId, Set.of()))
+                new RollbackStage("task-update-prerequisites-rollback-topic", taskId)
                 //todo: rollback progress update
         );
 
@@ -157,15 +155,14 @@ public class TaskServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.task.TaskServiceSagaImpl.updateTaskSuccessors(..))" +
-                    "&& args(teacherId, courseId, moduleId, taskId, successorTasksIds)",
-            argNames = "teacherId, courseId, moduleId, taskId, successorTasksIds"
+                    "&& args(*, *, *, taskId, ..)",
+            argNames = "taskId"
     )
-    public void beforeUpdateTaskSuccessors(String teacherId, String courseId, String moduleId, String taskId, Set<String> successorTasksIds) {
+    public void beforeUpdateTaskSuccessors(String taskId) {
         String transactionId = request.getHeader("X-Transaction-Id");
 
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("task-update-successors-rollback-topic",
-                        new TaskUpdateSuccessorsDTO(courseId, moduleId, taskId, Set.of()))
+                new RollbackStage("task-update-successors-rollback-topic", taskId)
                 //todo: rollback progress update
         );
 

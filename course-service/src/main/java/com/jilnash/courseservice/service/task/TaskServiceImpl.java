@@ -102,14 +102,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public List<String> getTaskPrerequisites(String taskId) {
+    public Set<String> getTaskPrerequisites(String taskId) {
 
-        return getTask(taskId).getPrerequisites().stream().map(Task::getId).toList();
+        return getTask(taskId).getPrerequisites().parallelStream().map(Task::getId).collect(Collectors.toSet());
     }
 
     @Override
-    public List<String> getTaskSuccessors(String taskId) {
-        return getTask(taskId).getSuccessors().stream().map(Task::getId).toList();
+    public Set<String> getTaskSuccessors(String taskId) {
+        return getTask(taskId).getSuccessors().parallelStream().map(Task::getId).collect(Collectors.toSet());
     }
 
     @Override
@@ -187,10 +187,15 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Boolean updateTaskSuccessors(String courseId, String moduleId, String taskId, Set<String> successorIds) {
 
-        moduleService.validateModuleContainsAllTasks(moduleId, successorIds);
         Task task = getTask(courseId, moduleId, taskId);
-
         task.getSuccessors().clear();
+
+        if (successorIds.isEmpty()) {
+            taskRepo.save(task);
+            return true;
+        }
+        moduleService.validateModuleContainsAllTasks(moduleId, successorIds);
+
         task.getSuccessors().addAll(taskRepo.findAllByIdIn(successorIds));
 
         taskRepo.save(task);

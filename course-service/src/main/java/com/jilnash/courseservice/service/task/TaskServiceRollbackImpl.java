@@ -1,8 +1,11 @@
 package com.jilnash.courseservice.service.task;
 
+import com.jilnash.courseservice.history.EntityKey;
+import com.jilnash.courseservice.history.EntityValue;
 import com.jilnash.courseservice.repo.TaskRepo;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -16,8 +19,12 @@ public class TaskServiceRollbackImpl implements TaskServiceRollback {
 
     private final TaskRepo taskRepo;
 
-    public TaskServiceRollbackImpl(TaskRepo taskRepo) {
+    private final Map<EntityKey, EntityValue> entityHistory;
+
+    public TaskServiceRollbackImpl(TaskRepo taskRepo, Map<EntityKey,
+            EntityValue> entityHistory) {
         this.taskRepo = taskRepo;
+        this.entityHistory = entityHistory;
     }
 
     @Override
@@ -41,15 +48,19 @@ public class TaskServiceRollbackImpl implements TaskServiceRollback {
     }
 
     @Override
-    public void rollbackTaskPrerequisitesUpdate(String courseId, String moduleId, String taskId, Set<String> oldPrerequisites) {
-        taskRepo.disconnectTaskFromPrerequisites(taskId);//todo: fix
-        taskRepo.connectTaskToPrerequisites(taskId, oldPrerequisites);
+    public void rollbackTaskPrerequisitesUpdate(String taskId) {
+        taskRepo.disconnectTaskFromPrerequisites(taskId);
+
+        Set<String> prevPrerequisites = (Set<String>) entityHistory.get(new EntityKey(taskId, "prerequisites")).value();
+        taskRepo.connectTaskToPrerequisites(taskId, prevPrerequisites);
     }
 
     @Override
-    public void rollbackTaskSuccessorsUpdate(String courseId, String moduleId, String taskId, Set<String> oldSuccessors) {
-        taskRepo.disconnectTaskFromSuccessors(taskId);//todo: fix
-        taskRepo.connectTaskToSuccessors(taskId, oldSuccessors);
+    public void rollbackTaskSuccessorsUpdate(String taskId) {
+        taskRepo.disconnectTaskFromSuccessors(taskId);
+
+        Set<String> prevSuccessors = (Set<String>) entityHistory.get(new EntityKey(taskId, "successors")).value();
+        taskRepo.connectTaskToSuccessors(taskId, prevSuccessors);
     }
 
     @Override
