@@ -1,7 +1,7 @@
 package com.jilnash.courseservice.listener;
 
 import com.jilnash.courseservice.service.task.TaskServiceRollback;
-import com.jilnash.courseservicedto.dto.task.*;
+import com.jilnash.courseservicedto.dto.task.TaskRollbackDTO;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -15,33 +15,33 @@ public class TaskRollbackListener {
     }
 
     @KafkaListener(topics = "task-create-rollback-topic", groupId = "course-service-group")
-    public void rollbackTaskCreate(TaskCreateDTO dto) {
-        taskServiceRollback.rollbackTaskCreate(dto.getCourseId(), dto.getModuleId(), dto.getTaskId());
+    public void rollbackTaskCreate(TaskRollbackDTO dto) {
+        taskServiceRollback.rollbackTaskCreate(dto.courseId(), dto.moduleId(), dto.taskId());
     }
 
     @KafkaListener(topics = "task-update-title-rollback-topic", groupId = "course-service-group")
-    public void rollbackTaskTitleUpdate(TaskUpdateTitleDTO dto) {
-        taskServiceRollback.rollbackTaskTitleUpdate(dto.courseId(), dto.moduleId(), dto.taskId(), dto.title());
+    public void rollbackTaskTitleUpdate(TaskRollbackDTO dto) {
+        taskServiceRollback.rollbackTaskTitleUpdate(dto.courseId(), dto.moduleId(), dto.taskId());
     }
 
     @KafkaListener(topics = "task-update-description-rollback-topic", groupId = "course-service-group")
-    public void rollbackTaskDescriptionUpdate(TaskUpdateDescriptionDTO dto) {
-        taskServiceRollback.rollbackTaskDescriptionUpdate(dto.courseId(), dto.moduleId(), dto.taskId(), dto.description());
+    public void rollbackTaskDescriptionUpdate(TaskRollbackDTO dto) {
+        taskServiceRollback.rollbackTaskDescriptionUpdate(dto.courseId(), dto.moduleId(), dto.taskId());
     }
 
     @KafkaListener(topics = "task-update-video-file-name-rollback-topic", groupId = "course-service-group")
-    public void rollbackTaskVideoFileNameUpdate(TaskUpdateVideoFileDTO dto) {
-        taskServiceRollback.rollbackTaskVideoFileNameUpdate(dto.courseId(), dto.moduleId(), dto.id(), dto.videoFileName());
+    public void rollbackTaskVideoFileNameUpdate(TaskRollbackDTO dto) {
+        taskServiceRollback.rollbackTaskVideoFileNameUpdate(dto.courseId(), dto.moduleId(), dto.taskId());
     }
 
     @KafkaListener(topics = "task-update-hw-posting-interval-rollback-topic", groupId = "course-service-group")
-    public void rollbackTaskHwPostingIntervalUpdate(TaskUpdateHwIntervalDTO dto) {
-        taskServiceRollback.rollbackTaskPostingIntervalUpdate(dto.courseId(), dto.moduleId(), dto.taskId(), dto.hwPostingInterval());
+    public void rollbackTaskHwPostingIntervalUpdate(TaskRollbackDTO dto) {
+        taskServiceRollback.rollbackTaskPostingIntervalUpdate(dto.courseId(), dto.moduleId(), dto.taskId());
     }
 
     @KafkaListener(topics = "task-update-is-public-rollback-topic", groupId = "course-service-group")
-    public void rollbackTaskIsPublicUpdate(TaskUpdateIsPublicDTO dto) {
-        taskServiceRollback.rollbackTaskIsPublicUpdate(dto.courseId(), dto.moduleId(), dto.id(), dto.isPublic());
+    public void rollbackTaskIsPublicUpdate(TaskRollbackDTO dto) {
+        taskServiceRollback.rollbackTaskIsPublicUpdate(dto.courseId(), dto.moduleId(), dto.taskId());
     }
 
     @KafkaListener(topics = "task-update-prerequisites-rollback-topic", groupId = "course-service-group")
@@ -55,7 +55,7 @@ public class TaskRollbackListener {
     }
 
     @KafkaListener(topics = "task-soft-delete-rollback-topic", groupId = "course-service-group")
-    public void rollbackTaskSoftDelete(TaskDeleteDTO dto) {
+    public void rollbackTaskSoftDelete(TaskRollbackDTO dto) {
         taskServiceRollback.rollbackTaskSoftDelete(dto.courseId(), dto.moduleId(), dto.taskId());
     }
 }

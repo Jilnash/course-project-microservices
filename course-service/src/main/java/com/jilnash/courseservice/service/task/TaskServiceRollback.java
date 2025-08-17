@@ -7,13 +7,13 @@ public interface TaskServiceRollback {
 
     void rollbackTaskCreate(String courseId, String moduleId, String taskId);
 
-    void rollbackTaskTitleUpdate(String courseId, String moduleId, String taskId, String oldTitle);
+    void rollbackTaskTitleUpdate(String courseId, String moduleId, String taskId);
 
-    void rollbackTaskDescriptionUpdate(String courseId, String moduleId, String taskId, String oldDescription);
+    void rollbackTaskDescriptionUpdate(String courseId, String moduleId, String taskId);
 
-    void rollbackTaskVideoFileNameUpdate(String courseId, String moduleId, String taskId, String oldVideoFileName);
+    void rollbackTaskVideoFileNameUpdate(String courseId, String moduleId, String taskId);
 
-    void rollbackTaskIsPublicUpdate(String courseId, String moduleId, String taskId, boolean oldIsPublic);
+    void rollbackTaskIsPublicUpdate(String courseId, String moduleId, String taskId);
 
     void rollbackTaskPrerequisitesUpdate(String taskId);
 
@@ -21,5 +21,5 @@ public interface TaskServiceRollback {
 
     void rollbackTaskSoftDelete(String courseId, String moduleId, String taskId);
 
-    void rollbackTaskPostingIntervalUpdate(String courseId, String moduleI, String taskId, int interval);
+    void rollbackTaskPostingIntervalUpdate(String courseId, String moduleI, String taskId);
 }

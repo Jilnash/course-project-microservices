@@ -1,6 +1,6 @@
 package com.jilnash.courseservicesaga.aspect;
 
-import com.jilnash.courseservicedto.dto.task.*;
+import com.jilnash.courseservicedto.dto.task.TaskRollbackDTO;
 import com.jilnash.courseservicesaga.dto.TaskSagaCreateDTO;
 import com.jilnash.courseservicesaga.mapper.TaskMapper;
 import com.jilnash.courseservicesaga.transaction.RollbackStage;
@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -51,16 +50,15 @@ public class TaskServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.task.TaskServiceSagaImpl.updateTaskTitle(..))" +
-                    "&& args(teacherId, courseId, moduleId, taskId, title)",
-            argNames = "teacherId, courseId, moduleId, taskId, title"
+                    "&& args(*, courseId, moduleId, taskId, ..)",
+            argNames = "courseId, moduleId, taskId"
     )
-    public void beforeUpdateTaskTitle(String teacherId, String courseId, String moduleId, String taskId, String title) {
+    public void beforeUpdateTaskTitle(String courseId, String moduleId, String taskId) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
 
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("task-update-title-rollback-topic",
-                        new TaskUpdateTitleDTO(courseId, moduleId, taskId, "Prev title"))
+                new RollbackStage("task-update-title-rollback-topic", new TaskRollbackDTO(courseId, moduleId, taskId))
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));
@@ -68,16 +66,15 @@ public class TaskServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.task.TaskServiceSagaImpl.updateTaskDescription(..))" +
-                    "&& args(teacherId, courseId, moduleId, taskId, description)",
-            argNames = "teacherId, courseId, moduleId, taskId, description"
+                    "&& args(*, courseId, moduleId, taskId, ..)",
+            argNames = "courseId, moduleId, taskId"
     )
-    public void beforeUpdateTaskDescription(String teacherId, String courseId, String moduleId, String taskId, String description) {
+    public void beforeUpdateTaskDescription(String courseId, String moduleId, String taskId) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
 
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("task-update-description-rollback-topic",
-                        new TaskUpdateDescriptionDTO(courseId, moduleId, taskId, "Prev description"))
+                new RollbackStage("task-update-description-rollback-topic", new TaskRollbackDTO(courseId, moduleId, taskId))
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));
@@ -85,16 +82,15 @@ public class TaskServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.task.TaskServiceSagaImpl.updateTaskVideoFile(..))" +
-                    "&& args(teacherId, courseId, moduleId, taskId, videoFile)",
-            argNames = "teacherId, courseId, moduleId, taskId, videoFile"
+                    "&& args(*, courseId, moduleId, taskId, ..)",
+            argNames = "courseId, moduleId, taskId"
     )
-    public void beforeUpdateTaskVideoFileName(String teacherId, String courseId, String moduleId, String taskId, MultipartFile videoFile) {
+    public void beforeUpdateTaskVideoFileName(String courseId, String moduleId, String taskId) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
 
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("task-update-video-file-name-rollback-topic",
-                        new TaskUpdateVideoFileDTO(courseId, moduleId, taskId, "prev file")),
+                new RollbackStage("task-update-video-file-name-rollback-topic", new TaskRollbackDTO(courseId, moduleId, taskId)),
                 new RollbackStage("file-update-rollback-topic",
                         new FileUpdateRollbackDTO(transactionId, "course-project-tasks-deleted",
                                 "course-project-tasks", "task-" + taskId))
@@ -105,15 +101,14 @@ public class TaskServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.task.TaskServiceSagaImpl.updateTaskIsPublic(..))" +
-                    "&& args(teacherId, courseId, moduleId, taskId, isPublic)",
-            argNames = "teacherId, courseId, moduleId, taskId, isPublic"
+                    "&& args(*, courseId, moduleId, taskId, ..)",
+            argNames = "courseId, moduleId, taskId"
     )
-    public void beforeUpdateTaskIsPublic(String teacherId, String courseId, String moduleId, String taskId, Boolean isPublic) {
+    public void beforeUpdateTaskIsPublic(String courseId, String moduleId, String taskId) {
         String transactionId = request.getHeader("X-Transaction-Id");
 
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("task-update-is-public-rollback-topic",
-                        new TaskUpdateIsPublicDTO(courseId, moduleId, taskId, false))
+                new RollbackStage("task-update-is-public-rollback-topic", new TaskRollbackDTO(courseId, moduleId, taskId))
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));
@@ -121,16 +116,15 @@ public class TaskServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.task.TaskServiceSagaImpl.updateTaskHwPostingInterval(..))" +
-                    "&& args(teacherId, courseId, moduleId, taskId, hwPostingInterval)",
-            argNames = "teacherId, courseId, moduleId, taskId, hwPostingInterval"
+                    "&& args(*, courseId, moduleId, taskId, ..)",
+            argNames = "courseId, moduleId, taskId"
     )
-    public void beforeUpdateTaskHwPostingInterval(String teacherId, String courseId, String moduleId, String taskId, Integer hwPostingInterval) {
+    public void beforeUpdateTaskHwPostingInterval(String courseId, String moduleId, String taskId) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
 
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("task-update-hw-posting-interval-rollback-topic",
-                        new TaskUpdateHwIntervalDTO(courseId, moduleId, taskId, 0))
+                new RollbackStage("task-update-hw-posting-interval-rollback-topic", new TaskRollbackDTO(courseId, moduleId, taskId))
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));
@@ -171,16 +165,15 @@ public class TaskServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.task.TaskServiceSagaImpl.softDeleteTask(..))" +
-                    "&& args(teacherId, courseId, moduleId, taskId)",
-            argNames = "teacherId, courseId, moduleId, taskId"
+                    "&& args(*, courseId, moduleId, taskId)",
+            argNames = "courseId, moduleId, taskId"
     )
-    public void beforeSoftDeleteTask(String teacherId, String courseId, String moduleId, String taskId) {
+    public void beforeSoftDeleteTask(String courseId, String moduleId, String taskId) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
 
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("task-soft-delete-rollback-topic",
-                        new TaskDeleteDTO(courseId, moduleId, taskId)),
+                new RollbackStage("task-soft-delete-rollback-topic", new TaskRollbackDTO(courseId, moduleId, taskId)),
                 new RollbackStage("soft-delete-progress-rollback-topic", List.of(taskId))
         );
 

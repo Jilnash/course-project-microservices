@@ -27,45 +27,53 @@ public class TaskServiceRollbackImpl implements TaskServiceRollback {
         this.entityHistory = entityHistory;
     }
 
+    private <T> T getPreviousValue(String entityId, String fieldName, Class<T> tClass) {
+        Object value = entityHistory.get(new EntityKey(entityId, fieldName)).value();
+        return tClass.cast(value);
+    }
+
+
     @Override
     public void rollbackTaskCreate(String courseId, String moduleId, String taskId) {
         taskRepo.detachDeleteTask(courseId, moduleId, taskId);
     }
 
     @Override
-    public void rollbackTaskTitleUpdate(String courseId, String moduleId, String taskId, String oldTitle) {
-        taskRepo.updateTaskTitle(courseId, moduleId, taskId, oldTitle);
+    public void rollbackTaskTitleUpdate(String courseId, String moduleId, String taskId) {
+        String prevTitle = getPreviousValue(taskId, "title", String.class);
+        taskRepo.updateTaskTitle(courseId, moduleId, taskId, prevTitle);
     }
 
     @Override
-    public void rollbackTaskDescriptionUpdate(String courseId, String moduleId, String taskId, String oldDescription) {
-        taskRepo.updateTaskDescription(courseId, moduleId, taskId, oldDescription);
+    public void rollbackTaskDescriptionUpdate(String courseId, String moduleId, String taskId) {
+        String prevDescription = getPreviousValue(taskId, "description", String.class);
+        taskRepo.updateTaskDescription(courseId, moduleId, taskId, prevDescription);
     }
 
     @Override
-    public void rollbackTaskVideoFileNameUpdate(String courseId, String moduleId, String taskId, String oldVideoFileName) {
-        taskRepo.updateTaskVideoLink(courseId, moduleId, taskId, oldVideoFileName);
+    public void rollbackTaskVideoFileNameUpdate(String courseId, String moduleId, String taskId) {
+        String prevVideoFileName = getPreviousValue(taskId, "videoFileName", String.class);
+        taskRepo.updateTaskVideoLink(courseId, moduleId, taskId, prevVideoFileName);
     }
 
     @Override
     public void rollbackTaskPrerequisitesUpdate(String taskId) {
+        Set<String> prevPrerequisites = getPreviousValue(taskId, "prerequisites", Set.class);
         taskRepo.disconnectTaskFromPrerequisites(taskId);
-
-        Set<String> prevPrerequisites = (Set<String>) entityHistory.get(new EntityKey(taskId, "prerequisites")).value();
         taskRepo.connectTaskToPrerequisites(taskId, prevPrerequisites);
     }
 
     @Override
     public void rollbackTaskSuccessorsUpdate(String taskId) {
+        Set<String> prevSuccessors = getPreviousValue(taskId, "successors", Set.class);
         taskRepo.disconnectTaskFromSuccessors(taskId);
-
-        Set<String> prevSuccessors = (Set<String>) entityHistory.get(new EntityKey(taskId, "successors")).value();
         taskRepo.connectTaskToSuccessors(taskId, prevSuccessors);
     }
 
     @Override
-    public void rollbackTaskIsPublicUpdate(String courseId, String moduleId, String taskId, boolean oldIsPublic) {
-        taskRepo.updateTaskIsPublic(courseId, moduleId, taskId, oldIsPublic);
+    public void rollbackTaskIsPublicUpdate(String courseId, String moduleId, String taskId) {
+        Boolean prevIsPublic = getPreviousValue(taskId, "isPublic", Boolean.class);
+        taskRepo.updateTaskIsPublic(courseId, moduleId, taskId, prevIsPublic);
     }
 
     @Override
@@ -80,7 +88,8 @@ public class TaskServiceRollbackImpl implements TaskServiceRollback {
     }
 
     @Override
-    public void rollbackTaskPostingIntervalUpdate(String courseId, String moduleId, String taskId, int interval) {
-        taskRepo.updateTaskHwPostingInterval(courseId, moduleId, taskId, interval);
+    public void rollbackTaskPostingIntervalUpdate(String courseId, String moduleId, String taskId) {
+        Integer prevDayInterval = getPreviousValue(taskId, "postingInterval", Integer.class);
+        taskRepo.updateTaskHwPostingInterval(courseId, moduleId, taskId, prevDayInterval);
     }
 }
