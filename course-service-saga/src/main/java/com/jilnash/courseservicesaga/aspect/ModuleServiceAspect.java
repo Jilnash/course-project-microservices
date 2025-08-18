@@ -1,9 +1,6 @@
 package com.jilnash.courseservicesaga.aspect;
 
 import com.jilnash.courseservicedto.dto.module.ModuleCreateDTO;
-import com.jilnash.courseservicedto.dto.module.ModuleDeleteDTO;
-import com.jilnash.courseservicedto.dto.module.ModuleUpdateDescriptionDTO;
-import com.jilnash.courseservicedto.dto.module.ModuleUpdateNameDTO;
 import com.jilnash.courseservicesaga.transaction.RollbackStage;
 import com.jilnash.courseservicesaga.transaction.Transaction;
 import jakarta.servlet.http.HttpServletRequest;
@@ -45,53 +42,47 @@ public class ModuleServiceAspect {
 
     @Before(value =
             "execution(* com.jilnash.courseservicesaga.service.module.ModuleServiceSagaImpl.updateModuleName(..))" +
-                    "&& args(teacherId, courseId, id, name)",
-            argNames = "teacherId,courseId,id,name"
+                    "&& args(*, *, id, ..)",
+            argNames = "id"
     )
-    public void beforeModuleUpdateName(String teacherId, String courseId, String id, String name) {
+    public void beforeModuleUpdateName(String id) {
+        {
 
-        String transactionId = request.getHeader("X-Transaction-Id");
-        List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage(
-                        "module-update-name-rollback-topic",
-                        new ModuleUpdateNameDTO(courseId, id, "Prev name")
-                )
-        );
+            String transactionId = request.getHeader("X-Transaction-Id");
+            List<RollbackStage> rollbackStages = List.of(
+                    new RollbackStage("module-update-name-rollback-topic", id)
+            );
 
-        transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));
+            transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));
+        }
     }
 
     @Before(value =
             "execution(* com.jilnash.courseservicesaga.service.module.ModuleServiceSagaImpl.updateModuleDescription(..))" +
-                    "&& args(teacherId, courseId, id, description)",
-            argNames = "teacherId,courseId,id,description"
+                    "&& args(*, *, id, ..)",
+            argNames = "id"
     )
-    public void beforeModuleUpdateDescription(String teacherId, String courseId, String id, String description) {
+    public void beforeModuleUpdateDescription(String id) {
+        {
 
-        String transactionId = request.getHeader("X-Transaction-Id");
-        List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage(
-                        "module-update-description-rollback-topic",
-                        new ModuleUpdateDescriptionDTO(courseId, id, "Prev description")
-                )
-        );
+            String transactionId = request.getHeader("X-Transaction-Id");
+            List<RollbackStage> rollbackStages = List.of(
+                    new RollbackStage("module-update-description-rollback-topic", id)
+            );
 
-        transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));
+            transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));
+        }
     }
 
     @Before(value =
             "execution(* com.jilnash.courseservicesaga.service.module.ModuleServiceSagaImpl.softDeleteModule(..))" +
-                    "&& args(teacherId,courseId, id)",
-            argNames = "teacherId,courseId,id"
+                    "&& args(*, *, id)",
+            argNames = "id"
     )
-    public void beforeModuleSoftDelete(String teacherId, String courseId, String id) {
-
+    public void beforeModuleSoftDelete(String id) {
         String transactionId = request.getHeader("X-Transaction-Id");
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage(
-                        "module-soft-delete-rollback-topic",
-                        new ModuleDeleteDTO(courseId, id)
-                )
+                new RollbackStage("module-soft-delete-rollback-topic", id)
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));

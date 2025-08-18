@@ -7,9 +7,9 @@ public interface ModuleServiceRollback {
 
     Boolean createModuleRollback(String createdModule);
 
-    Boolean updateModuleNameRollback(String moduleId, String prevName);
+    Boolean updateModuleNameRollback(String moduleId);
 
-    Boolean updateModuleDescriptionRollback(String moduleId, String prevDescription);
+    Boolean updateModuleDescriptionRollback(String moduleId);
 
     Boolean softDeleteRollback(String id);
 }

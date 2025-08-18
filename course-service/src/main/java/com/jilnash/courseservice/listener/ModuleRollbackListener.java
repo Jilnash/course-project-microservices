@@ -1,9 +1,6 @@
 package com.jilnash.courseservice.listener;
 
 import com.jilnash.courseservice.service.module.ModuleServiceRollback;
-import com.jilnash.courseservicedto.dto.module.ModuleDeleteDTO;
-import com.jilnash.courseservicedto.dto.module.ModuleUpdateDescriptionDTO;
-import com.jilnash.courseservicedto.dto.module.ModuleUpdateNameDTO;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -22,17 +19,17 @@ public class ModuleRollbackListener {
     }
 
     @KafkaListener(topics = "module-update-name-rollback-topic", groupId = "course-service-group")
-    public void handleModuleUpdateNameRollback(ModuleUpdateNameDTO dto) {
-        moduleServiceRollback.updateModuleNameRollback(dto.id(), dto.name());
+    public void handleModuleUpdateNameRollback(String moduleId) {
+        moduleServiceRollback.updateModuleNameRollback(moduleId);
     }
 
     @KafkaListener(topics = "module-update-description-rollback-topic", groupId = "course-service-group")
-    public void handleModuleUpdateDescriptionRollback(ModuleUpdateDescriptionDTO dto) {
-        moduleServiceRollback.updateModuleDescriptionRollback(dto.id(), dto.description());
+    public void handleModuleUpdateDescriptionRollback(String moduleId) {
+        moduleServiceRollback.updateModuleDescriptionRollback(moduleId);
     }
 
     @KafkaListener(topics = "module-soft-delete-rollback-topic", groupId = "course-service-group")
-    public void handleModuleSoftDeleteRollback(ModuleDeleteDTO dto) {
-        moduleServiceRollback.softDeleteRollback(dto.id());
+    public void handleModuleSoftDeleteRollback(String moduleId) {
+        moduleServiceRollback.softDeleteRollback(moduleId);
     }
 }
