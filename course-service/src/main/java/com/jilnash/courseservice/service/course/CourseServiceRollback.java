@@ -7,11 +7,11 @@ public interface CourseServiceRollback {
 
     Boolean createCourseRollback(String createdCourse);
 
-    Boolean updateCourseNameRollback(String courseId, String prevName);
+    Boolean updateCourseNameRollback(String courseId);
 
-    Boolean updateCourseDescriptionRollback(String courseId, String prevDescription);
+    Boolean updateCourseDescriptionRollback(String courseId);
 
-    Boolean updateCourseDurationRollback(String courseId, String prevDuration);
+    Boolean updateCourseDurationRollback(String courseId);
 
     Boolean softDeleteRollback(String id);
 }

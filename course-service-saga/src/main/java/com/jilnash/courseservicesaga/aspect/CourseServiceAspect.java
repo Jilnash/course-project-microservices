@@ -1,9 +1,6 @@
 package com.jilnash.courseservicesaga.aspect;
 
 import com.jilnash.courseservicedto.dto.course.CourseCreateDTO;
-import com.jilnash.courseservicedto.dto.course.CourseUpdateDescriptionDTO;
-import com.jilnash.courseservicedto.dto.course.CourseUpdateDurationDTO;
-import com.jilnash.courseservicedto.dto.course.CourseUpdateNameDTO;
 import com.jilnash.courseservicesaga.transaction.RollbackStage;
 import com.jilnash.courseservicesaga.transaction.Transaction;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,15 +43,13 @@ public class CourseServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.course.CourseServiceSagaImpl.updateCourseName(..))" +
-                    "&& args(teacherId, courseId, name)",
-            argNames = "teacherId,courseId,name"
+                    "&& args(*, courseId, *)",
+            argNames = "courseId"
     )
-    public void beforeCourseUpdateName(String teacherId, String courseId, String name) {
+    public void beforeCourseUpdateName(String courseId) {
         String transactionId = request.getHeader("X-Transaction-Id");
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("course-name-update-rollback-topic",
-                        new CourseUpdateNameDTO(transactionId, courseId, "Prev name")
-                )
+                new RollbackStage("course-name-update-rollback-topic", courseId)
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));
@@ -62,16 +57,14 @@ public class CourseServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.course.CourseServiceSagaImpl.updateCourseDescription(..))" +
-                    "&& args(teacherId, courseId, description)",
-            argNames = "teacherId,courseId,description"
+                    "&& args(*, courseId, *)",
+            argNames = "courseId"
     )
-    public void beforeCourseUpdateDescription(String teacherId, String courseId, String description) {
+    public void beforeCourseUpdateDescription(String courseId) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("course-description-update-rollback-topic",
-                        new CourseUpdateDescriptionDTO(transactionId, courseId, "Prev description")
-                )
+                new RollbackStage("course-description-update-rollback-topic", courseId)
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));
@@ -79,16 +72,14 @@ public class CourseServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.course.CourseServiceSagaImpl.updateCourseDuration(..))" +
-                    "&& args(teacherId, courseId, duration)",
-            argNames = "teacherId,courseId,duration"
+                    "&& args(*, courseId, *)",
+            argNames = "courseId"
     )
-    public void beforeCourseUpdateDuration(String teacherId, String courseId, String duration) {
+    public void beforeCourseUpdateDuration(String courseId) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
         List<RollbackStage> rollbackStages = List.of(
-                new RollbackStage("course-duration-update-rollback-topic",
-                        new CourseUpdateDurationDTO(transactionId, courseId, "Prev duration")
-                )
+                new RollbackStage("course-duration-update-rollback-topic", courseId)
         );
 
         transactionMap.putIfAbsent(transactionId, new Transaction(transactionId, rollbackStages));
@@ -96,10 +87,10 @@ public class CourseServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.courseservicesaga.service.course.CourseServiceSagaImpl.softDeleteCourse(..))" +
-                    "&& args(teacherId, courseId)",
-            argNames = "teacherId,courseId"
+                    "&& args(*, courseId)",
+            argNames = "courseId"
     )
-    public void beforeCourseSoftDelete(String teacherId, String courseId) {
+    public void beforeCourseSoftDelete(String courseId) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
         List<RollbackStage> rollbackStages = List.of(

@@ -32,7 +32,6 @@ public class TaskServiceRollbackImpl implements TaskServiceRollback {
         return tClass.cast(value);
     }
 
-
     @Override
     public void rollbackTaskCreate(String courseId, String moduleId, String taskId) {
         taskRepo.detachDeleteTask(courseId, moduleId, taskId);

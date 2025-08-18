@@ -1,9 +1,6 @@
 package com.jilnash.courseservice.listener;
 
 import com.jilnash.courseservice.service.course.CourseServiceRollback;
-import com.jilnash.courseservicedto.dto.course.CourseUpdateDescriptionDTO;
-import com.jilnash.courseservicedto.dto.course.CourseUpdateDurationDTO;
-import com.jilnash.courseservicedto.dto.course.CourseUpdateNameDTO;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
@@ -22,18 +19,18 @@ public class CourseRollbackListener {
     }
 
     @KafkaListener(topics = "course-name-update-rollback-topic", groupId = "course-service-group")
-    public void handleUpdateCourseNameRollback(CourseUpdateNameDTO dto) {
-        courseServiceRollback.updateCourseNameRollback(dto.id(), dto.name());
+    public void handleUpdateCourseNameRollback(String courseId) {
+        courseServiceRollback.updateCourseNameRollback(courseId);
     }
 
     @KafkaListener(topics = "course-description-update-rollback-topic", groupId = "course-service-group")
-    public void handleUpdateCourseDescriptionRollback(CourseUpdateDescriptionDTO dto) {
-        courseServiceRollback.updateCourseDescriptionRollback(dto.id(), dto.description());
+    public void handleUpdateCourseDescriptionRollback(String courseId) {
+        courseServiceRollback.updateCourseDescriptionRollback(courseId);
     }
 
     @KafkaListener(topics = "course-duration-update-rollback-topic", groupId = "course-service-group")
-    public void handleUpdateCourseDurationRollback(CourseUpdateDurationDTO dto) {
-        courseServiceRollback.updateCourseDurationRollback(dto.id(), dto.duration());
+    public void handleUpdateCourseDurationRollback(String courseId) {
+        courseServiceRollback.updateCourseDurationRollback(courseId);
     }
 
     @KafkaListener(topics = "course-soft-delete-rollback-topic", groupId = "course-service-group")
