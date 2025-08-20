@@ -50,10 +50,10 @@ public class HomeworkServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.hwservicesaga.service.HomeworkSagaServiceImpl.setHomeworkChecked(..)) && " +
-                    "args(courseId, teacherId, id)",
-            argNames = "courseId, teacherId, id"
+                    "args(*, *, id)",
+            argNames = "id"
     )
-    public void beforeSetHomeworkChecked(String courseId, String teacherId, UUID id) {
+    public void beforeSetHomeworkChecked(UUID id) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
 
@@ -66,10 +66,10 @@ public class HomeworkServiceAspect {
 
     @Before(
             value = "execution(* com.jilnash.hwservicesaga.service.HomeworkSagaServiceImpl.softDeleteHomework(..)) && " +
-                    "args(courseId, teacherId, id)",
-            argNames = "courseId, teacherId, id"
+                    "args(*, *, id)",
+            argNames = "id"
     )
-    public void beforeSoftDeleteHomework(String courseId, String teacherId, UUID id) {
+    public void beforeSoftDeleteHomework(UUID id) {
         String transactionId = request.getHeader("X-Transaction-Id");
 
         List<RollbackStage> rollbackStages = List.of(

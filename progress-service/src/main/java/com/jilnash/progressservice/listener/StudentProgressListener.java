@@ -24,9 +24,16 @@ public class StudentProgressListener {
     }
 
     @KafkaListener(topics = "check-student-already-completed-tasks-topic", groupId = "progress-service")
-    public void handleCheckStudentCompletedTasks(CheckStudentCompletedTasks dto) {
+    public void handleCheckStudentAlreadyCompletedTasks(CheckStudentCompletedTasks dto) {
         Boolean isCompleted = studentProgressService.getIfStudentCompletedTasks(dto.studentId(), dto.taskIds());
         if (isCompleted)
+            kafkaTemplate.send("rollback-topic", dto.transactionId());
+    }
+
+    @KafkaListener(topics = "check-student-completed-tasks-topic", groupId = "progress-service")
+    public void handleCheckStudentCompletedTasks(CheckStudentCompletedTasks dto) {
+        Boolean isCompleted = studentProgressService.getIfStudentCompletedTasks(dto.studentId(), dto.taskIds());
+        if (!isCompleted)
             kafkaTemplate.send("rollback-topic", dto.transactionId());
     }
 }

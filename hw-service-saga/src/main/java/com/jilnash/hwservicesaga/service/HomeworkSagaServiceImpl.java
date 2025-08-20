@@ -4,6 +4,7 @@ import com.jilnash.courseaccessservicedto.dto.CheckAccessDTO;
 import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.hwservicedto.dto.HomeworkResponse;
 import com.jilnash.hwservicesaga.FileServiceClient;
+import com.jilnash.hwservicesaga.client.CourseServiceClient;
 import com.jilnash.hwservicesaga.dto.HomeworkCreateSagaDTO;
 import com.jilnash.hwservicesaga.mapper.HomeworkMapper;
 import com.jilnash.progressservicedto.dto.CheckStudentCompletedTasks;
@@ -31,6 +32,8 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
 
     private final HttpServletRequest request;
 
+    private final CourseServiceClient courseServiceClient;
+
     @Override
     public List<HomeworkResponse> getHomeworks(String taskId, String studentId, Boolean checked, Date createdAfter) {
         //todo: check user permissions
@@ -57,6 +60,13 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
 
         String transactionId = request.getHeader("X-Transaction-Id");
         // validate request
+        courseServiceClient.getTaskPrerequisites(homework.getTaskId()).thenAccept(
+                prerequisites -> {
+                    if (!prerequisites.isEmpty())
+                        kafkaTemplate.send("check-student-completed-tasks-topic",
+                                new CheckStudentCompletedTasks(transactionId, homework.getStudentId(), prerequisites));
+                }
+        );
         kafkaTemplate.send("check-student-already-completed-tasks-topic",
                 new CheckStudentCompletedTasks(transactionId, homework.getStudentId(), List.of(homework.getTaskId())));
         kafkaTemplate.send("check-hw-requirements-topic",
