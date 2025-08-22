@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.Duration;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -174,11 +175,14 @@ public class TaskServiceSagaImpl implements TaskServiceSaga {
     public void createTask(TaskSagaCreateDTO dto) {
         String transactionId = request.getHeader("X-Transaction-Id");
 
+        List<String> taskIds = new LinkedList<>(dto.getPrerequisiteTasksIds());
+        taskIds.addAll(dto.getSuccessorTasksIds());
+
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, dto.getCourseId(), dto.getAuthorId(), Set.of("CREATE")));
 
         kafkaTemplate.send("insert-task-progress-topic",
-                new InsertTaskToProgressDTO(transactionId, dto.getTaskId(), dto.getPrerequisiteTasksIds().stream().toList()));
+                new InsertTaskToProgressDTO(transactionId, dto.getTaskId(), taskIds));
 
         kafkaTemplate.send("set-task-requirements-topic",
                 new SetRequirements(transactionId, dto.getTaskId(), dto.getReqirements()));
