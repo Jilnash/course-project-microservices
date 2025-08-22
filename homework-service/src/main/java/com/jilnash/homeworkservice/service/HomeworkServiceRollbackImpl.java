@@ -18,6 +18,16 @@ public class HomeworkServiceRollbackImpl implements HomeworkServiceRollback {
     public Boolean homeworkCreateRollback(UUID homeworkId) {
 
         log.info("Rollback homework creation for homeworkId: {}", homeworkId);
+        int times = 10;
+        while (!homeworkRepo.existsById(homeworkId) && times-- > 0) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        }
+
         homeworkRepo.deleteById(homeworkId);
 
         return true;

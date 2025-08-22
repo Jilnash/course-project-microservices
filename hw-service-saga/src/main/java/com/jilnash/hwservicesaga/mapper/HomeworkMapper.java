@@ -10,6 +10,7 @@ public class HomeworkMapper {
 
     public HomeworkCreateDTO homeworkCreateDTO(HomeworkCreateSagaDTO homeworkCreateDTO) {
         return new HomeworkCreateDTO(
+                homeworkCreateDTO.getTransactionId(),
                 homeworkCreateDTO.getHomeworkId(),
                 homeworkCreateDTO.getTaskId(),
                 homeworkCreateDTO.getStudentId(),

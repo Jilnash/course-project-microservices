@@ -12,6 +12,8 @@ import java.util.List;
 @Setter
 public class HomeworkCreateSagaDTO {
 
+    private String transactionId;
+
     private String homeworkId;
 
     private String courseId;

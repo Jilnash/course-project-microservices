@@ -2,6 +2,8 @@ package com.jilnash.hwservicesaga.service;
 
 import com.jilnash.courseaccessservicedto.dto.CheckAccessDTO;
 import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
+import com.jilnash.hwservicedto.dto.HomeworkCheckDTO;
+import com.jilnash.hwservicedto.dto.HomeworkDeleteDTO;
 import com.jilnash.hwservicedto.dto.HomeworkResponse;
 import com.jilnash.hwservicesaga.FileServiceClient;
 import com.jilnash.hwservicesaga.client.CourseServiceClient;
@@ -52,13 +54,14 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("RESPOND")));
 
-        kafkaTemplate.send("homework-checked-topic", id);
+        kafkaTemplate.send("homework-checked-topic", new HomeworkCheckDTO(transactionId, id));
     }
 
     @Override
     public void createHomework(HomeworkCreateSagaDTO homework) {
 
         String transactionId = request.getHeader("X-Transaction-Id");
+        homework.setTransactionId(transactionId);
         // validate request
         courseServiceClient.getTaskPrerequisites(homework.getTaskId()).thenAccept(
                 prerequisites -> {
@@ -76,8 +79,8 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
                 new CheckAccessDTO(transactionId, homework.getCourseId(), homework.getStudentId()));
 
         // commit transaction
-        fileServiceClient.uploadFileAsync(homework.getHomeworkId(), homework.getFiles());
         kafkaTemplate.send("homework-create-topic", homeworkMapper.homeworkCreateDTO(homework));
+        fileServiceClient.uploadFileAsync(homework.getHomeworkId(), homework.getFiles());
     }
 
     @Override
@@ -87,7 +90,7 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("DELETE")));
 
-        kafkaTemplate.send("homework-soft-delete-topic", id);
+        kafkaTemplate.send("homework-soft-delete-topic", new HomeworkDeleteDTO(transactionId, id));
     }
 
     @Override
@@ -97,6 +100,6 @@ public class HomeworkSagaServiceImpl implements HomeworkSagaService {
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, courseId, teacherId, Set.of("DELETE")));
 
-        kafkaTemplate.send("homework-hard-delete-topic", id);
+        kafkaTemplate.send("homework-hard-delete-topic", new HomeworkDeleteDTO(transactionId, id));
     }
 }
