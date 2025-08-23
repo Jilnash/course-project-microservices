@@ -13,10 +13,38 @@ public class MinIOServiceRollback implements StorageServiceRollback {
 
     private final MinioClient minioClient;
 
+    private boolean doesFileExist(String bucket, String fileName) {
+        try {
+            minioClient.statObject(StatObjectArgs.builder().bucket(bucket).object(fileName).build());
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void waitForFiles(String bucket, List<String> fileNames, int timeoutSeconds) {
+        long startTime = System.currentTimeMillis();
+        long timeoutMillis = timeoutSeconds * 1000L;
+
+        while (System.currentTimeMillis() - startTime < timeoutMillis) {
+            if (fileNames.stream().allMatch(fileName -> doesFileExist(bucket, fileName))) {
+                return;
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Interrupted while waiting for files", e);
+            }
+        }
+        throw new RuntimeException("Timeout waiting for files to exist in storage");
+    }
+
     @Override
     public void rollbackFileUpload(String bucket, List<String> fileNames) throws Exception {
-
         if (minioClient.bucketExists(BucketExistsArgs.builder().bucket(bucket).build())) {
+            waitForFiles(bucket, fileNames, 10);
+
             fileNames.parallelStream().forEach(fileName -> {
                         try {
                             minioClient.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(fileName).build());

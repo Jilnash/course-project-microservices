@@ -2,6 +2,7 @@ package com.jilnash.hwresponseservicesaga.service;
 
 import com.jilnash.courserightsservicedto.dto.CheckRightsDTO;
 import com.jilnash.hwresponseservicedto.dto.ResponseCreateDTO;
+import com.jilnash.hwservicedto.dto.HomeworkCheckDTO;
 import com.jilnash.progressservicedto.dto.AddStudentTaskCompleteDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -30,7 +31,8 @@ public class ResponseServiceSagaImpl implements ResponseServiceSaga {
         kafkaTemplate.send("check-course-rights-topic",
                 new CheckRightsDTO(transactionId, response.getCourseId(), response.getTeacherId(), Set.of("RESPOND")));
 
-        kafkaTemplate.send("homework-checked-topic", UUID.fromString(response.getHwId()));
+        kafkaTemplate.send("homework-checked-topic",
+                new HomeworkCheckDTO(transactionId, UUID.fromString(response.getHwId())));
         kafkaTemplate.send("response-create-topic", response);
         if (response.getIsCorrect())
             kafkaTemplate.send("add-student-task-complete-topic",
